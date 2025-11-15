@@ -307,12 +307,14 @@ ORDER BY park_id, vehicle_type, ingested_at DESC;
 
 #### 2. `latest_vacancy_with_location`
 
-Joins latest valid vacancy with carpark coordinates.
+Joins latest valid vacancy with carpark coordinates and metadata for map display.
+
+**Updated:** 2025-11-15 - Added `display_address` field for InfoWindow display
 
 ```sql
 CREATE VIEW latest_vacancy_with_location AS
 SELECT
-  v.park_id, c.name, c.latitude, c.longitude,
+  v.park_id, c.name, c.display_address, c.latitude, c.longitude,
   c.district, c.opening_status, c.contact_no,
   v.vehicle_type, v.vacancy_type, v.vacancy,
   v.vacancy_dis, v.vacancy_ev, v.vacancy_unl,
