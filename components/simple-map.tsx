@@ -227,9 +227,10 @@ export default function SimpleMap() {
                   gridTemplateColumns: selectedCarpark.vacancy_ev !== null && selectedCarpark.vacancy_ev > 0 ? '1fr 1fr' : '1fr',
                   gap: '16px',
                   padding: '16px',
-                  backgroundColor: isDarkMode ? '#111827' : '#f9fafb',
+                  backgroundColor: isDarkMode ? '#111827' : '#e5e7eb',
                   borderRadius: '8px',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  border: isDarkMode ? 'none' : '1px solid #d1d5db'
                 }}>
                   <div>
                     <div style={{
@@ -305,7 +306,8 @@ export default function SimpleMap() {
                     marginBottom: '16px',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    border: isDarkMode ? 'none' : '1px solid #93c5fd'
                   }}>
                     <span>Accessible Parking</span>
                     <span style={{ fontWeight: 700, fontSize: '14px' }}>{selectedCarpark.vacancy_dis}</span>
