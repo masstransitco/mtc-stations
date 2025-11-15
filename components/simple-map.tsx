@@ -1,6 +1,6 @@
 "use client";
 
-import { APIProvider, Map, AdvancedMarker, InfoWindow } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, AdvancedMarker, InfoWindow, CollisionBehavior } from "@vis.gl/react-google-maps";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +91,8 @@ export default function SimpleMap() {
               key={`${carpark.park_id}-${carpark.vehicle_type}`}
               position={{ lat: carpark.latitude, lng: carpark.longitude }}
               onClick={() => setSelectedCarpark(carpark)}
+              collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
+              zIndex={carpark.vacancy}
             >
               <div style={{
                 width: '40px',
