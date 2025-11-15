@@ -1,11 +1,12 @@
 "use client";
 
 import { APIProvider, Map, AdvancedMarker, InfoWindow, CollisionBehavior } from "@vis.gl/react-google-maps";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useLocationTracking } from "@/hooks/use-location-tracking";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -27,11 +28,22 @@ export default function SimpleMap() {
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
   const [selectedCarpark, setSelectedCarpark] = useState<CarparkWithVacancy | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mapCenter, setMapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
+  const [mapZoom, setMapZoom] = useState(11);
   const { isDarkMode } = useTheme();
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
   const mapId = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "").trim();
-  const center = { lat: 22.3193, lng: 114.1694 };
+
+  // Initialize location tracking
+  const { currentLocation, isTracking, startTracking, stopTracking } = useLocationTracking({
+    enableTracking: true,
+    enableMotionTracking: true,
+    enableSensorTracking: false, // Enable if needed
+    motionThreshold: 5,
+    idleTimeout: 30000
+  });
 
   useEffect(() => {
     fetch("/api/carparks", {
@@ -51,6 +63,17 @@ export default function SimpleMap() {
       });
   }, []);
 
+  // Auto-pan to user location when tracking starts and location is available
+  useEffect(() => {
+    if (isTracking && currentLocation && mapRef.current) {
+      mapRef.current.panTo({
+        lat: currentLocation.latitude,
+        lng: currentLocation.longitude
+      });
+      mapRef.current.setZoom(15);
+    }
+  }, [isTracking, currentLocation]);
+
   const getMarkerColor = (vacancy: number) => {
     if (vacancy > 50) return "#0ea5e9";  // Sky blue - high availability
     if (vacancy > 20) return "#3b82f6";  // Blue - good availability
@@ -60,8 +83,17 @@ export default function SimpleMap() {
     return "#e11d48";                     // Rose red - full/closed
   };
 
+  // Handle "My Location" button click
+  const handleMyLocation = () => {
+    if (isTracking) {
+      stopTracking();
+    } else {
+      startTracking();
+    }
+  };
+
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       {loading && (
         <div style={{
           position: 'absolute',
@@ -77,14 +109,57 @@ export default function SimpleMap() {
         </div>
       )}
 
+      {/* My Location Button */}
+      <button
+        onClick={handleMyLocation}
+        style={{
+          position: 'absolute',
+          bottom: '120px',
+          right: '20px',
+          zIndex: 10,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+        title="My Location"
+      >
+        <Navigation
+          size={24}
+          color={isTracking ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827')}
+          fill={isTracking ? '#3b82f6' : 'none'}
+        />
+      </button>
+
       <APIProvider apiKey={apiKey}>
         <Map
-          defaultCenter={center}
+          defaultCenter={mapCenter}
           defaultZoom={11}
           mapId={mapId}
           colorScheme={isDarkMode ? 'DARK' : 'LIGHT'}
           style={{ width: "100%", height: "100%" }}
           gestureHandling="greedy"
+          onLoad={(map) => { mapRef.current = map; }}
+          disableDefaultUI={true}
+          zoomControl={false}
+          mapTypeControl={false}
+          streetViewControl={false}
+          fullscreenControl={false}
         >
           {carparks.map((carpark) => (
             <AdvancedMarker
@@ -144,6 +219,40 @@ export default function SimpleMap() {
               </div>
             </AdvancedMarker>
           ))}
+
+          {/* User Location Marker */}
+          {currentLocation && (
+            <AdvancedMarker
+              position={{
+                lat: currentLocation.latitude,
+                lng: currentLocation.longitude
+              }}
+              zIndex={10000}
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: '#3b82f6',
+                border: '4px solid white',
+                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.5)',
+                position: 'relative'
+              }}>
+                {/* Pulsing ring animation */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  animation: 'pulse 2s ease-out infinite'
+                }} />
+              </div>
+            </AdvancedMarker>
+          )}
 
           {selectedCarpark && (
             <InfoWindow

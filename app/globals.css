@@ -154,3 +154,19 @@ h1, h2, h3, h4, h5, h6 {
 .dark .gm-ui-hover-effect > span {
   background-color: #f3f4f6 !important;
 }
+
+/* User location marker pulse animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+}
