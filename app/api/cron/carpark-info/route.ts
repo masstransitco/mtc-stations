@@ -6,8 +6,20 @@ const HK_GOV_API_URL = 'https://api.data.gov.hk/v1/carpark-info-vacancy';
 
 /**
  * Verify the cron secret to ensure only authorized requests
+ * Supports both Vercel's automatic cron authentication and manual x-cron-secret header
  */
 function verifyCronSecret(request: NextRequest): boolean {
+  // Check for Vercel's automatic cron secret (sent in Authorization header)
+  const authHeader = request.headers.get('authorization');
+  if (authHeader) {
+    const token = authHeader.replace('Bearer ', '');
+    const expectedSecret = process.env.CRON_SECRET;
+    if (expectedSecret && token === expectedSecret) {
+      return true;
+    }
+  }
+
+  // Also support manual x-cron-secret header for testing
   const cronSecret = request.headers.get('x-cron-secret');
   const expectedSecret = process.env.CRON_SECRET;
 
