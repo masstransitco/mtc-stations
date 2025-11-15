@@ -73,21 +73,21 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
         <div style={{
           backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
           border: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-          padding: '8px 12px',
+          padding: '6px 10px',
           borderRadius: '6px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          fontSize: '12px'
+          fontSize: '11px'
         }}>
           <div style={{
             fontWeight: 600,
             color: isDarkMode ? '#f3f4f6' : '#111827',
-            marginBottom: '4px'
+            marginBottom: '2px'
           }}>
             {data.vacancy} spaces
           </div>
           <div style={{
             color: isDarkMode ? '#9ca3af' : '#6b7280',
-            fontSize: '11px'
+            fontSize: '10px'
           }}>
             {date.toLocaleTimeString('en-US', {
               hour: '2-digit',
@@ -113,12 +113,12 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
   if (loading) {
     return (
       <div style={{
-        height: '120px',
+        height: '100px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         color: isDarkMode ? '#9ca3af' : '#6b7280',
-        fontSize: '12px'
+        fontSize: '11px'
       }}>
         Loading trend data...
       </div>
@@ -128,12 +128,12 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
   if (error || data.length === 0) {
     return (
       <div style={{
-        height: '120px',
+        height: '100px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         color: isDarkMode ? '#9ca3af' : '#6b7280',
-        fontSize: '12px'
+        fontSize: '11px'
       }}>
         {error ? 'Unable to load trend data' : 'No recent data available'}
       </div>
@@ -147,36 +147,36 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
 
   return (
     <div style={{
-      marginTop: '16px',
-      marginBottom: '16px'
+      marginTop: '12px',
+      marginBottom: '12px'
     }}>
       {/* Chart Header */}
       <div style={{
-        fontSize: '11px',
+        fontSize: '10px',
         fontWeight: 500,
         textTransform: 'uppercase',
         letterSpacing: '0.5px',
         color: textColor,
-        marginBottom: '12px',
+        marginBottom: '8px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
         <span>Vacancy Trend</span>
         <span style={{
-          fontSize: '10px',
+          fontSize: '9px',
           fontWeight: 400,
           textTransform: 'none'
         }}>
-          Past {hours}h ({data.length} points)
+          Past {hours}h ({data.length} pts)
         </span>
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={120}>
+      <ResponsiveContainer width="100%" height={100}>
         <AreaChart
           data={data}
-          margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+          margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
         >
           <defs>
             <linearGradient id="vacancyGradient" x1="0" y1="0" x2="0" y2="1">
@@ -188,17 +188,18 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
             dataKey="timestamp"
             tickFormatter={formatXAxis}
             stroke={textColor}
-            style={{ fontSize: '10px' }}
+            style={{ fontSize: '9px' }}
             tickLine={false}
             axisLine={{ stroke: gridColor }}
-            minTickGap={30}
+            minTickGap={40}
           />
           <YAxis
             stroke={textColor}
-            style={{ fontSize: '10px' }}
+            style={{ fontSize: '9px' }}
             tickLine={false}
             axisLine={{ stroke: gridColor }}
             domain={[0, 'auto']}
+            width={30}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area
@@ -216,26 +217,26 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
       <div style={{
         display: 'flex',
         justifyContent: 'space-around',
-        marginTop: '8px',
-        paddingTop: '8px',
+        marginTop: '6px',
+        paddingTop: '6px',
         borderTop: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-        fontSize: '10px',
+        fontSize: '9px',
         color: textColor
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontWeight: 600, color: isDarkMode ? '#f3f4f6' : '#111827' }}>
+          <div style={{ fontWeight: 600, fontSize: '11px', color: isDarkMode ? '#f3f4f6' : '#111827' }}>
             {Math.min(...data.map(d => d.vacancy))}
           </div>
           <div>Min</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontWeight: 600, color: isDarkMode ? '#f3f4f6' : '#111827' }}>
+          <div style={{ fontWeight: 600, fontSize: '11px', color: isDarkMode ? '#f3f4f6' : '#111827' }}>
             {Math.round(data.reduce((sum, d) => sum + d.vacancy, 0) / data.length)}
           </div>
           <div>Avg</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontWeight: 600, color: isDarkMode ? '#f3f4f6' : '#111827' }}>
+          <div style={{ fontWeight: 600, fontSize: '11px', color: isDarkMode ? '#f3f4f6' : '#111827' }}>
             {Math.max(...data.map(d => d.vacancy))}
           </div>
           <div>Max</div>

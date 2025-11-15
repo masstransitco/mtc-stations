@@ -158,16 +158,18 @@ function MapContent({
             lng: selectedCarpark.longitude
           }}
           onCloseClick={() => setSelectedCarpark(null)}
+          maxWidth={360}
         >
           <div style={{
-            minWidth: '320px',
-            maxWidth: '380px',
-            padding: '20px',
+            width: '100%',
+            maxWidth: '340px',
+            padding: '16px',
             backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
             color: isDarkMode ? '#f3f4f6' : '#111827',
-            borderRadius: '12px',
+            borderRadius: '10px',
             animation: 'fadeIn 0.3s ease-out',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            boxSizing: 'border-box'
           }}>
             <style>{`
               @keyframes fadeIn {
@@ -187,11 +189,11 @@ function MapContent({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
-              gap: '12px',
-              marginBottom: '16px'
+              gap: '8px',
+              marginBottom: '12px'
             }}>
               <h3 style={{
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 600,
                 margin: 0,
                 lineHeight: 1.3,
@@ -200,12 +202,13 @@ function MapContent({
                 {selectedCarpark.name}
               </h3>
               <span style={{
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontSize: '11px',
+                padding: '3px 8px',
+                borderRadius: '4px',
+                fontSize: '10px',
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
+                flexShrink: 0,
                 backgroundColor: selectedCarpark.opening_status === "OPEN"
                   ? (isDarkMode ? '#065f46' : '#d1fae5')
                   : (isDarkMode ? '#7f1d1d' : '#fee2e2'),
@@ -219,10 +222,10 @@ function MapContent({
 
             {/* Address */}
             <div style={{
-              fontSize: '13px',
+              fontSize: '12px',
               color: isDarkMode ? '#9ca3af' : '#6b7280',
-              marginBottom: '20px',
-              lineHeight: 1.5
+              marginBottom: '12px',
+              lineHeight: 1.4
             }}>
               {selectedCarpark.display_address}
             </div>
@@ -231,26 +234,26 @@ function MapContent({
             <div style={{
               display: 'grid',
               gridTemplateColumns: selectedCarpark.vacancy_ev !== null && selectedCarpark.vacancy_ev > 0 ? '1fr 1fr' : '1fr',
-              gap: '16px',
-              padding: '16px',
-              backgroundColor: isDarkMode ? '#111827' : '#e5e7eb',
+              gap: '12px',
+              padding: '12px',
+              backgroundColor: isDarkMode ? '#111827' : '#f3f4f6',
               borderRadius: '8px',
-              marginBottom: '16px',
-              border: isDarkMode ? 'none' : '1px solid #d1d5db'
+              marginBottom: '12px',
+              border: isDarkMode ? 'none' : '1px solid #e5e7eb'
             }}>
               <div>
                 <div style={{
-                  fontSize: '11px',
+                  fontSize: '10px',
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                   color: isDarkMode ? '#9ca3af' : '#6b7280',
-                  marginBottom: '6px'
+                  marginBottom: '4px'
                 }}>
                   Available
                 </div>
                 <div style={{
-                  fontSize: '36px',
+                  fontSize: '32px',
                   fontWeight: 700,
                   lineHeight: 1,
                   color: getMarkerColor(selectedCarpark.vacancy)
@@ -258,9 +261,9 @@ function MapContent({
                   {selectedCarpark.vacancy}
                 </div>
                 <div style={{
-                  fontSize: '11px',
+                  fontSize: '10px',
                   color: isDarkMode ? '#9ca3af' : '#6b7280',
-                  marginTop: '4px',
+                  marginTop: '3px',
                   textTransform: 'capitalize'
                 }}>
                   {selectedCarpark.vehicle_type.replace('privateCar', 'Private Car')}
@@ -269,21 +272,21 @@ function MapContent({
 
               {selectedCarpark.vacancy_ev !== null && selectedCarpark.vacancy_ev > 0 && (
                 <div style={{
-                  borderLeft: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-                  paddingLeft: '16px'
+                  borderLeft: isDarkMode ? '1px solid #374151' : '1px solid #d1d5db',
+                  paddingLeft: '12px'
                 }}>
                   <div style={{
-                    fontSize: '11px',
+                    fontSize: '10px',
                     fontWeight: 500,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
                     color: isDarkMode ? '#9ca3af' : '#6b7280',
-                    marginBottom: '6px'
+                    marginBottom: '4px'
                   }}>
                     EV Charging
                   </div>
                   <div style={{
-                    fontSize: '36px',
+                    fontSize: '32px',
                     fontWeight: 700,
                     lineHeight: 1,
                     color: '#10b981'
@@ -291,9 +294,9 @@ function MapContent({
                     {selectedCarpark.vacancy_ev}
                   </div>
                   <div style={{
-                    fontSize: '11px',
+                    fontSize: '10px',
                     color: isDarkMode ? '#9ca3af' : '#6b7280',
-                    marginTop: '4px'
+                    marginTop: '3px'
                   }}>
                     Spaces
                   </div>
@@ -304,19 +307,19 @@ function MapContent({
             {/* Disabled Parking */}
             {selectedCarpark.vacancy_dis !== null && selectedCarpark.vacancy_dis > 0 && (
               <div style={{
-                padding: '10px 12px',
+                padding: '8px 10px',
                 backgroundColor: isDarkMode ? '#1e3a8a' : '#dbeafe',
                 borderRadius: '6px',
-                fontSize: '12px',
+                fontSize: '11px',
                 color: isDarkMode ? '#bfdbfe' : '#1e3a8a',
-                marginBottom: '16px',
+                marginBottom: '12px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 border: isDarkMode ? 'none' : '1px solid #93c5fd'
               }}>
                 <span>Accessible Parking</span>
-                <span style={{ fontWeight: 700, fontSize: '14px' }}>{selectedCarpark.vacancy_dis}</span>
+                <span style={{ fontWeight: 700, fontSize: '13px' }}>{selectedCarpark.vacancy_dis}</span>
               </div>
             )}
 
@@ -329,9 +332,9 @@ function MapContent({
 
             {/* Last Updated */}
             <div style={{
-              fontSize: '11px',
+              fontSize: '10px',
               color: isDarkMode ? '#6b7280' : '#9ca3af',
-              paddingTop: '12px',
+              paddingTop: '10px',
               borderTop: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
               display: 'flex',
               justifyContent: 'space-between',
@@ -339,7 +342,6 @@ function MapContent({
             }}>
               <span>Last updated</span>
               <span>{new Date(selectedCarpark.lastupdate).toLocaleString('en-US', {
-                year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
