@@ -4,10 +4,11 @@ import { APIProvider, Map, AdvancedMarker, InfoWindow, CollisionBehavior, useMap
 import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin, Navigation, Building2 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import VacancyTrendChart from "@/components/vacancy-trend-chart";
+import { BuildingOverlay } from "@/components/building-overlay";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -33,7 +34,8 @@ function MapContent({
   currentLocation,
   isTracking,
   getMarkerColor,
-  isDarkMode
+  isDarkMode,
+  show3DBuildings
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -42,6 +44,7 @@ function MapContent({
   isTracking: boolean;
   getMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
+  show3DBuildings: boolean;
 }) {
   const map = useMap();
 
@@ -58,6 +61,8 @@ function MapContent({
 
   return (
     <>
+      {/* 3D Building Overlay */}
+      <BuildingOverlay visible={show3DBuildings} opacity={0.8} />
       {carparks.map((carpark) => (
         <AdvancedMarker
           key={`${carpark.park_id}-${carpark.vehicle_type}`}
@@ -360,6 +365,7 @@ export default function SimpleMap() {
   const [selectedCarpark, setSelectedCarpark] = useState<CarparkWithVacancy | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
+  const [show3DBuildings, setShow3DBuildings] = useState(false);
   const { isDarkMode } = useTheme();
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
@@ -427,6 +433,43 @@ export default function SimpleMap() {
         </div>
       )}
 
+      {/* 3D Buildings Toggle Button */}
+      <button
+        onClick={() => setShow3DBuildings(!show3DBuildings)}
+        style={{
+          position: 'absolute',
+          bottom: '180px',
+          right: '20px',
+          zIndex: 10,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+        title="Toggle 3D Buildings"
+      >
+        <Building2
+          size={24}
+          color={show3DBuildings ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827')}
+          fill={show3DBuildings ? '#3b82f6' : 'none'}
+        />
+      </button>
+
       {/* My Location Button */}
       <button
         onClick={handleMyLocation}
@@ -468,6 +511,8 @@ export default function SimpleMap() {
         <Map
           defaultCenter={mapCenter}
           defaultZoom={11}
+          defaultTilt={0}
+          defaultHeading={0}
           mapId={mapId}
           colorScheme={isDarkMode ? 'DARK' : 'LIGHT'}
           style={{ width: "100%", height: "100%" }}
@@ -477,6 +522,8 @@ export default function SimpleMap() {
           mapTypeControl={false}
           streetViewControl={false}
           fullscreenControl={false}
+          tiltInteractionEnabled={true}
+          headingInteractionEnabled={true}
         >
           <MapContent
             carparks={carparks}
@@ -486,6 +533,7 @@ export default function SimpleMap() {
             isTracking={isTracking}
             getMarkerColor={getMarkerColor}
             isDarkMode={isDarkMode}
+            show3DBuildings={show3DBuildings}
           />
         </Map>
       </APIProvider>
