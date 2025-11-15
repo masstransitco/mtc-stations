@@ -15,14 +15,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" style={{ height: '100%' }}>
+    <html lang="en" style={{ height: '100%', overflow: 'hidden' }}>
       <body style={{
         height: '100%',
         margin: 0,
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        WebkitFontSmoothing: 'antialiased'
+        WebkitFontSmoothing: 'antialiased',
+        overflow: 'hidden'
       }}>
         <ThemeProvider>
           <AppHeader />
