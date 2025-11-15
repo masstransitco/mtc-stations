@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Navigation } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
+import VacancyTrendChart from "@/components/vacancy-trend-chart";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -318,6 +319,13 @@ function MapContent({
                 <span style={{ fontWeight: 700, fontSize: '14px' }}>{selectedCarpark.vacancy_dis}</span>
               </div>
             )}
+
+            {/* Vacancy Trend Chart */}
+            <VacancyTrendChart
+              parkId={selectedCarpark.park_id}
+              vehicleType={selectedCarpark.vehicle_type}
+              hours={6}
+            />
 
             {/* Last Updated */}
             <div style={{
