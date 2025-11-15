@@ -52,10 +52,12 @@ export default function SimpleMap() {
   }, []);
 
   const getMarkerColor = (vacancy: number) => {
-    if (vacancy > 20) return "#22c55e";
-    if (vacancy > 10) return "#eab308";
-    if (vacancy > 0) return "#f97316";
-    return "#ef4444";
+    if (vacancy > 50) return "#0ea5e9";  // Sky blue - high availability
+    if (vacancy > 20) return "#3b82f6";  // Blue - good availability
+    if (vacancy > 10) return "#6366f1";  // Indigo - moderate availability
+    if (vacancy > 5) return "#8b5cf6";   // Purple - low availability
+    if (vacancy > 0) return "#a855f7";   // Purple/Magenta - very low
+    return "#e11d48";                     // Rose red - full/closed
   };
 
   return (
@@ -91,25 +93,52 @@ export default function SimpleMap() {
               onClick={() => setSelectedCarpark(carpark)}
             >
               <div style={{
-                width: '32px',
-                height: '32px',
+                width: '40px',
+                height: '40px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
+                position: 'relative'
               }}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill={getMarkerColor(carpark.vacancy)}
-                  stroke="white"
-                  strokeWidth="1.5"
-                >
-                  <rect width="18" height="18" x="3" y="3" rx="2"/>
-                  <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
-                </svg>
+                {/* Glassmorphic outer ring */}
+                <div style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  background: `${getMarkerColor(carpark.vacancy)}20`,
+                  backdropFilter: 'blur(8px)',
+                  border: `2px solid ${getMarkerColor(carpark.vacancy)}`,
+                  boxShadow: `0 4px 12px ${getMarkerColor(carpark.vacancy)}40, 0 0 0 1px ${getMarkerColor(carpark.vacancy)}20`,
+                }} />
+
+                {/* Inner circle with parking icon */}
+                <div style={{
+                  position: 'relative',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  background: getMarkerColor(carpark.vacancy),
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: `0 2px 8px ${getMarkerColor(carpark.vacancy)}60`,
+                }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
+                  </svg>
+                </div>
               </div>
             </AdvancedMarker>
           ))}
