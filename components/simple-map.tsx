@@ -34,7 +34,12 @@ export default function SimpleMap() {
   const center = { lat: 22.3193, lng: 114.1694 };
 
   useEffect(() => {
-    fetch("/api/carparks")
+    fetch("/api/carparks", {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
       .then(res => res.json())
       .then(data => {
         setCarparks(data);
