@@ -433,7 +433,10 @@ export function BuildingOverlay({ visible = true, opacity = 0.8 }: BuildingOverl
     loadedTilesRef.current.add(tileKey);
 
     try {
-      const response = await fetch(`/buildings/tiles/${tileKey}.json`);
+      // Use CDN URL if configured (for production), otherwise use local path (for development)
+      const cdnUrl = process.env.NEXT_PUBLIC_BUILDINGS_CDN_URL;
+      const baseUrl = cdnUrl || '/buildings';
+      const response = await fetch(`${baseUrl}/tiles/${tileKey}.json`);
 
       if (!response.ok) {
         // Tile doesn't exist (no buildings in this tile)

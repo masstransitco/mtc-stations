@@ -33,3 +33,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 mtc-ismart-ref/
+
+# Building data (served from R2 CDN in production)
+public/buildings/
+Building_GEOJSON/
+Building_SHP/
+scripts/
+upload-tiles.sh
+
+# Wrangler/Cloudflare
+.wrangler/
