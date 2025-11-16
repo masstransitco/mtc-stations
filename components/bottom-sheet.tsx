@@ -2,15 +2,19 @@
 
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { useTheme } from "@/components/theme-provider";
+import { ChevronLeft } from "lucide-react";
 
 interface BottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
   title?: string;
+  onExpand?: () => void;
+  showBackButton?: boolean;
+  onBack?: () => void;
 }
 
-export default function BottomSheet({ isOpen, onClose, children, title }: BottomSheetProps) {
+export default function BottomSheet({ isOpen, onClose, children, title, onExpand, showBackButton = false, onBack }: BottomSheetProps) {
   const [position, setPosition] = useState(2); // 0 = expanded, 1 = collapsed, 2 = minimized - start minimized
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
@@ -20,6 +24,14 @@ export default function BottomSheet({ isOpen, onClose, children, title }: Bottom
 
   // Height states: 0 = 70vh (expanded), 1 = 40vh (collapsed), 2 = 100px (minimized)
   const heights = ["70vh", "40vh", "100px"];
+
+  // Function to expand the sheet
+  const expandSheet = () => {
+    if (position !== 0) {
+      setPosition(0); // Expand to full
+      onExpand?.(); // Call optional callback
+    }
+  };
 
   // Expand when isOpen becomes true
   useEffect(() => {
@@ -155,8 +167,45 @@ export default function BottomSheet({ isOpen, onClose, children, title }: Bottom
             flexShrink: 0,
             userSelect: "none",
             WebkitUserSelect: "none",
+            position: "relative",
           }}
         >
+          {/* Back Button */}
+          {showBackButton && onBack && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onBack();
+              }}
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                backgroundColor: isDarkMode ? "#374151" : "#f3f4f6",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkMode ? "#4b5563" : "#e5e7eb";
+                e.currentTarget.style.transform = "translateY(-50%) scale(1.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkMode ? "#374151" : "#f3f4f6";
+                e.currentTarget.style.transform = "translateY(-50%) scale(1)";
+              }}
+            >
+              <ChevronLeft size={20} color={isDarkMode ? "#f3f4f6" : "#111827"} />
+            </button>
+          )}
+
           <div
             style={{
               width: "40px",
@@ -181,10 +230,12 @@ export default function BottomSheet({ isOpen, onClose, children, title }: Bottom
 
         {/* Content */}
         <div
+          onClick={expandSheet}
           style={{
             flex: 1,
             overflow: "auto",
             padding: "0 20px 20px 20px",
+            cursor: position !== 0 ? 'pointer' : 'default',
           }}
         >
           {children}

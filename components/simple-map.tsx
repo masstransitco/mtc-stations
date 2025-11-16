@@ -12,6 +12,8 @@ import { BuildingOverlay } from "@/components/building-overlay";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
+import StationStatus from "@/components/station-status";
+import TrendingCarparks from "@/components/trending-carparks";
 import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
 
@@ -51,7 +53,8 @@ function MapContent({
   getMarkerColor,
   isDarkMode,
   show3DBuildings,
-  searchLocation
+  searchLocation,
+  onCarparkMarkerClick
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -62,6 +65,7 @@ function MapContent({
   isDarkMode: boolean;
   show3DBuildings: boolean;
   searchLocation: SearchLocation | null;
+  onCarparkMarkerClick: (carpark: CarparkWithVacancy) => void;
 }) {
   const map = useMap();
 
@@ -87,6 +91,17 @@ function MapContent({
     }
   }, [searchLocation, map]);
 
+  // Auto-pan to selected carpark when set
+  useEffect(() => {
+    if (selectedCarpark && map) {
+      map.panTo({
+        lat: selectedCarpark.latitude,
+        lng: selectedCarpark.longitude
+      });
+      map.setZoom(17);
+    }
+  }, [selectedCarpark, map]);
+
   return (
     <>
       {/* 3D Building Overlay */}
@@ -95,7 +110,10 @@ function MapContent({
         <AdvancedMarker
           key={`${carpark.park_id}-${carpark.vehicle_type}`}
           position={{ lat: carpark.latitude, lng: carpark.longitude }}
-          onClick={() => setSelectedCarpark(carpark)}
+          onClick={() => {
+            setSelectedCarpark(carpark);
+            onCarparkMarkerClick(carpark);
+          }}
           collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
           zIndex={carpark.vacancy}
         >
@@ -270,212 +288,105 @@ function MapContent({
         </AdvancedMarker>
       )}
 
+      {/* Selected Carpark Marker with Breathing Animation */}
       {selectedCarpark && (
-        <InfoWindow
+        <AdvancedMarker
           position={{
             lat: selectedCarpark.latitude,
             lng: selectedCarpark.longitude
           }}
-          onCloseClick={() => setSelectedCarpark(null)}
-          maxWidth={360}
+          zIndex={99999}
         >
-          <div style={{
-            width: '100%',
-            maxWidth: '340px',
-            padding: '16px',
-            backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-            color: isDarkMode ? '#f3f4f6' : '#111827',
-            borderRadius: '10px',
-            animation: 'fadeIn 0.3s ease-out',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            boxSizing: 'border-box',
-            touchAction: 'pan-x pan-y',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-          }}>
-            <style>{`
-              @keyframes fadeIn {
-                from {
-                  opacity: 0;
-                  transform: translateY(8px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
+          <style>{`
+            @keyframes breathe {
+              0%, 100% {
+                transform: scale(1);
+                opacity: 1;
               }
-            `}</style>
-
-            {/* Header */}
+              50% {
+                transform: scale(1.15);
+                opacity: 0.9;
+              }
+            }
+            @keyframes breatheRing {
+              0%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+              }
+              50% {
+                transform: scale(1.3);
+                opacity: 0.3;
+              }
+            }
+          `}</style>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            position: 'relative'
+          }}>
+            {/* Outer breathing ring */}
             <div style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: `${getMarkerColor(selectedCarpark.vacancy)}30`,
+              animation: 'breatheRing 2s ease-in-out infinite',
+            }} />
+
+            {/* Middle glassmorphic ring */}
+            <div style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: `${getMarkerColor(selectedCarpark.vacancy)}20`,
+              backdropFilter: 'blur(8px)',
+              border: `3px solid ${getMarkerColor(selectedCarpark.vacancy)}`,
+              boxShadow: `0 4px 16px ${getMarkerColor(selectedCarpark.vacancy)}60, 0 0 0 1px ${getMarkerColor(selectedCarpark.vacancy)}30`,
+              animation: 'breathe 2s ease-in-out infinite',
+            }} />
+
+            {/* Inner circle with parking icon */}
+            <div style={{
+              position: 'relative',
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              background: getMarkerColor(selectedCarpark.vacancy),
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              gap: '8px',
-              marginBottom: '12px'
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 3px 12px ${getMarkerColor(selectedCarpark.vacancy)}70`,
+              animation: 'breathe 2s ease-in-out infinite',
             }}>
-              <h3 style={{
-                fontSize: '16px',
-                fontWeight: 600,
-                margin: 0,
-                lineHeight: 1.3,
-                flex: 1
-              }}>
-                {selectedCarpark.name}
-              </h3>
-              <span style={{
-                padding: '3px 8px',
-                borderRadius: '4px',
-                fontSize: '10px',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                flexShrink: 0,
-                backgroundColor: selectedCarpark.opening_status === "OPEN"
-                  ? (isDarkMode ? '#065f46' : '#d1fae5')
-                  : (isDarkMode ? '#7f1d1d' : '#fee2e2'),
-                color: selectedCarpark.opening_status === "OPEN"
-                  ? (isDarkMode ? '#d1fae5' : '#065f46')
-                  : (isDarkMode ? '#fee2e2' : '#7f1d1d')
-              }}>
-                {selectedCarpark.opening_status || 'Unknown'}
-              </span>
-            </div>
-
-            {/* Address */}
-            <div style={{
-              fontSize: '12px',
-              color: isDarkMode ? '#9ca3af' : '#6b7280',
-              marginBottom: '12px',
-              lineHeight: 1.4
-            }}>
-              {selectedCarpark.display_address}
-            </div>
-
-            {/* Vacancy Info */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: selectedCarpark.vacancy_ev !== null && selectedCarpark.vacancy_ev > 0 ? '1fr 1fr' : '1fr',
-              gap: '12px',
-              padding: '12px',
-              backgroundColor: isDarkMode ? '#111827' : '#f3f4f6',
-              borderRadius: '8px',
-              marginBottom: '12px',
-              border: isDarkMode ? 'none' : '1px solid #e5e7eb'
-            }}>
-              <div>
-                <div style={{
-                  fontSize: '10px',
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  color: isDarkMode ? '#9ca3af' : '#6b7280',
-                  marginBottom: '4px'
-                }}>
-                  Available
-                </div>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  color: getMarkerColor(selectedCarpark.vacancy)
-                }}>
-                  {selectedCarpark.vacancy}
-                </div>
-                <div style={{
-                  fontSize: '10px',
-                  color: isDarkMode ? '#9ca3af' : '#6b7280',
-                  marginTop: '3px',
-                  textTransform: 'capitalize'
-                }}>
-                  {selectedCarpark.vehicle_type.replace('privateCar', 'Private Car')}
-                </div>
-              </div>
-
-              {selectedCarpark.vacancy_ev !== null && selectedCarpark.vacancy_ev > 0 && (
-                <div style={{
-                  borderLeft: isDarkMode ? '1px solid #374151' : '1px solid #d1d5db',
-                  paddingLeft: '12px'
-                }}>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: 500,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    color: isDarkMode ? '#9ca3af' : '#6b7280',
-                    marginBottom: '4px'
-                  }}>
-                    EV Charging
-                  </div>
-                  <div style={{
-                    fontSize: '32px',
-                    fontWeight: 700,
-                    lineHeight: 1,
-                    color: '#10b981'
-                  }}>
-                    {selectedCarpark.vacancy_ev}
-                  </div>
-                  <div style={{
-                    fontSize: '10px',
-                    color: isDarkMode ? '#9ca3af' : '#6b7280',
-                    marginTop: '3px'
-                  }}>
-                    Spaces
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Disabled Parking */}
-            {selectedCarpark.vacancy_dis !== null && selectedCarpark.vacancy_dis > 0 && (
-              <div style={{
-                padding: '8px 10px',
-                backgroundColor: isDarkMode ? '#1e3a8a' : '#dbeafe',
-                borderRadius: '6px',
-                fontSize: '11px',
-                color: isDarkMode ? '#bfdbfe' : '#1e3a8a',
-                marginBottom: '12px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                border: isDarkMode ? 'none' : '1px solid #93c5fd'
-              }}>
-                <span>Accessible Parking</span>
-                <span style={{ fontWeight: 700, fontSize: '13px' }}>{selectedCarpark.vacancy_dis}</span>
-              </div>
-            )}
-
-            {/* Vacancy Trend Chart */}
-            <VacancyTrendChart
-              parkId={selectedCarpark.park_id}
-              vehicleType={selectedCarpark.vehicle_type}
-              hours={6}
-            />
-
-            {/* Last Updated */}
-            <div style={{
-              fontSize: '10px',
-              color: isDarkMode ? '#6b7280' : '#9ca3af',
-              paddingTop: '10px',
-              borderTop: isDarkMode ? '1px solid #374151' : '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span>Last updated</span>
-              <span>{new Date(selectedCarpark.lastupdate).toLocaleString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
+              </svg>
             </div>
           </div>
-        </InfoWindow>
+        </AdvancedMarker>
       )}
     </>
   );
 }
+
+// Bottom sheet view states
+type BottomSheetView = 'home' | 'nearby' | 'station';
 
 export default function SimpleMap() {
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
@@ -487,6 +398,7 @@ export default function SimpleMap() {
   const [nearbyCarparks, setNearbyCarparks] = useState<CarparkWithDistance[]>([]);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [loadingNearby, setLoadingNearby] = useState(false);
+  const [bottomSheetView, setBottomSheetView] = useState<BottomSheetView>('home');
   const { isDarkMode } = useTheme();
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
@@ -547,6 +459,7 @@ export default function SimpleMap() {
 
     setSearchLocation({ lat, lng, address });
     setIsBottomSheetOpen(true);
+    setBottomSheetView('nearby');
     setLoadingNearby(true);
 
     try {
@@ -566,11 +479,45 @@ export default function SimpleMap() {
   const handleClearSearch = () => {
     setSearchLocation(null);
     setNearbyCarparks([]);
+    setBottomSheetView('home');
   };
 
   // Handle clicking on a nearby carpark
   const handleNearbyCarparkClick = (carpark: CarparkWithDistance) => {
     setSelectedCarpark(carpark);
+    setBottomSheetView('station');
+  };
+
+  // Handle clicking on a trending carpark
+  const handleTrendingCarparkClick = (carpark: CarparkWithVacancy) => {
+    setSelectedCarpark(carpark);
+    setBottomSheetView('station');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle back button in bottom sheet
+  const handleBottomSheetBack = () => {
+    if (bottomSheetView === 'station') {
+      setBottomSheetView(nearbyCarparks.length > 0 ? 'nearby' : 'home');
+      setSelectedCarpark(null);
+    } else if (bottomSheetView === 'nearby') {
+      setBottomSheetView('home');
+      setSearchLocation(null);
+      setNearbyCarparks([]);
+    }
+  };
+
+  // Get bottom sheet title based on current view
+  const getBottomSheetTitle = () => {
+    if (bottomSheetView === 'station') return 'Station Status';
+    if (bottomSheetView === 'nearby') return 'Nearby Carparks';
+    return 'Search Carparks';
+  };
+
+  // Handle marker click on map
+  const handleCarparkMarkerClick = (carpark: CarparkWithVacancy) => {
+    setBottomSheetView('station');
+    setIsBottomSheetOpen(true);
   };
 
   const { theme, setTheme } = useTheme();
@@ -775,38 +722,69 @@ export default function SimpleMap() {
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
             searchLocation={searchLocation}
+            onCarparkMarkerClick={handleCarparkMarkerClick}
           />
         </Map>
 
         {/* Bottom Sheet - Always Mounted */}
         <BottomSheet
           isOpen={isBottomSheetOpen}
-          onClose={() => setIsBottomSheetOpen(false)}
-          title="Search Carparks"
+          onClose={() => {
+            setIsBottomSheetOpen(false);
+            setBottomSheetView('home');
+            setSelectedCarpark(null);
+            setSearchLocation(null);
+            setNearbyCarparks([]);
+          }}
+          title={getBottomSheetTitle()}
+          showBackButton={bottomSheetView !== 'home'}
+          onBack={handleBottomSheetBack}
         >
-          <div style={{ marginBottom: '20px' }}>
-            <AddressSearch
-              onPlaceSelected={handlePlaceSelected}
-              onClear={handleClearSearch}
-            />
-          </div>
+          {/* Home View - Search + Trending */}
+          {bottomSheetView === 'home' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <AddressSearch
+                  onPlaceSelected={handlePlaceSelected}
+                  onClear={handleClearSearch}
+                />
+              </div>
 
-          {nearbyCarparks.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <h4 style={{
-                margin: '0 0 12px 0',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: isDarkMode ? '#f3f4f6' : '#111827'
-              }}>
-                Nearby Carparks
-              </h4>
-              <NearbyCarparksList
-                carparks={nearbyCarparks}
-                onCarparkClick={handleNearbyCarparkClick}
-                loading={loadingNearby}
+              <TrendingCarparks
+                onCarparkClick={handleTrendingCarparkClick}
+                getMarkerColor={getMarkerColor}
               />
-            </div>
+            </>
+          )}
+
+          {/* Nearby View - Search Results */}
+          {bottomSheetView === 'nearby' && (
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <AddressSearch
+                  onPlaceSelected={handlePlaceSelected}
+                  onClear={handleClearSearch}
+                />
+              </div>
+
+              {nearbyCarparks.length > 0 && (
+                <div style={{ marginTop: '20px' }}>
+                  <NearbyCarparksList
+                    carparks={nearbyCarparks}
+                    onCarparkClick={handleNearbyCarparkClick}
+                    loading={loadingNearby}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Station View - Selected Carpark Details */}
+          {bottomSheetView === 'station' && selectedCarpark && (
+            <StationStatus
+              carpark={selectedCarpark}
+              getMarkerColor={getMarkerColor}
+            />
           )}
         </BottomSheet>
       </APIProvider>
