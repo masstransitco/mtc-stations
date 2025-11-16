@@ -146,6 +146,31 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
     }, 100);
   };
 
+  // Handle keyboard dismissal and window resize (which happens when keyboard closes)
+  useEffect(() => {
+    const handleResize = () => {
+      // Check if input is not focused (keyboard was dismissed)
+      if (inputRef.current && document.activeElement !== inputRef.current) {
+        window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      // When page becomes visible again after keyboard dismissal
+      if (!document.hidden && inputRef.current && document.activeElement !== inputRef.current) {
+        window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
     <div
       style={{
