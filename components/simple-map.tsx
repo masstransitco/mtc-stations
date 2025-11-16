@@ -4,7 +4,7 @@ import { APIProvider, Map, AdvancedMarker, InfoWindow, CollisionBehavior, useMap
 import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Navigation, Building2, Menu, Sun, Moon } from "lucide-react";
+import { MapPin, Navigation, Menu, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import VacancyTrendChart from "@/components/vacancy-trend-chart";
@@ -13,6 +13,7 @@ import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
 import Image from "next/image";
+import Box3DIcon from "@/components/icons/box-3d-icon";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -481,7 +482,7 @@ export default function SimpleMap() {
   const [selectedCarpark, setSelectedCarpark] = useState<CarparkWithVacancy | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
-  const [show3DBuildings, setShow3DBuildings] = useState(false);
+  const [show3DBuildings, setShow3DBuildings] = useState(true);
   const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
   const [nearbyCarparks, setNearbyCarparks] = useState<CarparkWithDistance[]>([]);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
@@ -703,10 +704,9 @@ export default function SimpleMap() {
         }}
         title="Toggle 3D Buildings"
       >
-        <Building2
+        <Box3DIcon
           size={24}
-          color={show3DBuildings ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827')}
-          fill={show3DBuildings ? '#3b82f6' : 'none'}
+          color={show3DBuildings ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
         />
       </button>
 
