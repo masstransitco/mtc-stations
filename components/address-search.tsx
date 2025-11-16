@@ -16,6 +16,7 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const places = useMapsLibrary("places");
   const { isDarkMode } = useTheme();
+  const scrollPositionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -130,6 +131,21 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
     onClear?.();
   };
 
+  const handleFocus = () => {
+    // Store current scroll position
+    scrollPositionRef.current = {
+      x: window.scrollX,
+      y: window.scrollY,
+    };
+  };
+
+  const handleBlur = () => {
+    // Restore scroll position after a short delay to ensure browser has finished its actions
+    setTimeout(() => {
+      window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
+    }, 100);
+  };
+
   return (
     <div
       style={{
@@ -168,13 +184,15 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
           placeholder="Search for an address..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           className="address-search-input"
           style={{
             flex: 1,
             padding: "14px 8px",
             border: "none",
             outline: "none",
-            fontSize: "15px",
+            fontSize: "16px",
             backgroundColor: "transparent",
             color: isDarkMode ? "#f3f4f6" : "#111827",
           }}

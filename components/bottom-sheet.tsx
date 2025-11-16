@@ -136,6 +136,7 @@ export default function BottomSheet({ isOpen, onClose, children, title }: Bottom
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
+          touchAction: "none",
         }}
       >
         {/* Drag Handle */}
