@@ -53,7 +53,7 @@ export function BuildingOverlay({ visible = true, opacity = 0.8 }: BuildingOverl
   const anchorRef = useRef<LatLngAltitudeLiteral>({ lat: 22.3193, lng: 114.1694, altitude: 0 });
 
   // Minimum zoom level to show buildings
-  const MIN_BUILDING_ZOOM = 15;
+  const MIN_BUILDING_ZOOM = 16;
 
   // Use ref to track visibility so onDraw can access current value
   const visibleRef = useRef(visible);
