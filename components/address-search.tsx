@@ -16,7 +16,12 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const places = useMapsLibrary("places");
   const { isDarkMode } = useTheme();
-  const scrollPositionRef = useRef({ x: 0, y: 0 });
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // Detect iOS
+  const isIOS = typeof window !== 'undefined' &&
+    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -131,64 +136,39 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
     onClear?.();
   };
 
-  const handleFocus = () => {
-    // Store current scroll position
-    scrollPositionRef.current = {
-      x: window.scrollX,
-      y: window.scrollY,
-    };
-  };
-
-  const handleBlur = () => {
-    // Restore scroll position after a short delay to ensure browser has finished its actions
-    setTimeout(() => {
-      window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
-    }, 100);
-  };
-
-  // Handle keyboard dismissal and window resize (which happens when keyboard closes)
+  // iOS-specific keyboard detection and scroll restoration
   useEffect(() => {
-    const handleResize = () => {
-      // Check if input is not focused (keyboard was dismissed)
-      if (inputRef.current && document.activeElement !== inputRef.current) {
-        window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
+    if (!isIOS) return;
+
+    const handleViewportChange = () => {
+      const currentHeight = window.visualViewport?.height || window.innerHeight;
+      const windowHeight = window.innerHeight;
+      const keyboardVisible = (windowHeight - currentHeight) > 100;
+
+      // Only handle keyboard dismissal (when it goes from visible to hidden)
+      if (isKeyboardVisible && !keyboardVisible) {
+        // Keyboard was just dismissed - restore scroll position
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        }, 100);
       }
+
+      setIsKeyboardVisible(keyboardVisible);
     };
 
-    const handleVisibilityChange = () => {
-      // When page becomes visible again after keyboard dismissal
-      if (!document.hidden && inputRef.current && document.activeElement !== inputRef.current) {
-        window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
-      }
-    };
-
-    const handleVisualViewportResize = () => {
-      // Visual viewport resize happens when keyboard shows/hides on iOS
-      // Add a small delay to ensure the keyboard animation is complete
-      setTimeout(() => {
-        if (inputRef.current && document.activeElement !== inputRef.current) {
-          window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
-        }
-      }, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Use visualViewport API for better iOS support
+    // Listen for viewport changes
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleVisualViewportResize);
+      window.visualViewport.addEventListener('resize', handleViewportChange);
     }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-
       if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleVisualViewportResize);
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
       }
     };
-  }, []);
+  }, [isIOS, isKeyboardVisible]);
 
   return (
     <div
@@ -228,8 +208,6 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
           placeholder="Search for an address..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
           className="address-search-input"
           style={{
             flex: 1,
