@@ -4,11 +4,15 @@ import { APIProvider, Map, AdvancedMarker, InfoWindow, CollisionBehavior, useMap
 import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Navigation, Building2 } from "lucide-react";
+import { MapPin, Navigation, Building2, Menu, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import VacancyTrendChart from "@/components/vacancy-trend-chart";
 import { BuildingOverlay } from "@/components/building-overlay";
+import AddressSearch from "@/components/address-search";
+import BottomSheet from "@/components/bottom-sheet";
+import NearbyCarparksList from "@/components/nearby-carparks-list";
+import Image from "next/image";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -26,6 +30,16 @@ interface CarparkWithVacancy {
   is_stale: boolean;
 }
 
+interface CarparkWithDistance extends CarparkWithVacancy {
+  distance: number;
+}
+
+interface SearchLocation {
+  lat: number;
+  lng: number;
+  address: string;
+}
+
 // Component to handle map reference
 function MapContent({
   carparks,
@@ -35,7 +49,8 @@ function MapContent({
   isTracking,
   getMarkerColor,
   isDarkMode,
-  show3DBuildings
+  show3DBuildings,
+  searchLocation
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -45,6 +60,7 @@ function MapContent({
   getMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
   show3DBuildings: boolean;
+  searchLocation: SearchLocation | null;
 }) {
   const map = useMap();
 
@@ -58,6 +74,17 @@ function MapContent({
       map.setZoom(15);
     }
   }, [isTracking, currentLocation, map]);
+
+  // Auto-pan to search location when set
+  useEffect(() => {
+    if (searchLocation && map) {
+      map.panTo({
+        lat: searchLocation.lat,
+        lng: searchLocation.lng
+      });
+      map.setZoom(15);
+    }
+  }, [searchLocation, map]);
 
   return (
     <>
@@ -156,6 +183,92 @@ function MapContent({
         </AdvancedMarker>
       )}
 
+      {/* Search Location Marker */}
+      {searchLocation && (
+        <AdvancedMarker
+          position={{
+            lat: searchLocation.lat,
+            lng: searchLocation.lng
+          }}
+          zIndex={9999}
+        >
+          <div style={{
+            position: 'absolute',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            left: '-12px',  // Shift entire marker left so circle is at anchor
+            top: '-12px',   // Shift entire marker up so circle is at anchor
+          }}>
+            {/* Circle with ring - this is the anchor point */}
+            <div style={{
+              position: 'relative',
+              width: '24px',
+              height: '24px',
+              flexShrink: 0,
+            }}>
+              {/* Outer pulsing ring */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                backgroundColor: isDarkMode ? 'rgba(147, 197, 253, 0.2)' : 'rgba(59, 130, 246, 0.2)',
+                animation: 'pulse 2s ease-out infinite'
+              }} />
+
+              {/* Static ring */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                border: `3px solid ${isDarkMode ? '#93c5fd' : '#3b82f6'}`,
+                backgroundColor: isDarkMode ? 'rgba(147, 197, 253, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+              }} />
+
+              {/* Center circle */}
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                backgroundColor: isDarkMode ? '#93c5fd' : '#3b82f6',
+                border: '3px solid white',
+                boxShadow: `0 2px 8px ${isDarkMode ? 'rgba(147, 197, 253, 0.5)' : 'rgba(59, 130, 246, 0.5)'}`,
+              }} />
+            </div>
+
+            {/* Label - positioned to the right of the circle */}
+            <div style={{
+              padding: '6px 12px',
+              backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+              border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+              borderRadius: '8px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+              fontSize: '13px',
+              fontWeight: 600,
+              color: isDarkMode ? '#f3f4f6' : '#111827',
+              whiteSpace: 'nowrap',
+              maxWidth: '200px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {searchLocation.address}
+            </div>
+          </div>
+        </AdvancedMarker>
+      )}
+
       {selectedCarpark && (
         <InfoWindow
           position={{
@@ -174,7 +287,10 @@ function MapContent({
             borderRadius: '10px',
             animation: 'fadeIn 0.3s ease-out',
             fontFamily: 'system-ui, -apple-system, sans-serif',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            touchAction: 'pan-x pan-y',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
           }}>
             <style>{`
               @keyframes fadeIn {
@@ -366,6 +482,10 @@ export default function SimpleMap() {
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
   const [show3DBuildings, setShow3DBuildings] = useState(false);
+  const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
+  const [nearbyCarparks, setNearbyCarparks] = useState<CarparkWithDistance[]>([]);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [loadingNearby, setLoadingNearby] = useState(false);
   const { isDarkMode } = useTheme();
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
@@ -416,6 +536,48 @@ export default function SimpleMap() {
     }
   };
 
+  // Handle place selection from search
+  const handlePlaceSelected = async (place: google.maps.places.PlaceResult) => {
+    if (!place.geometry?.location) return;
+
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+    const address = place.formatted_address || place.name || "";
+
+    setSearchLocation({ lat, lng, address });
+    setIsBottomSheetOpen(true);
+    setLoadingNearby(true);
+
+    try {
+      const response = await fetch(
+        `/api/carparks/nearby?lat=${lat}&lng=${lng}&radius=2&limit=20`
+      );
+      const data = await response.json();
+      setNearbyCarparks(data);
+    } catch (error) {
+      console.error("Error fetching nearby carparks:", error);
+    } finally {
+      setLoadingNearby(false);
+    }
+  };
+
+  // Handle clearing the search
+  const handleClearSearch = () => {
+    setSearchLocation(null);
+    setNearbyCarparks([]);
+  };
+
+  // Handle clicking on a nearby carpark
+  const handleNearbyCarparkClick = (carpark: CarparkWithDistance) => {
+    setSelectedCarpark(carpark);
+  };
+
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       {loading && (
@@ -433,12 +595,90 @@ export default function SimpleMap() {
         </div>
       )}
 
-      {/* 3D Buildings Toggle Button */}
+      {/* Top Left - Menu Button */}
+      <button
+        onClick={() => {/* TODO: Open menu */}}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 10,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+        title="Menu"
+      >
+        <Image
+          src="/logos/bolt.svg"
+          alt="Menu"
+          width={28}
+          height={28}
+          style={{
+            filter: isDarkMode ? 'brightness(0) invert(1)' : 'none'
+          }}
+        />
+      </button>
+
+      {/* Top Right - Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: 10,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+        title="Toggle Theme"
+      >
+        {isDarkMode ? (
+          <Sun size={24} color="#f3f4f6" />
+        ) : (
+          <Moon size={24} color="#111827" />
+        )}
+      </button>
+
+      {/* Top Right Stack - 3D Buildings Button */}
       <button
         onClick={() => setShow3DBuildings(!show3DBuildings)}
         style={{
           position: 'absolute',
-          bottom: '180px',
+          top: '80px',
           right: '20px',
           zIndex: 10,
           width: '48px',
@@ -470,12 +710,12 @@ export default function SimpleMap() {
         />
       </button>
 
-      {/* My Location Button */}
+      {/* Top Right Stack - My Location Button */}
       <button
         onClick={handleMyLocation}
         style={{
           position: 'absolute',
-          bottom: '120px',
+          top: '140px',
           right: '20px',
           zIndex: 10,
           width: '48px',
@@ -534,8 +774,41 @@ export default function SimpleMap() {
             getMarkerColor={getMarkerColor}
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
+            searchLocation={searchLocation}
           />
         </Map>
+
+        {/* Bottom Sheet - Always Mounted */}
+        <BottomSheet
+          isOpen={isBottomSheetOpen}
+          onClose={() => setIsBottomSheetOpen(false)}
+          title="Search Carparks"
+        >
+          <div style={{ marginBottom: '20px' }}>
+            <AddressSearch
+              onPlaceSelected={handlePlaceSelected}
+              onClear={handleClearSearch}
+            />
+          </div>
+
+          {nearbyCarparks.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <h4 style={{
+                margin: '0 0 12px 0',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: isDarkMode ? '#f3f4f6' : '#111827'
+              }}>
+                Nearby Carparks
+              </h4>
+              <NearbyCarparksList
+                carparks={nearbyCarparks}
+                onCarparkClick={handleNearbyCarparkClick}
+                loading={loadingNearby}
+              />
+            </div>
+          )}
+        </BottomSheet>
       </APIProvider>
     </div>
   );

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import AppHeader from '@/components/app-header';
-import Footer from '@/components/footer';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
@@ -16,6 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" style={{ height: '100%', overflow: 'hidden' }}>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
       <body style={{
         height: '100%',
         margin: 0,
@@ -26,17 +27,16 @@ export default function RootLayout({
         overflow: 'hidden'
       }}>
         <ThemeProvider>
-          <AppHeader />
           <main style={{
             flex: 1,
             minHeight: 0,
             display: 'flex',
             flexDirection: 'column',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            position: 'relative',
           }}>
             {children}
           </main>
-          <Footer />
         </ThemeProvider>
       </body>
     </html>
