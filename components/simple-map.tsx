@@ -54,7 +54,8 @@ function MapContent({
   isDarkMode,
   show3DBuildings,
   searchLocation,
-  onCarparkMarkerClick
+  onCarparkMarkerClick,
+  bottomSheetHeight
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -66,8 +67,31 @@ function MapContent({
   show3DBuildings: boolean;
   searchLocation: SearchLocation | null;
   onCarparkMarkerClick: (carpark: CarparkWithVacancy) => void;
+  bottomSheetHeight: number;
 }) {
   const map = useMap();
+  const prevHeightRef = useRef(100);
+
+  // Handle bottom sheet height changes with map padding and pan compensation
+  useEffect(() => {
+    if (!map) return;
+
+    const delta = bottomSheetHeight - prevHeightRef.current;
+
+    // Apply Google Maps padding to account for bottom sheet
+    map.setOptions({
+      padding: { top: 0, left: 0, right: 0, bottom: bottomSheetHeight }
+    } as google.maps.MapOptions);
+
+    // Apply pan compensation for smooth transitions
+    // Positive delta = sheet expanding (moving up) -> pan map up to keep center stable
+    if (delta !== 0) {
+      map.panBy(0, delta / 2);
+    }
+
+    // Update previous height reference
+    prevHeightRef.current = bottomSheetHeight;
+  }, [map, bottomSheetHeight]);
 
   // Auto-pan to user location when tracking starts and location is available
   useEffect(() => {
@@ -399,6 +423,7 @@ export default function SimpleMap() {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [loadingNearby, setLoadingNearby] = useState(false);
   const [bottomSheetView, setBottomSheetView] = useState<BottomSheetView>('home');
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(100); // Start with minimized height
   const { isDarkMode } = useTheme();
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
@@ -723,6 +748,7 @@ export default function SimpleMap() {
             show3DBuildings={show3DBuildings}
             searchLocation={searchLocation}
             onCarparkMarkerClick={handleCarparkMarkerClick}
+            bottomSheetHeight={bottomSheetHeight}
           />
         </Map>
 
@@ -739,6 +765,7 @@ export default function SimpleMap() {
           title={getBottomSheetTitle()}
           showBackButton={bottomSheetView !== 'home'}
           onBack={handleBottomSheetBack}
+          onHeightChange={setBottomSheetHeight}
         >
           {/* Home View - Search + Trending */}
           {bottomSheetView === 'home' && (

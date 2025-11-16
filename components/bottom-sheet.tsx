@@ -12,9 +12,10 @@ interface BottomSheetProps {
   onExpand?: () => void;
   showBackButton?: boolean;
   onBack?: () => void;
+  onHeightChange?: (height: number) => void;
 }
 
-export default function BottomSheet({ isOpen, onClose, children, title, onExpand, showBackButton = false, onBack }: BottomSheetProps) {
+export default function BottomSheet({ isOpen, onClose, children, title, onExpand, showBackButton = false, onBack, onHeightChange }: BottomSheetProps) {
   const [position, setPosition] = useState(2); // 0 = expanded, 1 = collapsed, 2 = minimized - start minimized
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
@@ -123,6 +124,53 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDragging, dragStartY, dragCurrentY, position]);
+
+  // Continuously measure and report actual DOM height
+  useEffect(() => {
+    if (!sheetRef.current || !onHeightChange) return;
+
+    const element = sheetRef.current;
+    let animationFrameId: number | null = null;
+
+    const measureHeight = () => {
+      const rect = element.getBoundingClientRect();
+      const visibleHeight = Math.max(0, window.innerHeight - rect.top);
+      onHeightChange(visibleHeight);
+
+      // Continue measuring during drag or animations
+      if (isDragging || position !== undefined) {
+        animationFrameId = requestAnimationFrame(measureHeight);
+      }
+    };
+
+    // Start measuring
+    measureHeight();
+
+    return () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [position, isDragging, onHeightChange]);
+
+  // Also report height changes when position state changes
+  useEffect(() => {
+    if (!onHeightChange) return;
+
+    // Convert vh to pixels for position-based heights
+    const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
+    let pixelHeight = 100; // Default minimized height
+
+    if (position === 0) {
+      pixelHeight = viewportHeight * 0.7; // 70vh
+    } else if (position === 1) {
+      pixelHeight = viewportHeight * 0.4; // 40vh
+    } else if (position === 2) {
+      pixelHeight = 100; // 100px
+    }
+
+    onHeightChange(pixelHeight);
+  }, [position, onHeightChange]);
 
   const translateY = isDragging && dragCurrentY !== 0 ? dragCurrentY - dragStartY : 0;
 
