@@ -162,12 +162,31 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
       }
     };
 
+    const handleVisualViewportResize = () => {
+      // Visual viewport resize happens when keyboard shows/hides on iOS
+      // Add a small delay to ensure the keyboard animation is complete
+      setTimeout(() => {
+        if (inputRef.current && document.activeElement !== inputRef.current) {
+          window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
+        }
+      }, 100);
+    };
+
     window.addEventListener('resize', handleResize);
     document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Use visualViewport API for better iOS support
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleVisualViewportResize);
+    }
 
     return () => {
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleVisualViewportResize);
+      }
     };
   }, []);
 
