@@ -17,6 +17,7 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
   const places = useMapsLibrary("places");
   const { isDarkMode } = useTheme();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const scrollPositionRef = useRef({ x: 0, y: 0 });
 
   // Detect iOS
   const isIOS = typeof window !== 'undefined' &&
@@ -145,13 +146,20 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
       const windowHeight = window.innerHeight;
       const keyboardVisible = (windowHeight - currentHeight) > 100;
 
-      // Only handle keyboard dismissal (when it goes from visible to hidden)
+      // Save scroll position when keyboard appears
+      if (!isKeyboardVisible && keyboardVisible) {
+        scrollPositionRef.current = {
+          x: window.scrollX,
+          y: window.scrollY,
+        };
+      }
+
+      // Restore scroll position when keyboard dismisses
       if (isKeyboardVisible && !keyboardVisible) {
-        // Keyboard was just dismissed - restore scroll position
         setTimeout(() => {
-          window.scrollTo(0, 0);
-          document.body.scrollTop = 0;
-          document.documentElement.scrollTop = 0;
+          window.scrollTo(scrollPositionRef.current.x, scrollPositionRef.current.y);
+          document.body.scrollTop = scrollPositionRef.current.y;
+          document.documentElement.scrollTop = scrollPositionRef.current.y;
         }, 100);
       }
 
