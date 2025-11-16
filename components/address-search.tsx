@@ -16,12 +16,8 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const places = useMapsLibrary("places");
   const { isDarkMode } = useTheme();
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
-  // Detect iOS
-  const isIOS = typeof window !== 'undefined' &&
-    (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+  const previousViewportHeightRef = useRef<number>(0);
+  const isIOSRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -136,46 +132,33 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
     onClear?.();
   };
 
-  // iOS-specific keyboard detection and scroll restoration
+  // iOS-specific scroll restoration (based on mtc-app-src implementation)
   useEffect(() => {
-    if (!isIOS) return;
+    // Detect iOS
+    isIOSRef.current = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-    const handleViewportChange = () => {
-      const currentHeight = window.visualViewport?.height || window.innerHeight;
-      const windowHeight = window.innerHeight;
-      const keyboardVisible = (windowHeight - currentHeight) > 100;
+    if (!isIOSRef.current || !window.visualViewport) return;
 
-      // When keyboard dismisses, always restore to top
-      if (isKeyboardVisible && !keyboardVisible) {
-        // Use multiple methods to ensure scroll is reset
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          document.body.scrollTop = 0;
-          document.documentElement.scrollTop = 0;
-        }, 50);
+    const handleResize = () => {
+      const currentHeight = window.visualViewport!.height;
 
-        // Additional attempt with longer delay for reliability
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-          document.body.scrollTop = 0;
-          document.documentElement.scrollTop = 0;
-        }, 150);
+      // When viewport height increases (keyboard dismissed), restore scroll
+      if (currentHeight > previousViewportHeightRef.current) {
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
       }
 
-      setIsKeyboardVisible(keyboardVisible);
+      // Update previous height for next comparison
+      previousViewportHeightRef.current = currentHeight;
     };
 
-    // Listen for viewport changes
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportChange);
-    }
+    window.visualViewport.addEventListener('resize', handleResize);
 
     return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleViewportChange);
-      }
+      window.visualViewport?.removeEventListener('resize', handleResize);
     };
-  }, [isIOS, isKeyboardVisible]);
+  }, []);
 
   return (
     <div
