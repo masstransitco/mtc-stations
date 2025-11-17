@@ -227,7 +227,8 @@ export default function StationStatus({ carpark, getMarkerColor }: StationStatus
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: 'Asia/Hong_Kong'
           })}
         </span>
       </div>

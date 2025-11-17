@@ -276,7 +276,8 @@ export default function MeteredCarparkDetails({ carpark, getMarkerColor }: Meter
               month: 'short',
               day: 'numeric',
               hour: '2-digit',
-              minute: '2-digit'
+              minute: '2-digit',
+              timeZone: 'Asia/Hong_Kong'
             })}
           </span>
         </div>
