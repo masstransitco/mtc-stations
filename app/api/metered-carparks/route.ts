@@ -45,7 +45,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data as MeteredCarpark[], {
+    // Ensure timestamps have timezone indicator (Z for UTC)
+    const dataWithTimezone = (data as MeteredCarpark[]).map(carpark => ({
+      ...carpark,
+      last_updated: carpark.last_updated ? `${carpark.last_updated}Z` : null
+    }));
+
+    return NextResponse.json(dataWithTimezone, {
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
       }
