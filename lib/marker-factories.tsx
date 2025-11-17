@@ -191,7 +191,7 @@ export function createMeteredCarparkMarker(
   outerRing.style.border = `2px solid ${color}`;
   outerRing.style.boxShadow = `0 4px 12px ${color}40, 0 0 0 1px ${color}20`;
 
-  // Inner circle with vacancy count
+  // Inner circle with parking meter icon
   const innerCircle = document.createElement('div');
   innerCircle.style.position = 'relative';
   innerCircle.style.width = '32px';
@@ -203,15 +203,54 @@ export function createMeteredCarparkMarker(
   innerCircle.style.justifyContent = 'center';
   innerCircle.style.boxShadow = `0 2px 8px ${color}60`;
 
-  const vacancyText = document.createElement('span');
-  vacancyText.style.fontSize = '12px';
-  vacancyText.style.fontWeight = 'bold';
-  vacancyText.style.color = 'white';
-  vacancyText.textContent = carpark.vacant_spaces.toString();
+  // Parking meter SVG icon
+  innerCircle.innerHTML = `
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M11 15h2"/>
+      <path d="M12 12v3"/>
+      <path d="M12 19v3"/>
+      <path d="M15.282 19a1 1 0 0 0 .948-.68l2.37-6.988a7 7 0 1 0-13.2 0l2.37 6.988a1 1 0 0 0 .948.68z"/>
+      <path d="M9 9a3 3 0 1 1 6 0"/>
+    </svg>
+  `;
 
-  innerCircle.appendChild(vacancyText);
+  // Badge with vacancy count (top-right)
+  const badge = document.createElement('div');
+  badge.style.position = 'absolute';
+  badge.style.top = '-2px';
+  badge.style.right = '-2px';
+  badge.style.minWidth = '18px';
+  badge.style.height = '18px';
+  badge.style.borderRadius = '9px';
+  badge.style.background = '#ef4444';
+  badge.style.border = '2px solid white';
+  badge.style.display = 'flex';
+  badge.style.alignItems = 'center';
+  badge.style.justifyContent = 'center';
+  badge.style.padding = '0 4px';
+  badge.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+
+  const badgeText = document.createElement('span');
+  badgeText.style.fontSize = '10px';
+  badgeText.style.fontWeight = 'bold';
+  badgeText.style.color = 'white';
+  badgeText.style.lineHeight = '1';
+  badgeText.textContent = carpark.vacant_spaces.toString();
+
+  badge.appendChild(badgeText);
   container.appendChild(outerRing);
   container.appendChild(innerCircle);
+  container.appendChild(badge);
 
   container.addEventListener('click', () => onClick(carpark));
 
