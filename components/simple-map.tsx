@@ -18,6 +18,7 @@ import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
 import LoadingSpinner from "@/components/loading-spinner";
 import type { ParkingSpace } from "@/types/parking-space";
+import type { MeteredCarpark } from "@/types/metered-carpark";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -61,7 +62,11 @@ function MapContent({
   parkingSpaces,
   showParkingSpaces,
   selectedParkingSpace,
-  setSelectedParkingSpace
+  setSelectedParkingSpace,
+  meteredCarparks,
+  showMeteredCarparks,
+  selectedMeteredCarpark,
+  setSelectedMeteredCarpark
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -78,6 +83,10 @@ function MapContent({
   showParkingSpaces: boolean;
   selectedParkingSpace: ParkingSpace | null;
   setSelectedParkingSpace: (space: ParkingSpace | null) => void;
+  meteredCarparks: MeteredCarpark[];
+  showMeteredCarparks: boolean;
+  selectedMeteredCarpark: MeteredCarpark | null;
+  setSelectedMeteredCarpark: (carpark: MeteredCarpark | null) => void;
 }) {
   const map = useMap();
   const prevHeightRef = useRef(100);
@@ -237,6 +246,60 @@ function MapContent({
                 color: 'white'
               }}>
                 {space.vehicle_type}
+              </span>
+            </div>
+          </div>
+        </AdvancedMarker>
+      ))}
+
+      {/* Metered Carpark Markers */}
+      {showMeteredCarparks && meteredCarparks.map((carpark) => (
+        <AdvancedMarker
+          key={carpark.carpark_id}
+          position={{ lat: carpark.latitude, lng: carpark.longitude }}
+          onClick={() => setSelectedMeteredCarpark(carpark)}
+          collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
+          zIndex={carpark.vacant_spaces}
+        >
+          <div style={{
+            width: '44px',
+            height: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            position: 'relative'
+          }}>
+            {/* Glassmorphic outer ring with rounded square */}
+            <div style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              borderRadius: '8px',
+              background: `${getMarkerColor(carpark.vacant_spaces)}20`,
+              backdropFilter: 'blur(8px)',
+              border: `2px solid ${getMarkerColor(carpark.vacant_spaces)}`,
+              boxShadow: `0 4px 12px ${getMarkerColor(carpark.vacant_spaces)}40, 0 0 0 1px ${getMarkerColor(carpark.vacant_spaces)}20`,
+            }} />
+
+            {/* Inner rounded square with vacancy count */}
+            <div style={{
+              position: 'relative',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              background: getMarkerColor(carpark.vacant_spaces),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 2px 8px ${getMarkerColor(carpark.vacant_spaces)}60`,
+            }}>
+              <span style={{
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
+                {carpark.vacant_spaces}
               </span>
             </div>
           </div>
@@ -481,6 +544,11 @@ export default function SimpleMap() {
   const [showParkingSpaces, setShowParkingSpaces] = useState(true);
   const [selectedParkingSpace, setSelectedParkingSpace] = useState<ParkingSpace | null>(null);
 
+  // Metered carparks state
+  const [meteredCarparks, setMeteredCarparks] = useState<MeteredCarpark[]>([]);
+  const [showMeteredCarparks, setShowMeteredCarparks] = useState(true);
+  const [selectedMeteredCarpark, setSelectedMeteredCarpark] = useState<MeteredCarpark | null>(null);
+
   const { isDarkMode } = useTheme();
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
@@ -525,6 +593,21 @@ export default function SimpleMap() {
       })
       .catch(err => {
         console.error("Error loading parking spaces:", err);
+      });
+
+    // Fetch metered carparks
+    fetch("/api/metered-carparks", {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setMeteredCarparks(data);
+      })
+      .catch(err => {
+        console.error("Error loading metered carparks:", err);
       });
   }, []);
 
@@ -822,6 +905,10 @@ export default function SimpleMap() {
             showParkingSpaces={showParkingSpaces}
             selectedParkingSpace={selectedParkingSpace}
             setSelectedParkingSpace={setSelectedParkingSpace}
+            meteredCarparks={meteredCarparks}
+            showMeteredCarparks={showMeteredCarparks}
+            selectedMeteredCarpark={selectedMeteredCarpark}
+            setSelectedMeteredCarpark={setSelectedMeteredCarpark}
           />
         </Map>
 
