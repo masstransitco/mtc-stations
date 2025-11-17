@@ -108,7 +108,7 @@ function MapContent({
   // Convert data to MarkerItem format for optimized hooks
   const indoorCarparkItems = useMemo(
     () =>
-      carparks.map((carpark) => ({
+      (carparks || []).map((carpark) => ({
         id: `${carpark.park_id}-${carpark.vehicle_type}`,
         latitude: carpark.latitude,
         longitude: carpark.longitude,
@@ -119,7 +119,7 @@ function MapContent({
 
   const meteredCarparkItems = useMemo(
     () =>
-      meteredCarparks.map((carpark) => ({
+      (meteredCarparks || []).map((carpark) => ({
         id: carpark.carpark_id,
         latitude: carpark.latitude,
         longitude: carpark.longitude,
@@ -130,7 +130,7 @@ function MapContent({
 
   const connectedCarparkItems = useMemo(
     () =>
-      connectedCarparks.map((carpark) => ({
+      (connectedCarparks || []).map((carpark) => ({
         id: carpark.park_id,
         latitude: carpark.latitude,
         longitude: carpark.longitude,
@@ -141,7 +141,7 @@ function MapContent({
 
   const dispatchCarparkItems = useMemo(
     () =>
-      dispatchCarparks.map((carpark) => ({
+      (dispatchCarparks || []).map((carpark) => ({
         id: carpark.id,
         latitude: carpark.latitude,
         longitude: carpark.longitude,
@@ -152,7 +152,7 @@ function MapContent({
 
   const parkingSpaceItems = useMemo(
     () =>
-      parkingSpaces.map((space) => ({
+      (parkingSpaces || []).map((space) => ({
         id: space.feature_id.toString(),
         latitude: space.latitude,
         longitude: space.longitude,
