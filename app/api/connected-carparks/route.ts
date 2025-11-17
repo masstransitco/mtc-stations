@@ -1,63 +1,31 @@
 import { NextResponse } from "next/server";
-import * as fs from "fs";
-import * as path from "path";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0; // Disable all caching
 
-// Simple CSV parser that handles quoted fields
-function parseCSV(csvContent: string): any[] {
-  const lines = csvContent.split('\n').filter(line => line.trim());
-  if (lines.length < 2) return [];
-
-  const headers = parseCSVLine(lines[0]);
-  const records = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const values = parseCSVLine(lines[i]);
-    const record: any = {};
-    headers.forEach((header, index) => {
-      record[header] = values[index] || '';
-    });
-    records.push(record);
-  }
-
-  return records;
-}
-
-function parseCSVLine(line: string): string[] {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-
-  result.push(current.trim());
-  return result;
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export async function GET() {
   try {
-    // Read the connected carparks CSV file
-    const csvPath = path.join(process.cwd(), "connected-carparks-formatted.csv");
-    const fileContent = fs.readFileSync(csvPath, "utf-8");
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Parse CSV
-    const records = parseCSV(fileContent);
+    const { data, error } = await supabase
+      .from("connected_carparks")
+      .select("park_id, name, address, district, latitude, longitude")
+      .order("name");
 
-    // Transform to expected format
-    const carparks = records.map((record: any) => ({
+    if (error) {
+      console.error("Error fetching connected carparks from Supabase:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch connected carparks" },
+        { status: 500 }
+      );
+    }
+
+    // Transform to expected format (ensure types are correct)
+    const carparks = (data || []).map((record: any) => ({
       park_id: record.park_id,
       name: record.name,
       address: record.address,

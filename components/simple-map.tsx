@@ -619,10 +619,17 @@ export default function SimpleMap() {
     })
       .then(res => res.json())
       .then(data => {
-        setConnectedCarparks(data);
+        // Ensure data is an array before setting state
+        if (Array.isArray(data)) {
+          setConnectedCarparks(data);
+        } else {
+          console.error("Connected carparks API returned non-array data:", data);
+          setConnectedCarparks([]);
+        }
       })
       .catch(err => {
         console.error("Error loading connected carparks:", err);
+        setConnectedCarparks([]);
       });
   }, []);
 
