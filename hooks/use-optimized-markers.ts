@@ -38,6 +38,12 @@ export function useOptimizedMarkers(
   const spatialIndexRef = useRef<SpatialIndex>(new SpatialIndex());
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
   const rafRef = useRef<number | null>(null);
+  const configRef = useRef<MarkerConfig>(config);
+
+  // Update config ref when it changes
+  useEffect(() => {
+    configRef.current = config;
+  }, [config]);
 
   const {
     enabled = true,
@@ -109,15 +115,15 @@ export function useOptimizedMarkers(
 
         if (existingMarkerData) {
           // Marker exists - check if we need to update it
-          const priority = config.getPriority?.(item) ?? 'optional';
-          const prevPriority = config.getPriority?.(existingMarkerData.item) ?? 'optional';
+          const priority = configRef.current.getPriority?.(item) ?? 'optional';
+          const prevPriority = configRef.current.getPriority?.(existingMarkerData.item) ?? 'optional';
           const shouldUpdate =
-            config.shouldUpdate?.(item, existingMarkerData.item) ?? false;
+            configRef.current.shouldUpdate?.(item, existingMarkerData.item) ?? false;
           const priorityChanged = priority !== prevPriority;
 
           if (shouldUpdate) {
             // Update marker content
-            const newContent = config.createMarkerElement(item);
+            const newContent = configRef.current.createMarkerElement(item);
             existingMarkerData.marker.content = newContent;
             existingMarkerData.item = item;
           }
@@ -131,7 +137,7 @@ export function useOptimizedMarkers(
           }
 
           // Update zIndex
-          const zIndex = config.getZIndex?.(item) ?? 0;
+          const zIndex = configRef.current.getZIndex?.(item) ?? 0;
           existingMarkerData.marker.zIndex = zIndex;
 
           // Attach if not already attached
@@ -143,9 +149,9 @@ export function useOptimizedMarkers(
           newVisibleIds.add(item.id);
         } else {
           // Create new marker
-          const content = config.createMarkerElement(item);
-          const priority = config.getPriority?.(item) ?? 'optional';
-          const zIndex = config.getZIndex?.(item) ?? 0;
+          const content = configRef.current.createMarkerElement(item);
+          const priority = configRef.current.getPriority?.(item) ?? 'optional';
+          const zIndex = configRef.current.getZIndex?.(item) ?? 0;
 
           const marker = new markerLib.AdvancedMarkerElement({
             position: { lat: item.latitude, lng: item.longitude },
@@ -191,7 +197,7 @@ export function useOptimizedMarkers(
 
       setVisibleIds(newVisibleIds);
     });
-  }, [map, items, enabled, minZoom, maxZoom, bufferPercentage, config, markerLib]);
+  }, [map, items, enabled, minZoom, maxZoom, bufferPercentage, markerLib]);
 
   // Listen to map events
   useEffect(() => {
@@ -235,12 +241,12 @@ export function useOptimizedMarkers(
       if (!markerData) return;
 
       const updatedItem = updater(markerData.item);
-      const newContent = config.createMarkerElement(updatedItem);
+      const newContent = configRef.current.createMarkerElement(updatedItem);
 
       markerData.marker.content = newContent;
       markerData.item = updatedItem;
     },
-    [config]
+    []
   );
 
   return {
