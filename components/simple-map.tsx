@@ -16,6 +16,7 @@ import StationStatus from "@/components/station-status";
 import TrendingCarparks from "@/components/trending-carparks";
 import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
+import LoadingSpinner from "@/components/loading-spinner";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -559,12 +560,9 @@ export default function SimpleMap() {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          zIndex: 10,
-          padding: '20px',
-          background: 'white',
-          borderRadius: '8px'
+          zIndex: 10
         }}>
-          Loading {carparks.length} car parks...
+          <LoadingSpinner size="md" />
         </div>
       )}
 
