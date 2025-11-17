@@ -1,45 +1,36 @@
 "use client";
 
-import { APIProvider, Map, AdvancedMarker, InfoWindow, CollisionBehavior, useMap } from "@vis.gl/react-google-maps";
-import { useEffect, useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Navigation, Menu, Sun, Moon } from "lucide-react";
+import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
+import { useEffect, useState, useRef, useMemo } from "react";
+import { Navigation, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
-import VacancyTrendChart from "@/components/vacancy-trend-chart";
 import { BuildingOverlay } from "@/components/building-overlay";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
-import StationStatus from "@/components/station-status";
+import IndoorCarparkDetails from "@/components/indoor-carpark-details";
 import TrendingCarparks from "@/components/trending-carparks";
 import MeteredCarparkDetails from "@/components/metered-carpark-details";
+import ConnectedCarparkDetails from "@/components/connected-carpark-details";
+import DispatchCarparkDetails from "@/components/dispatch-carpark-details";
 import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
 import LoadingSpinner from "@/components/loading-spinner";
+import { useOptimizedMarkers } from "@/hooks/use-optimized-markers";
+import {
+  createIndoorCarparkMarker,
+  createSelectedCarparkMarker,
+  createMeteredCarparkMarker,
+  createConnectedCarparkMarker,
+  createDispatchCarparkMarker,
+  createParkingSpaceMarker,
+} from "@/lib/marker-factories";
+import type { CarparkWithVacancy, CarparkWithDistance } from "@/types/indoor-carpark";
 import type { ParkingSpace } from "@/types/parking-space";
 import type { MeteredCarpark } from "@/types/metered-carpark";
-
-interface CarparkWithVacancy {
-  park_id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
-  district: string | null;
-  opening_status: string | null;
-  display_address: string;
-  vehicle_type: string;
-  vacancy: number;
-  vacancy_dis: number | null;
-  vacancy_ev: number | null;
-  lastupdate: string;
-  is_stale: boolean;
-}
-
-interface CarparkWithDistance extends CarparkWithVacancy {
-  distance: number;
-}
+import type { ConnectedCarpark } from "@/types/connected-carpark";
+import type { DispatchCarpark } from "@/types/dispatch-carpark";
 
 interface SearchLocation {
   lat: number;
@@ -47,7 +38,7 @@ interface SearchLocation {
   address: string;
 }
 
-// Component to handle map reference
+// Component to handle map reference with optimized markers
 function MapContent({
   carparks,
   selectedCarpark,
@@ -68,7 +59,17 @@ function MapContent({
   meteredCarparks,
   showMeteredCarparks,
   selectedMeteredCarpark,
-  setSelectedMeteredCarpark
+  setSelectedMeteredCarpark,
+  connectedCarparks,
+  showConnectedCarparks,
+  selectedConnectedCarpark,
+  setSelectedConnectedCarpark,
+  onConnectedCarparkMarkerClick,
+  dispatchCarparks,
+  showDispatchCarparks,
+  selectedDispatchCarpark,
+  setSelectedDispatchCarpark,
+  onDispatchCarparkMarkerClick
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -90,9 +91,140 @@ function MapContent({
   showMeteredCarparks: boolean;
   selectedMeteredCarpark: MeteredCarpark | null;
   setSelectedMeteredCarpark: (carpark: MeteredCarpark | null) => void;
+  connectedCarparks: ConnectedCarpark[];
+  showConnectedCarparks: boolean;
+  selectedConnectedCarpark: ConnectedCarpark | null;
+  setSelectedConnectedCarpark: (carpark: ConnectedCarpark | null) => void;
+  onConnectedCarparkMarkerClick: (carpark: ConnectedCarpark) => void;
+  dispatchCarparks: DispatchCarpark[];
+  showDispatchCarparks: boolean;
+  selectedDispatchCarpark: DispatchCarpark | null;
+  setSelectedDispatchCarpark: (carpark: DispatchCarpark | null) => void;
+  onDispatchCarparkMarkerClick: (carpark: DispatchCarpark) => void;
 }) {
   const map = useMap();
   const prevHeightRef = useRef(100);
+
+  // Convert data to MarkerItem format for optimized hooks
+  const indoorCarparkItems = useMemo(
+    () =>
+      carparks.map((carpark) => ({
+        id: `${carpark.park_id}-${carpark.vehicle_type}`,
+        latitude: carpark.latitude,
+        longitude: carpark.longitude,
+        data: carpark,
+      })),
+    [carparks]
+  );
+
+  const meteredCarparkItems = useMemo(
+    () =>
+      meteredCarparks.map((carpark) => ({
+        id: carpark.carpark_id,
+        latitude: carpark.latitude,
+        longitude: carpark.longitude,
+        data: carpark,
+      })),
+    [meteredCarparks]
+  );
+
+  const connectedCarparkItems = useMemo(
+    () =>
+      connectedCarparks.map((carpark) => ({
+        id: carpark.park_id,
+        latitude: carpark.latitude,
+        longitude: carpark.longitude,
+        data: carpark,
+      })),
+    [connectedCarparks]
+  );
+
+  const dispatchCarparkItems = useMemo(
+    () =>
+      dispatchCarparks.map((carpark) => ({
+        id: carpark.id,
+        latitude: carpark.latitude,
+        longitude: carpark.longitude,
+        data: carpark,
+      })),
+    [dispatchCarparks]
+  );
+
+  const parkingSpaceItems = useMemo(
+    () =>
+      parkingSpaces.map((space) => ({
+        id: space.feature_id,
+        latitude: space.latitude,
+        longitude: space.longitude,
+        data: space,
+      })),
+    [parkingSpaces]
+  );
+
+  // Optimized marker rendering hooks
+  const indoorCarparksMarkers = useOptimizedMarkers(indoorCarparkItems, {
+    createMarkerElement: (item) =>
+      createIndoorCarparkMarker(item.data, getMarkerColor, (carpark) => {
+        setSelectedCarpark(carpark);
+        onCarparkMarkerClick(carpark);
+      }),
+    getZIndex: (item) => item.data.vacancy,
+    getPriority: (item) => (selectedCarpark?.park_id === item.data.park_id ? 'required' : 'optional'),
+    shouldUpdate: (item, prevItem) => item.data.vacancy !== prevItem.data.vacancy,
+  });
+
+  const meteredCarparksMarkers = useOptimizedMarkers(
+    meteredCarparkItems,
+    {
+      createMarkerElement: (item) =>
+        createMeteredCarparkMarker(item.data, getMarkerColor, (carpark) => {
+          setSelectedMeteredCarpark(carpark);
+          onMeteredCarparkMarkerClick(carpark);
+        }),
+      getZIndex: (item) => item.data.vacant_spaces,
+      getPriority: (item) => (selectedMeteredCarpark?.carpark_id === item.data.carpark_id ? 'required' : 'optional'),
+      shouldUpdate: (item, prevItem) => item.data.vacant_spaces !== prevItem.data.vacant_spaces,
+    },
+    { enabled: showMeteredCarparks, minZoom: 12 }
+  );
+
+  const connectedCarparksMarkers = useOptimizedMarkers(
+    connectedCarparkItems,
+    {
+      createMarkerElement: (item) =>
+        createConnectedCarparkMarker(item.data, isDarkMode, (carpark) => {
+          setSelectedConnectedCarpark(carpark);
+          onConnectedCarparkMarkerClick(carpark);
+        }),
+      getZIndex: () => 100,
+      getPriority: (item) => (selectedConnectedCarpark?.park_id === item.data.park_id ? 'required' : 'optional'),
+    },
+    { enabled: showConnectedCarparks }
+  );
+
+  const dispatchCarparksMarkers = useOptimizedMarkers(
+    dispatchCarparkItems,
+    {
+      createMarkerElement: (item) =>
+        createDispatchCarparkMarker(item.data, (carpark) => {
+          setSelectedDispatchCarpark(carpark);
+          onDispatchCarparkMarkerClick(carpark);
+        }),
+      getZIndex: () => 150,
+      getPriority: (item) => (selectedDispatchCarpark?.id === item.data.id ? 'required' : 'optional'),
+    },
+    { enabled: showDispatchCarparks }
+  );
+
+  const parkingSpacesMarkers = useOptimizedMarkers(
+    parkingSpaceItems,
+    {
+      createMarkerElement: (item) => createParkingSpaceMarker(item.data, setSelectedParkingSpace),
+      getZIndex: (item) => (item.data.is_vacant ? 10 : 5),
+      getPriority: (item) => (selectedParkingSpace?.feature_id === item.data.feature_id ? 'required' : 'optional'),
+    },
+    { enabled: showParkingSpaces, minZoom: 16 }
+  );
 
   // Handle bottom sheet height changes with map padding and pan compensation
   useEffect(() => {
@@ -152,162 +284,9 @@ function MapContent({
     <>
       {/* 3D Building Overlay */}
       <BuildingOverlay visible={show3DBuildings} opacity={0.8} />
-      {carparks.map((carpark) => (
-        <AdvancedMarker
-          key={`${carpark.park_id}-${carpark.vehicle_type}`}
-          position={{ lat: carpark.latitude, lng: carpark.longitude }}
-          onClick={() => {
-            setSelectedCarpark(carpark);
-            onCarparkMarkerClick(carpark);
-          }}
-          collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
-          zIndex={carpark.vacancy}
-        >
-          <div style={{
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            position: 'relative'
-          }}>
-            {/* Glassmorphic outer ring - rounded square */}
-            <div style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              borderRadius: '8px',
-              background: `${getMarkerColor(carpark.vacancy)}20`,
-              backdropFilter: 'blur(8px)',
-              border: `2px solid ${getMarkerColor(carpark.vacancy)}`,
-              boxShadow: `0 4px 12px ${getMarkerColor(carpark.vacancy)}40, 0 0 0 1px ${getMarkerColor(carpark.vacancy)}20`,
-            }} />
 
-            {/* Inner rounded square with parking icon */}
-            <div style={{
-              position: 'relative',
-              width: '28px',
-              height: '28px',
-              borderRadius: '6px',
-              background: getMarkerColor(carpark.vacancy),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: `0 2px 8px ${getMarkerColor(carpark.vacancy)}60`,
-            }}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
-              </svg>
-            </div>
-          </div>
-        </AdvancedMarker>
-      ))}
-
-      {/* Parking Space Markers */}
-      {showParkingSpaces && parkingSpaces.map((space) => (
-        <AdvancedMarker
-          key={space.feature_id}
-          position={{ lat: space.latitude, lng: space.longitude }}
-          onClick={() => setSelectedParkingSpace(space)}
-          collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
-          zIndex={space.is_vacant ? 10 : 5}
-        >
-          <div style={{
-            width: '28px',
-            height: '28px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-          }}>
-            {/* Square marker for parking spaces */}
-            <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '4px',
-              background: space.is_vacant ? '#10b981' : '#ef4444',
-              border: '2px solid white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
-            }}>
-              <span style={{
-                fontSize: '10px',
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
-                {space.vehicle_type}
-              </span>
-            </div>
-          </div>
-        </AdvancedMarker>
-      ))}
-
-      {/* Metered Carpark Markers */}
-      {showMeteredCarparks && meteredCarparks.map((carpark) => (
-        <AdvancedMarker
-          key={carpark.carpark_id}
-          position={{ lat: carpark.latitude, lng: carpark.longitude }}
-          onClick={() => onMeteredCarparkMarkerClick(carpark)}
-          collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
-          zIndex={carpark.vacant_spaces}
-        >
-          <div style={{
-            width: '44px',
-            height: '44px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            position: 'relative'
-          }}>
-            {/* Glassmorphic outer ring - circle */}
-            <div style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: `${getMarkerColor(carpark.vacant_spaces)}20`,
-              backdropFilter: 'blur(8px)',
-              border: `2px solid ${getMarkerColor(carpark.vacant_spaces)}`,
-              boxShadow: `0 4px 12px ${getMarkerColor(carpark.vacant_spaces)}40, 0 0 0 1px ${getMarkerColor(carpark.vacant_spaces)}20`,
-            }} />
-
-            {/* Inner circle with vacancy count */}
-            <div style={{
-              position: 'relative',
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: getMarkerColor(carpark.vacant_spaces),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: `0 2px 8px ${getMarkerColor(carpark.vacant_spaces)}60`,
-            }}>
-              <span style={{
-                fontSize: '12px',
-                fontWeight: 'bold',
-                color: 'white'
-              }}>
-                {carpark.vacant_spaces}
-              </span>
-            </div>
-          </div>
-        </AdvancedMarker>
-      ))}
+      {/* Note: Optimized markers are managed by useOptimizedMarkers hooks above */}
+      {/* Only special markers that need React state are rendered here */}
 
       {/* User Location Marker */}
       {currentLocation && (
@@ -527,7 +506,7 @@ function MapContent({
 }
 
 // Bottom sheet view states
-type BottomSheetView = 'home' | 'nearby' | 'station' | 'metered-carpark';
+type BottomSheetView = 'home' | 'nearby' | 'station' | 'metered-carpark' | 'connected-carpark' | 'dispatch-carpark';
 
 export default function SimpleMap() {
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
@@ -551,6 +530,24 @@ export default function SimpleMap() {
   const [meteredCarparks, setMeteredCarparks] = useState<MeteredCarpark[]>([]);
   const [showMeteredCarparks, setShowMeteredCarparks] = useState(true);
   const [selectedMeteredCarpark, setSelectedMeteredCarpark] = useState<MeteredCarpark | null>(null);
+
+  // Connected carparks state (EV charging)
+  const [connectedCarparks, setConnectedCarparks] = useState<ConnectedCarpark[]>([]);
+  const [showConnectedCarparks, setShowConnectedCarparks] = useState(true);
+  const [selectedConnectedCarpark, setSelectedConnectedCarpark] = useState<ConnectedCarpark | null>(null);
+
+  // Dispatch carparks state
+  const [dispatchCarparks] = useState<DispatchCarpark[]>([
+    {
+      id: 'auto-plaza',
+      name: 'Auto Plaza',
+      address: '65 Mody Road, Tsim Sha Tsui East, Kowloon, Hong Kong',
+      latitude: 22.29856,
+      longitude: 114.17654
+    }
+  ]);
+  const [showDispatchCarparks, setShowDispatchCarparks] = useState(true);
+  const [selectedDispatchCarpark, setSelectedDispatchCarpark] = useState<DispatchCarpark | null>(null);
 
   const { isDarkMode } = useTheme();
 
@@ -611,6 +608,21 @@ export default function SimpleMap() {
       })
       .catch(err => {
         console.error("Error loading metered carparks:", err);
+      });
+
+    // Fetch connected carparks (EV charging)
+    fetch("/api/connected-carparks", {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setConnectedCarparks(data);
+      })
+      .catch(err => {
+        console.error("Error loading connected carparks:", err);
       });
   }, []);
 
@@ -686,6 +698,12 @@ export default function SimpleMap() {
     } else if (bottomSheetView === 'metered-carpark') {
       setBottomSheetView('home');
       setSelectedMeteredCarpark(null);
+    } else if (bottomSheetView === 'connected-carpark') {
+      setBottomSheetView('home');
+      setSelectedConnectedCarpark(null);
+    } else if (bottomSheetView === 'dispatch-carpark') {
+      setBottomSheetView('home');
+      setSelectedDispatchCarpark(null);
     } else if (bottomSheetView === 'nearby') {
       setBottomSheetView('home');
       setSearchLocation(null);
@@ -695,8 +713,10 @@ export default function SimpleMap() {
 
   // Get bottom sheet title based on current view
   const getBottomSheetTitle = () => {
-    if (bottomSheetView === 'station') return 'Station Status';
+    if (bottomSheetView === 'station') return 'Indoor Carpark';
     if (bottomSheetView === 'metered-carpark') return 'Metered Carpark';
+    if (bottomSheetView === 'connected-carpark') return 'EV Charging Station';
+    if (bottomSheetView === 'dispatch-carpark') return 'Dispatch Carpark';
     if (bottomSheetView === 'nearby') return 'Nearby Carparks';
     return 'Search Carparks';
   };
@@ -711,6 +731,20 @@ export default function SimpleMap() {
   const handleMeteredCarparkMarkerClick = (carpark: MeteredCarpark) => {
     setSelectedMeteredCarpark(carpark);
     setBottomSheetView('metered-carpark');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle connected carpark marker click
+  const handleConnectedCarparkMarkerClick = (carpark: ConnectedCarpark) => {
+    setSelectedConnectedCarpark(carpark);
+    setBottomSheetView('connected-carpark');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle dispatch carpark marker click
+  const handleDispatchCarparkMarkerClick = (carpark: DispatchCarpark) => {
+    setSelectedDispatchCarpark(carpark);
+    setBottomSheetView('dispatch-carpark');
     setIsBottomSheetOpen(true);
   };
 
@@ -924,6 +958,16 @@ export default function SimpleMap() {
             showMeteredCarparks={showMeteredCarparks}
             selectedMeteredCarpark={selectedMeteredCarpark}
             setSelectedMeteredCarpark={setSelectedMeteredCarpark}
+            connectedCarparks={connectedCarparks}
+            showConnectedCarparks={showConnectedCarparks}
+            selectedConnectedCarpark={selectedConnectedCarpark}
+            setSelectedConnectedCarpark={setSelectedConnectedCarpark}
+            onConnectedCarparkMarkerClick={handleConnectedCarparkMarkerClick}
+            dispatchCarparks={dispatchCarparks}
+            showDispatchCarparks={showDispatchCarparks}
+            selectedDispatchCarpark={selectedDispatchCarpark}
+            setSelectedDispatchCarpark={setSelectedDispatchCarpark}
+            onDispatchCarparkMarkerClick={handleDispatchCarparkMarkerClick}
           />
         </Map>
 
@@ -935,6 +979,8 @@ export default function SimpleMap() {
             setBottomSheetView('home');
             setSelectedCarpark(null);
             setSelectedMeteredCarpark(null);
+            setSelectedConnectedCarpark(null);
+            setSelectedDispatchCarpark(null);
             setSearchLocation(null);
             setNearbyCarparks([]);
           }}
@@ -984,7 +1030,7 @@ export default function SimpleMap() {
 
           {/* Station View - Selected Carpark Details */}
           {bottomSheetView === 'station' && selectedCarpark && (
-            <StationStatus
+            <IndoorCarparkDetails
               carpark={selectedCarpark}
               getMarkerColor={getMarkerColor}
             />
@@ -995,6 +1041,20 @@ export default function SimpleMap() {
             <MeteredCarparkDetails
               carpark={selectedMeteredCarpark}
               getMarkerColor={getMarkerColor}
+            />
+          )}
+
+          {/* Connected Carpark View - Selected Connected Carpark Details */}
+          {bottomSheetView === 'connected-carpark' && selectedConnectedCarpark && (
+            <ConnectedCarparkDetails
+              carpark={selectedConnectedCarpark}
+            />
+          )}
+
+          {/* Dispatch Carpark View - Selected Dispatch Carpark Details */}
+          {bottomSheetView === 'dispatch-carpark' && selectedDispatchCarpark && (
+            <DispatchCarparkDetails
+              carpark={selectedDispatchCarpark}
             />
           )}
         </BottomSheet>
