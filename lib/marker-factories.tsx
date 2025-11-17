@@ -232,7 +232,7 @@ export function createMeteredCarparkMarker(
   badge.style.minWidth = '18px';
   badge.style.height = '18px';
   badge.style.borderRadius = '9px';
-  badge.style.background = '#ef4444';
+  badge.style.background = 'transparent';
   badge.style.border = '2px solid white';
   badge.style.display = 'flex';
   badge.style.alignItems = 'center';

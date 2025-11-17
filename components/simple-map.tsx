@@ -572,11 +572,17 @@ export default function SimpleMap() {
     })
       .then(res => res.json())
       .then(data => {
-        setCarparks(data);
+        if (Array.isArray(data)) {
+          setCarparks(data);
+        } else {
+          console.error("Carparks API returned non-array data:", data);
+          setCarparks([]);
+        }
         setLoading(false);
       })
       .catch(err => {
         console.error("Error loading car parks:", err);
+        setCarparks([]);
         setLoading(false);
       });
 
@@ -589,10 +595,16 @@ export default function SimpleMap() {
     })
       .then(res => res.json())
       .then(data => {
-        setParkingSpaces(data);
+        if (Array.isArray(data)) {
+          setParkingSpaces(data);
+        } else {
+          console.error("Parking spaces API returned non-array data:", data);
+          setParkingSpaces([]);
+        }
       })
       .catch(err => {
         console.error("Error loading parking spaces:", err);
+        setParkingSpaces([]);
       });
 
     // Fetch metered carparks
@@ -604,10 +616,17 @@ export default function SimpleMap() {
     })
       .then(res => res.json())
       .then(data => {
-        setMeteredCarparks(data);
+        // Ensure data is an array before setting state
+        if (Array.isArray(data)) {
+          setMeteredCarparks(data);
+        } else {
+          console.error("Metered carparks API returned non-array data:", data);
+          setMeteredCarparks([]);
+        }
       })
       .catch(err => {
         console.error("Error loading metered carparks:", err);
+        setMeteredCarparks([]);
       });
 
     // Fetch connected carparks (EV charging)
