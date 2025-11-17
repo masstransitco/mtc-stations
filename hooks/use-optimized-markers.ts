@@ -203,15 +203,15 @@ export function useOptimizedMarkers(
   useEffect(() => {
     if (!map || !enabled || !markerLib) return;
 
+    // Only listen to 'idle' event - NOT zoom_changed or bounds_changed
+    // This ensures markers only update when map movement stops, not on every frame
     const idleListener = map.addListener('idle', updateMarkers);
-    const zoomListener = map.addListener('zoom_changed', updateMarkers);
 
     // Initial update
     updateMarkers();
 
     return () => {
       if (idleListener) google.maps.event.removeListener(idleListener);
-      if (zoomListener) google.maps.event.removeListener(zoomListener);
 
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
