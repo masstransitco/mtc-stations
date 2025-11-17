@@ -37,13 +37,18 @@ export function useOptimizedMarkers(
   const markersRef = useRef<Map<string, MarkerData>>(new Map());
   const spatialIndexRef = useRef<SpatialIndex>(new SpatialIndex());
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
-  const rafRef = useRef<number | null>(null);
   const configRef = useRef<MarkerConfig>(config);
+  const itemsRef = useRef<MarkerItem[]>(items);
+  const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update config ref when it changes
+  // Update refs when they change
   useEffect(() => {
     configRef.current = config;
   }, [config]);
+
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const {
     enabled = true,
@@ -65,7 +70,7 @@ export function useOptimizedMarkers(
     spatialIndexRef.current.rebuild(points);
   }, [items, enabled]);
 
-  // Create or update markers
+  // Create or update markers - synchronous execution, no RAF
   const updateMarkers = useCallback(() => {
     if (!map || !enabled || !markerLib) return;
 
@@ -95,126 +100,131 @@ export function useOptimizedMarkers(
     const visiblePoints = spatialIndexRef.current.getPointsInBounds(viewportBounds);
     const visibleIdsSet = new Set(visiblePoints.map(p => p.id));
 
-    // Create a map for quick lookup
-    const itemsMap = new Map(items.map(item => [item.id, item]));
+    // Create a map for quick lookup using ref (stable reference)
+    const itemsMap = new Map(itemsRef.current.map(item => [item.id, item]));
 
-    // Update markers in requestAnimationFrame for better performance
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
+    // Execute synchronously - no RAF since we're already in idle callback
+    const newVisibleIds = new Set<string>();
 
-    rafRef.current = requestAnimationFrame(() => {
-      const newVisibleIds = new Set<string>();
+    // Process visible markers
+    visiblePoints.forEach(point => {
+      const item = itemsMap.get(point.id);
+      if (!item) return;
 
-      // Process visible markers
-      visiblePoints.forEach(point => {
-        const item = itemsMap.get(point.id);
-        if (!item) return;
+      const existingMarkerData = markersRef.current.get(item.id);
 
-        const existingMarkerData = markersRef.current.get(item.id);
+      if (existingMarkerData) {
+        // Marker exists - check if we need to update it
+        const priority = configRef.current.getPriority?.(item) ?? 'optional';
+        const prevPriority = configRef.current.getPriority?.(existingMarkerData.item) ?? 'optional';
+        const shouldUpdate =
+          configRef.current.shouldUpdate?.(item, existingMarkerData.item) ?? false;
+        const priorityChanged = priority !== prevPriority;
 
-        if (existingMarkerData) {
-          // Marker exists - check if we need to update it
-          const priority = configRef.current.getPriority?.(item) ?? 'optional';
-          const prevPriority = configRef.current.getPriority?.(existingMarkerData.item) ?? 'optional';
-          const shouldUpdate =
-            configRef.current.shouldUpdate?.(item, existingMarkerData.item) ?? false;
-          const priorityChanged = priority !== prevPriority;
-
-          if (shouldUpdate) {
-            // Update marker content
-            const newContent = configRef.current.createMarkerElement(item);
-            existingMarkerData.marker.content = newContent;
-            existingMarkerData.item = item;
-          }
-
-          // Update collision behavior if priority changed
-          if (priorityChanged) {
-            existingMarkerData.marker.collisionBehavior =
-              priority === 'required'
-                ? markerLib.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
-                : markerLib.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY;
-          }
-
-          // Update zIndex
-          const zIndex = configRef.current.getZIndex?.(item) ?? 0;
-          existingMarkerData.marker.zIndex = zIndex;
-
-          // Attach if not already attached
-          if (!existingMarkerData.isAttached) {
-            existingMarkerData.marker.map = map;
-            existingMarkerData.isAttached = true;
-          }
-
-          newVisibleIds.add(item.id);
-        } else {
-          // Create new marker
-          const content = configRef.current.createMarkerElement(item);
-          const priority = configRef.current.getPriority?.(item) ?? 'optional';
-          const zIndex = configRef.current.getZIndex?.(item) ?? 0;
-
-          const marker = new markerLib.AdvancedMarkerElement({
-            position: { lat: item.latitude, lng: item.longitude },
-            map,
-            content,
-            zIndex,
-            collisionBehavior:
-              priority === 'required'
-                ? markerLib.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
-                : markerLib.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
-          });
-
-          markersRef.current.set(item.id, {
-            marker,
-            item,
-            isAttached: true,
-          });
-
-          newVisibleIds.add(item.id);
+        if (shouldUpdate) {
+          // Update marker content
+          const newContent = configRef.current.createMarkerElement(item);
+          existingMarkerData.marker.content = newContent;
+          existingMarkerData.item = item;
         }
-      });
 
-      // Detach markers that are no longer visible
-      markersRef.current.forEach((markerData, id) => {
-        if (!visibleIdsSet.has(id) && markerData.isAttached) {
-          markerData.marker.map = null;
-          markerData.isAttached = false;
+        // Update collision behavior if priority changed
+        if (priorityChanged) {
+          existingMarkerData.marker.collisionBehavior =
+            priority === 'required'
+              ? markerLib.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
+              : markerLib.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY;
         }
-      });
 
-      // Clean up markers for items that no longer exist
-      const currentItemIds = new Set(items.map(i => i.id));
-      const idsToDelete: string[] = [];
+        // Update zIndex
+        const zIndex = configRef.current.getZIndex?.(item) ?? 0;
+        existingMarkerData.marker.zIndex = zIndex;
 
-      markersRef.current.forEach((markerData, id) => {
-        if (!currentItemIds.has(id)) {
-          markerData.marker.map = null;
-          idsToDelete.push(id);
+        // Attach if not already attached
+        if (!existingMarkerData.isAttached) {
+          existingMarkerData.marker.map = map;
+          existingMarkerData.isAttached = true;
         }
-      });
 
-      idsToDelete.forEach(id => markersRef.current.delete(id));
+        newVisibleIds.add(item.id);
+      } else {
+        // Create new marker
+        const content = configRef.current.createMarkerElement(item);
+        const priority = configRef.current.getPriority?.(item) ?? 'optional';
+        const zIndex = configRef.current.getZIndex?.(item) ?? 0;
 
-      setVisibleIds(newVisibleIds);
+        const marker = new markerLib.AdvancedMarkerElement({
+          position: { lat: item.latitude, lng: item.longitude },
+          map,
+          content,
+          zIndex,
+          collisionBehavior:
+            priority === 'required'
+              ? markerLib.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
+              : markerLib.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
+        });
+
+        markersRef.current.set(item.id, {
+          marker,
+          item,
+          isAttached: true,
+        });
+
+        newVisibleIds.add(item.id);
+      }
     });
-  }, [map, items, enabled, minZoom, maxZoom, bufferPercentage, markerLib]);
 
-  // Listen to map events
+    // Detach markers that are no longer visible
+    markersRef.current.forEach((markerData, id) => {
+      if (!visibleIdsSet.has(id) && markerData.isAttached) {
+        markerData.marker.map = null;
+        markerData.isAttached = false;
+      }
+    });
+
+    // Clean up markers for items that no longer exist
+    const currentItemIds = new Set(itemsRef.current.map(i => i.id));
+    const idsToDelete: string[] = [];
+
+    markersRef.current.forEach((markerData, id) => {
+      if (!currentItemIds.has(id)) {
+        markerData.marker.map = null;
+        idsToDelete.push(id);
+      }
+    });
+
+    idsToDelete.forEach(id => markersRef.current.delete(id));
+
+    setVisibleIds(newVisibleIds);
+  }, [map, enabled, minZoom, maxZoom, bufferPercentage, markerLib]);
+
+  // Listen to map events with debouncing
   useEffect(() => {
     if (!map || !enabled || !markerLib) return;
 
+    // Debounced update handler - prevents rapid-fire idle events
+    const debouncedUpdate = () => {
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current);
+      }
+
+      idleTimeoutRef.current = setTimeout(() => {
+        updateMarkers();
+      }, 100); // 100ms debounce matches reference implementation
+    };
+
     // Only listen to 'idle' event - NOT zoom_changed or bounds_changed
     // This ensures markers only update when map movement stops, not on every frame
-    const idleListener = map.addListener('idle', updateMarkers);
+    const idleListener = map.addListener('idle', debouncedUpdate);
 
-    // Initial update
+    // Initial update (immediate, no debounce)
     updateMarkers();
 
     return () => {
       if (idleListener) google.maps.event.removeListener(idleListener);
 
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current);
       }
     };
   }, [map, enabled, markerLib, updateMarkers]);
