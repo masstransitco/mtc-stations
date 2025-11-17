@@ -153,7 +153,7 @@ function MapContent({
   const parkingSpaceItems = useMemo(
     () =>
       parkingSpaces.map((space) => ({
-        id: space.feature_id,
+        id: space.feature_id.toString(),
         latitude: space.latitude,
         longitude: space.longitude,
         data: space,
@@ -221,7 +221,7 @@ function MapContent({
     {
       createMarkerElement: (item) => createParkingSpaceMarker(item.data, setSelectedParkingSpace),
       getZIndex: (item) => (item.data.is_vacant ? 10 : 5),
-      getPriority: (item) => (selectedParkingSpace?.feature_id === item.data.feature_id ? 'required' : 'optional'),
+      getPriority: (item) => (selectedParkingSpace?.feature_id.toString() === item.id ? 'required' : 'optional'),
     },
     { enabled: showParkingSpaces, minZoom: 16 }
   );
