@@ -134,16 +134,26 @@ export async function GET(request: NextRequest) {
     const spaceIds = occupancyRecords.map(r => r.parking_space_id);
     const uniqueSpaceIds = [...new Set(spaceIds)];
 
-    const { error: updateError } = await supabase
-      .from('metered_space_info')
-      .update({ has_real_time_tracking: true })
-      .in('parking_space_id', uniqueSpaceIds);
+    // Batch update tracking flags to avoid URI too large error (500 IDs per batch)
+    const updateBatchSize = 500;
+    let updatedCount = 0;
 
-    if (updateError) {
-      console.error('[Metered Occupancy Cron] Error updating tracking flags:', updateError);
-    } else {
-      console.log(`[Metered Occupancy Cron] Updated tracking flags for ${uniqueSpaceIds.length} spaces`);
+    for (let i = 0; i < uniqueSpaceIds.length; i += updateBatchSize) {
+      const batch = uniqueSpaceIds.slice(i, i + updateBatchSize);
+
+      const { error: updateError } = await supabase
+        .from('metered_space_info')
+        .update({ has_real_time_tracking: true })
+        .in('parking_space_id', batch);
+
+      if (updateError) {
+        console.error(`[Metered Occupancy Cron] Error updating tracking flags batch ${i / updateBatchSize + 1}:`, updateError);
+      } else {
+        updatedCount += batch.length;
+      }
     }
+
+    console.log(`[Metered Occupancy Cron] Updated tracking flags for ${updatedCount} spaces`);
 
     // Calculate vacancy rate
     const vacancyRate = validCount > 0 ? Math.round((vacantCount / validCount) * 100) : 0;

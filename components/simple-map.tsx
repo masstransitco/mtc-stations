@@ -14,6 +14,7 @@ import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
 import StationStatus from "@/components/station-status";
 import TrendingCarparks from "@/components/trending-carparks";
+import MeteredCarparkDetails from "@/components/metered-carpark-details";
 import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
 import LoadingSpinner from "@/components/loading-spinner";
@@ -58,6 +59,7 @@ function MapContent({
   show3DBuildings,
   searchLocation,
   onCarparkMarkerClick,
+  onMeteredCarparkMarkerClick,
   bottomSheetHeight,
   parkingSpaces,
   showParkingSpaces,
@@ -78,6 +80,7 @@ function MapContent({
   show3DBuildings: boolean;
   searchLocation: SearchLocation | null;
   onCarparkMarkerClick: (carpark: CarparkWithVacancy) => void;
+  onMeteredCarparkMarkerClick: (carpark: MeteredCarpark) => void;
   bottomSheetHeight: number;
   parkingSpaces: ParkingSpace[];
   showParkingSpaces: boolean;
@@ -257,7 +260,7 @@ function MapContent({
         <AdvancedMarker
           key={carpark.carpark_id}
           position={{ lat: carpark.latitude, lng: carpark.longitude }}
-          onClick={() => setSelectedMeteredCarpark(carpark)}
+          onClick={() => onMeteredCarparkMarkerClick(carpark)}
           collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
           zIndex={carpark.vacant_spaces}
         >
@@ -524,7 +527,7 @@ function MapContent({
 }
 
 // Bottom sheet view states
-type BottomSheetView = 'home' | 'nearby' | 'station';
+type BottomSheetView = 'home' | 'nearby' | 'station' | 'metered-carpark';
 
 export default function SimpleMap() {
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
@@ -680,6 +683,9 @@ export default function SimpleMap() {
     if (bottomSheetView === 'station') {
       setBottomSheetView(nearbyCarparks.length > 0 ? 'nearby' : 'home');
       setSelectedCarpark(null);
+    } else if (bottomSheetView === 'metered-carpark') {
+      setBottomSheetView('home');
+      setSelectedMeteredCarpark(null);
     } else if (bottomSheetView === 'nearby') {
       setBottomSheetView('home');
       setSearchLocation(null);
@@ -690,6 +696,7 @@ export default function SimpleMap() {
   // Get bottom sheet title based on current view
   const getBottomSheetTitle = () => {
     if (bottomSheetView === 'station') return 'Station Status';
+    if (bottomSheetView === 'metered-carpark') return 'Metered Carpark';
     if (bottomSheetView === 'nearby') return 'Nearby Carparks';
     return 'Search Carparks';
   };
@@ -697,6 +704,13 @@ export default function SimpleMap() {
   // Handle marker click on map
   const handleCarparkMarkerClick = (carpark: CarparkWithVacancy) => {
     setBottomSheetView('station');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle metered carpark marker click
+  const handleMeteredCarparkMarkerClick = (carpark: MeteredCarpark) => {
+    setSelectedMeteredCarpark(carpark);
+    setBottomSheetView('metered-carpark');
     setIsBottomSheetOpen(true);
   };
 
@@ -900,6 +914,7 @@ export default function SimpleMap() {
             show3DBuildings={show3DBuildings}
             searchLocation={searchLocation}
             onCarparkMarkerClick={handleCarparkMarkerClick}
+            onMeteredCarparkMarkerClick={handleMeteredCarparkMarkerClick}
             bottomSheetHeight={bottomSheetHeight}
             parkingSpaces={parkingSpaces}
             showParkingSpaces={showParkingSpaces}
@@ -919,6 +934,7 @@ export default function SimpleMap() {
             setIsBottomSheetOpen(false);
             setBottomSheetView('home');
             setSelectedCarpark(null);
+            setSelectedMeteredCarpark(null);
             setSearchLocation(null);
             setNearbyCarparks([]);
           }}
@@ -970,6 +986,14 @@ export default function SimpleMap() {
           {bottomSheetView === 'station' && selectedCarpark && (
             <StationStatus
               carpark={selectedCarpark}
+              getMarkerColor={getMarkerColor}
+            />
+          )}
+
+          {/* Metered Carpark View - Selected Metered Carpark Details */}
+          {bottomSheetView === 'metered-carpark' && selectedMeteredCarpark && (
+            <MeteredCarparkDetails
+              carpark={selectedMeteredCarpark}
               getMarkerColor={getMarkerColor}
             />
           )}
