@@ -11,20 +11,18 @@ interface VacancyHistoryPoint {
 }
 
 interface VacancyHistoryResponse {
-  park_id: string;
-  vehicle_type: string;
+  carpark_id: string;
   hours: number;
   data_points: number;
   history: VacancyHistoryPoint[];
 }
 
-interface VacancyTrendChartProps {
-  parkId: string;
-  vehicleType: string;
+interface MeteredVacancyTrendChartProps {
+  carparkId: string;
   hours?: number;
 }
 
-export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: VacancyTrendChartProps) {
+export default function MeteredVacancyTrendChart({ carparkId, hours = 6 }: MeteredVacancyTrendChartProps) {
   const [data, setData] = useState<VacancyHistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -37,7 +35,7 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
         setError(false);
 
         const response = await fetch(
-          `/api/carparks/${encodeURIComponent(parkId)}/history?vehicle_type=${vehicleType}&hours=${hours}`,
+          `/api/metered-carparks/${encodeURIComponent(carparkId)}/history?hours=${hours}`,
           {
             cache: 'no-store',
             headers: {
@@ -54,14 +52,14 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
         setData(result.history);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching vacancy history:', err);
+        console.error('Error fetching metered vacancy history:', err);
         setError(true);
         setLoading(false);
       }
     };
 
     fetchHistory();
-  }, [parkId, vehicleType, hours]);
+  }, [carparkId, hours]);
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload }: any) => {
@@ -92,7 +90,8 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
             {date.toLocaleTimeString('en-US', {
               hour: '2-digit',
               minute: '2-digit',
-              hour12: true
+              hour12: true,
+              timeZone: 'Asia/Hong_Kong'
             })}
           </div>
         </div>
@@ -180,7 +179,7 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
           margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
         >
           <defs>
-            <linearGradient id="vacancyGradient" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="meteredVacancyGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={lineColor} stopOpacity={0.3}/>
               <stop offset="95%" stopColor={lineColor} stopOpacity={0}/>
             </linearGradient>
@@ -208,7 +207,7 @@ export default function VacancyTrendChart({ parkId, vehicleType, hours = 6 }: Va
             dataKey="vacancy"
             stroke={lineColor}
             strokeWidth={2}
-            fill="url(#vacancyGradient)"
+            fill="url(#meteredVacancyGradient)"
             animationDuration={500}
           />
         </AreaChart>

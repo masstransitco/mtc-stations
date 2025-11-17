@@ -2,6 +2,7 @@
 
 import { useTheme } from "@/components/theme-provider";
 import type { MeteredCarpark } from "@/types/metered-carpark";
+import MeteredVacancyTrendChart from "@/components/metered-vacancy-trend-chart";
 
 interface MeteredCarparkDetailsProps {
   carpark: MeteredCarpark;
@@ -167,96 +168,12 @@ export default function MeteredCarparkDetails({ carpark, getMarkerColor }: Meter
         </div>
       </div>
 
-      {/* Total Spaces Info */}
-      <div style={{
-        padding: '12px 14px',
-        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
-        borderRadius: '8px',
-        marginBottom: '16px',
-        border: isDarkMode ? '1px solid #334155' : '1px solid #cbd5e1'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px'
-        }}>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: 500,
-            color: isDarkMode ? '#94a3b8' : '#64748b'
-          }}>
-            Total Spaces
-          </span>
-          <span style={{
-            fontSize: '14px',
-            fontWeight: 700,
-            color: isDarkMode ? '#f1f5f9' : '#1e293b'
-          }}>
-            {carpark.total_spaces}
-          </span>
-        </div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: 500,
-            color: isDarkMode ? '#94a3b8' : '#64748b'
-          }}>
-            With Real-time Data
-          </span>
-          <span style={{
-            fontSize: '14px',
-            fontWeight: 700,
-            color: isDarkMode ? '#f1f5f9' : '#1e293b'
-          }}>
-            {carpark.tracked_spaces} ({Math.round((carpark.tracked_spaces / carpark.total_spaces) * 100)}%)
-          </span>
-        </div>
-      </div>
-
-      {/* Vacancy Rate Bar */}
-      <div style={{
-        marginBottom: '16px'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '8px'
-        }}>
-          <span style={{
-            fontSize: '12px',
-            fontWeight: 500,
-            color: isDarkMode ? '#9ca3af' : '#6b7280'
-          }}>
-            Vacancy Rate
-          </span>
-          <span style={{
-            fontSize: '14px',
-            fontWeight: 700,
-            color: getMarkerColor(carpark.vacant_spaces)
-          }}>
-            {Math.round(carpark.vacancy_rate)}%
-          </span>
-        </div>
-        <div style={{
-          width: '100%',
-          height: '8px',
-          backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
-          borderRadius: '4px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            width: `${carpark.vacancy_rate}%`,
-            height: '100%',
-            backgroundColor: getMarkerColor(carpark.vacant_spaces),
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
+      {/* Vacancy Trend Chart */}
+      <div style={{ marginBottom: '16px' }}>
+        <MeteredVacancyTrendChart
+          carparkId={carpark.carpark_id}
+          hours={6}
+        />
       </div>
 
       {/* Last Updated */}

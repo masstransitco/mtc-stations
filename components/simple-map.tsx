@@ -172,24 +172,24 @@ function MapContent({
             cursor: 'pointer',
             position: 'relative'
           }}>
-            {/* Glassmorphic outer ring */}
+            {/* Glassmorphic outer ring - rounded square */}
             <div style={{
               position: 'absolute',
               width: '100%',
               height: '100%',
-              borderRadius: '50%',
+              borderRadius: '8px',
               background: `${getMarkerColor(carpark.vacancy)}20`,
               backdropFilter: 'blur(8px)',
               border: `2px solid ${getMarkerColor(carpark.vacancy)}`,
               boxShadow: `0 4px 12px ${getMarkerColor(carpark.vacancy)}40, 0 0 0 1px ${getMarkerColor(carpark.vacancy)}20`,
             }} />
 
-            {/* Inner circle with parking icon */}
+            {/* Inner rounded square with parking icon */}
             <div style={{
               position: 'relative',
               width: '28px',
               height: '28px',
-              borderRadius: '50%',
+              borderRadius: '6px',
               background: getMarkerColor(carpark.vacancy),
               display: 'flex',
               alignItems: 'center',
@@ -273,24 +273,24 @@ function MapContent({
             cursor: 'pointer',
             position: 'relative'
           }}>
-            {/* Glassmorphic outer ring with rounded square */}
+            {/* Glassmorphic outer ring - circle */}
             <div style={{
               position: 'absolute',
               width: '100%',
               height: '100%',
-              borderRadius: '8px',
+              borderRadius: '50%',
               background: `${getMarkerColor(carpark.vacant_spaces)}20`,
               backdropFilter: 'blur(8px)',
               border: `2px solid ${getMarkerColor(carpark.vacant_spaces)}`,
               boxShadow: `0 4px 12px ${getMarkerColor(carpark.vacant_spaces)}40, 0 0 0 1px ${getMarkerColor(carpark.vacant_spaces)}20`,
             }} />
 
-            {/* Inner rounded square with vacancy count */}
+            {/* Inner circle with vacancy count */}
             <div style={{
               position: 'relative',
               width: '32px',
               height: '32px',
-              borderRadius: '6px',
+              borderRadius: '50%',
               background: getMarkerColor(carpark.vacant_spaces),
               display: 'flex',
               alignItems: 'center',
@@ -615,12 +615,12 @@ export default function SimpleMap() {
   }, []);
 
   const getMarkerColor = (vacancy: number) => {
-    if (vacancy > 50) return "#0ea5e9";  // Sky blue - high availability
-    if (vacancy > 20) return "#3b82f6";  // Blue - good availability
-    if (vacancy > 10) return "#6366f1";  // Indigo - moderate availability
-    if (vacancy > 5) return "#8b5cf6";   // Purple - low availability
-    if (vacancy > 0) return "#a855f7";   // Purple/Magenta - very low
-    return "#e11d48";                     // Rose red - full/closed
+    if (vacancy > 50) return "#0ea5e9";  // Light blue - high availability
+    if (vacancy > 20) return "#0284c7";  // Sky blue - good availability
+    if (vacancy > 10) return "#0369a1";  // Medium blue - moderate availability
+    if (vacancy > 5) return "#075985";   // Deep blue - low availability
+    if (vacancy > 0) return "#0c4a6e";   // Dark blue - very low
+    return "#991b1b";                     // Dark muted red - full/closed
   };
 
   // Handle "My Location" button click
