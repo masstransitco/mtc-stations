@@ -17,6 +17,7 @@ import TrendingCarparks from "@/components/trending-carparks";
 import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
 import LoadingSpinner from "@/components/loading-spinner";
+import type { ParkingSpace } from "@/types/parking-space";
 
 interface CarparkWithVacancy {
   park_id: string;
@@ -56,7 +57,11 @@ function MapContent({
   show3DBuildings,
   searchLocation,
   onCarparkMarkerClick,
-  bottomSheetHeight
+  bottomSheetHeight,
+  parkingSpaces,
+  showParkingSpaces,
+  selectedParkingSpace,
+  setSelectedParkingSpace
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -69,6 +74,10 @@ function MapContent({
   searchLocation: SearchLocation | null;
   onCarparkMarkerClick: (carpark: CarparkWithVacancy) => void;
   bottomSheetHeight: number;
+  parkingSpaces: ParkingSpace[];
+  showParkingSpaces: boolean;
+  selectedParkingSpace: ParkingSpace | null;
+  setSelectedParkingSpace: (space: ParkingSpace | null) => void;
 }) {
   const map = useMap();
   const prevHeightRef = useRef(100);
@@ -188,6 +197,47 @@ function MapContent({
               >
                 <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
               </svg>
+            </div>
+          </div>
+        </AdvancedMarker>
+      ))}
+
+      {/* Parking Space Markers */}
+      {showParkingSpaces && parkingSpaces.map((space) => (
+        <AdvancedMarker
+          key={space.feature_id}
+          position={{ lat: space.latitude, lng: space.longitude }}
+          onClick={() => setSelectedParkingSpace(space)}
+          collisionBehavior={CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY}
+          zIndex={space.is_vacant ? 10 : 5}
+        >
+          <div style={{
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+          }}>
+            {/* Square marker for parking spaces */}
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '4px',
+              background: space.is_vacant ? '#10b981' : '#ef4444',
+              border: '2px solid white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+            }}>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
+                {space.vehicle_type}
+              </span>
             </div>
           </div>
         </AdvancedMarker>
@@ -425,6 +475,12 @@ export default function SimpleMap() {
   const [loadingNearby, setLoadingNearby] = useState(false);
   const [bottomSheetView, setBottomSheetView] = useState<BottomSheetView>('home');
   const [bottomSheetHeight, setBottomSheetHeight] = useState(100); // Start with minimized height
+
+  // Parking spaces state
+  const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
+  const [showParkingSpaces, setShowParkingSpaces] = useState(true);
+  const [selectedParkingSpace, setSelectedParkingSpace] = useState<ParkingSpace | null>(null);
+
   const { isDarkMode } = useTheme();
 
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
@@ -454,6 +510,21 @@ export default function SimpleMap() {
       .catch(err => {
         console.error("Error loading car parks:", err);
         setLoading(false);
+      });
+
+    // Fetch parking spaces
+    fetch("/api/parking-spaces?status=vacant", {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setParkingSpaces(data);
+      })
+      .catch(err => {
+        console.error("Error loading parking spaces:", err);
       });
   }, []);
 
@@ -747,6 +818,10 @@ export default function SimpleMap() {
             searchLocation={searchLocation}
             onCarparkMarkerClick={handleCarparkMarkerClick}
             bottomSheetHeight={bottomSheetHeight}
+            parkingSpaces={parkingSpaces}
+            showParkingSpaces={showParkingSpaces}
+            selectedParkingSpace={selectedParkingSpace}
+            setSelectedParkingSpace={setSelectedParkingSpace}
           />
         </Map>
 

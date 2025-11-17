@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/carpark-vacancy",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/parking-space-occupancy",
+      "schedule": "*/5 * * * *"
     }
   ],
   "headers": [
