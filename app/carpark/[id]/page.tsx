@@ -143,11 +143,15 @@ export default function CarparkPage() {
   return (
     <div style={{
       height: '100vh',
+      width: '100vw',
       background: isDarkMode ? '#111827' : '#f9fafb',
-      padding: '20px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
+      overflow: 'hidden',
+      position: 'fixed',
+      top: 0,
+      left: 0,
     }}>
       <div style={{
         maxWidth: '1200px',
@@ -155,6 +159,7 @@ export default function CarparkPage() {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
+        padding: '20px',
       }}>
         {/* Main Container */}
         <div style={{
