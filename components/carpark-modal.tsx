@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useTheme } from './theme-provider';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface CarparkModalProps {
   carpark: {
@@ -311,6 +313,146 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
             </div>
           </div>
 
+          {/* Vacancy Trend Chart */}
+          <div style={{
+            marginBottom: '24px',
+            padding: '16px',
+            background: isDarkMode ? '#111827' : '#f9fafb',
+            borderRadius: '8px',
+            border: `1px solid ${colors.border}`,
+          }}>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              color: colors.muted,
+              marginBottom: '12px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <span>Vacancy Trend</span>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 400,
+                textTransform: 'none',
+              }}>
+                Past 12h ({carpark.time_series.slice(-12).length} pts)
+              </span>
+            </div>
+            <ResponsiveContainer width="100%" height={120}>
+              <AreaChart
+                data={carpark.time_series.slice(-12).map(ts => ({
+                  time: new Date(ts.hour).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    hour12: true,
+                    timeZone: 'Asia/Hong_Kong',
+                  }),
+                  vacancy: Number(ts.avg_vacancy),
+                  timestamp: new Date(ts.hour).getTime(),
+                }))}
+                margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+              >
+                <defs>
+                  <linearGradient id="vacancyGradientModal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={colors.primary} stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor={colors.primary} stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="time"
+                  stroke={colors.muted}
+                  style={{ fontSize: '10px' }}
+                  tickLine={false}
+                  axisLine={{ stroke: colors.border }}
+                  minTickGap={40}
+                />
+                <YAxis
+                  stroke={colors.muted}
+                  style={{ fontSize: '10px' }}
+                  tickLine={false}
+                  axisLine={{ stroke: colors.border }}
+                  domain={[0, 'auto']}
+                  width={35}
+                />
+                <Tooltip
+                  content={({ active, payload }: any) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div style={{
+                          background: colors.background,
+                          border: `1px solid ${colors.border}`,
+                          padding: '6px 10px',
+                          borderRadius: '6px',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          fontSize: '11px',
+                        }}>
+                          <div style={{
+                            fontWeight: 600,
+                            color: colors.text,
+                            marginBottom: '2px',
+                          }}>
+                            {data.vacancy} spaces
+                          </div>
+                          <div style={{
+                            color: colors.muted,
+                            fontSize: '10px',
+                          }}>
+                            {new Date(data.timestamp).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true,
+                              timeZone: 'Asia/Hong_Kong',
+                            })}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="vacancy"
+                  stroke={colors.primary}
+                  strokeWidth={2}
+                  fill="url(#vacancyGradientModal)"
+                  animationDuration={500}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-around',
+              marginTop: '8px',
+              paddingTop: '8px',
+              borderTop: `1px solid ${colors.border}`,
+              fontSize: '10px',
+              color: colors.muted,
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontWeight: 600, fontSize: '12px', color: colors.text }}>
+                  {Math.min(...carpark.time_series.slice(-12).map(d => Number(d.avg_vacancy)))}
+                </div>
+                <div>Min</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontWeight: 600, fontSize: '12px', color: colors.text }}>
+                  {Math.round(carpark.time_series.slice(-12).reduce((sum, d) => sum + Number(d.avg_vacancy), 0) / carpark.time_series.slice(-12).length)}
+                </div>
+                <div>Avg</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontWeight: 600, fontSize: '12px', color: colors.text }}>
+                  {Math.max(...carpark.time_series.slice(-12).map(d => Number(d.avg_vacancy)))}
+                </div>
+                <div>Max</div>
+              </div>
+            </div>
+          </div>
+
           {/* Map */}
           <div style={{
             marginBottom: '24px',
@@ -369,33 +511,62 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
               Details
             </h3>
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: '140px 1fr',
-              gap: '8px',
-              fontSize: '13px',
+              display: 'flex',
+              gap: '16px',
             }}>
-              <div style={{ color: colors.muted }}>Carpark ID:</div>
-              <div style={{ color: colors.text, fontFamily: 'monospace' }}>{carpark.park_id}</div>
+              <div style={{
+                flex: 1,
+                display: 'grid',
+                gridTemplateColumns: '140px 1fr',
+                gap: '8px',
+                fontSize: '13px',
+              }}>
+                <div style={{ color: colors.muted }}>Carpark ID:</div>
+                <div style={{ color: colors.text, fontFamily: 'monospace' }}>{carpark.park_id}</div>
 
-              <div style={{ color: colors.muted }}>Coordinates:</div>
-              <div style={{ color: colors.text, fontFamily: 'monospace' }}>
-                {Number(carpark.latitude).toFixed(6)}, {Number(carpark.longitude).toFixed(6)}
+                <div style={{ color: colors.muted }}>Coordinates:</div>
+                <div style={{ color: colors.text, fontFamily: 'monospace' }}>
+                  {Number(carpark.latitude).toFixed(6)}, {Number(carpark.longitude).toFixed(6)}
+                </div>
+
+                <div style={{ color: colors.muted }}>Last Updated:</div>
+                <div style={{ color: colors.text }}>
+                  {new Date(carpark.lastupdate).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Asia/Hong_Kong',
+                  })}
+                </div>
+
+                <div style={{ color: colors.muted }}>Data Points:</div>
+                <div style={{ color: colors.text }}>
+                  {carpark.time_series.length} hourly snapshots
+                </div>
               </div>
 
-              <div style={{ color: colors.muted }}>Last Updated:</div>
-              <div style={{ color: colors.text }}>
-                {new Date(carpark.lastupdate).toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZone: 'Asia/Hong_Kong',
-                })}
-              </div>
-
-              <div style={{ color: colors.muted }}>Data Points:</div>
-              <div style={{ color: colors.text }}>
-                {carpark.time_series.length} hourly snapshots
+              {/* QR Code */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+              }}>
+                <QRCodeSVG
+                  value={`${typeof window !== 'undefined' ? window.location.origin : ''}/carpark/${carpark.park_id}`}
+                  size={100}
+                  level="M"
+                  bgColor={isDarkMode ? '#111827' : '#f9fafb'}
+                  fgColor={isDarkMode ? '#f3f4f6' : '#111827'}
+                />
+                <div style={{
+                  fontSize: '10px',
+                  color: colors.muted,
+                  textAlign: 'center',
+                }}>
+                  Scan to view
+                </div>
               </div>
             </div>
           </div>
