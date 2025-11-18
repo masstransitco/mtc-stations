@@ -90,7 +90,7 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10000,
-        padding: '20px',
+        padding: '20px 20px',
       }}
       onClick={onClose}
     >
@@ -102,8 +102,8 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
           borderRadius: '12px',
           maxWidth: '900px',
           width: '100%',
-          maxHeight: '90vh',
-          height: '90vh',
+          maxHeight: 'calc(100vh - 40px)',
+          height: 'calc(100vh - 40px)',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: isDarkMode
@@ -443,7 +443,7 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
             }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontWeight: 600, fontSize: '12px', color: colors.text }}>
-                  {Math.min(...carpark.time_series.slice(-12).map(d => Number(d.avg_vacancy)))}
+                  {Math.round(Math.min(...carpark.time_series.slice(-12).map(d => Number(d.avg_vacancy))))}
                 </div>
                 <div>Min</div>
               </div>
@@ -455,7 +455,7 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontWeight: 600, fontSize: '12px', color: colors.text }}>
-                  {Math.max(...carpark.time_series.slice(-12).map(d => Number(d.avg_vacancy)))}
+                  {Math.round(Math.max(...carpark.time_series.slice(-12).map(d => Number(d.avg_vacancy))))}
                 </div>
                 <div>Max</div>
               </div>
