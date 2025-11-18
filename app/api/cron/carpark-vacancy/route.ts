@@ -207,6 +207,18 @@ export async function GET(request: NextRequest) {
     // Insert into database
     const result = await insertVacancyRecords(records);
 
+    // Refresh the materialized views to update real-time data
+    console.log('Refreshing materialized views...');
+    const supabase = getSupabaseClient();
+    const { error: refreshError } = await supabase.rpc('refresh_latest_parking_vacancy');
+
+    if (refreshError) {
+      console.error('Error refreshing materialized views:', refreshError);
+      // Don't fail the entire job if refresh fails
+    } else {
+      console.log('Materialized views refreshed successfully');
+    }
+
     const duration = Date.now() - startTime;
 
     const response = {

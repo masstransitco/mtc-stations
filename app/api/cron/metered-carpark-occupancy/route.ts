@@ -155,6 +155,17 @@ export async function GET(request: NextRequest) {
 
     console.log(`[Metered Occupancy Cron] Updated tracking flags for ${updatedCount} spaces`);
 
+    // Refresh the materialized view to update real-time data
+    console.log('[Metered Occupancy Cron] Refreshing materialized view...');
+    const { error: refreshError } = await supabase.rpc('refresh_latest_metered_carpark_occupancy');
+
+    if (refreshError) {
+      console.error('[Metered Occupancy Cron] Error refreshing materialized view:', refreshError);
+      // Don't fail the entire job if refresh fails
+    } else {
+      console.log('[Metered Occupancy Cron] Materialized view refreshed successfully');
+    }
+
     // Calculate vacancy rate
     const vacancyRate = validCount > 0 ? Math.round((vacantCount / validCount) * 100) : 0;
 

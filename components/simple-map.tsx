@@ -69,7 +69,8 @@ function MapContent({
   showDispatchCarparks,
   selectedDispatchCarpark,
   setSelectedDispatchCarpark,
-  onDispatchCarparkMarkerClick
+  onDispatchCarparkMarkerClick,
+  showIndoorCarparks
 }: {
   carparks: CarparkWithVacancy[];
   selectedCarpark: CarparkWithVacancy | null;
@@ -101,6 +102,7 @@ function MapContent({
   selectedDispatchCarpark: DispatchCarpark | null;
   setSelectedDispatchCarpark: (carpark: DispatchCarpark | null) => void;
   onDispatchCarparkMarkerClick: (carpark: DispatchCarpark) => void;
+  showIndoorCarparks: boolean;
 }) {
   const map = useMap();
   const prevHeightRef = useRef(100);
@@ -108,24 +110,28 @@ function MapContent({
   // Convert data to MarkerItem format for optimized hooks
   const indoorCarparkItems = useMemo(
     () =>
-      (carparks || []).map((carpark) => ({
-        id: `${carpark.park_id}-${carpark.vehicle_type}`,
-        latitude: carpark.latitude,
-        longitude: carpark.longitude,
-        data: carpark,
-      })),
-    [carparks]
+      showIndoorCarparks
+        ? (carparks || []).map((carpark) => ({
+            id: `${carpark.park_id}-${carpark.vehicle_type}`,
+            latitude: carpark.latitude,
+            longitude: carpark.longitude,
+            data: carpark,
+          }))
+        : [],
+    [carparks, showIndoorCarparks]
   );
 
   const meteredCarparkItems = useMemo(
     () =>
-      (meteredCarparks || []).map((carpark) => ({
-        id: carpark.carpark_id,
-        latitude: carpark.latitude,
-        longitude: carpark.longitude,
-        data: carpark,
-      })),
-    [meteredCarparks]
+      showMeteredCarparks
+        ? (meteredCarparks || []).map((carpark) => ({
+            id: carpark.carpark_id,
+            latitude: carpark.latitude,
+            longitude: carpark.longitude,
+            data: carpark,
+          }))
+        : [],
+    [meteredCarparks, showMeteredCarparks]
   );
 
   const connectedCarparkItems = useMemo(
@@ -521,6 +527,12 @@ export default function SimpleMap() {
   const [bottomSheetView, setBottomSheetView] = useState<BottomSheetView>('home');
   const [bottomSheetHeight, setBottomSheetHeight] = useState(100); // Start with minimized height
 
+  // Theme selector expansion state
+  const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
+
+  // Indoor carparks visibility state
+  const [showIndoorCarparks, setShowIndoorCarparks] = useState(true);
+
   // Parking spaces state
   const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const [showParkingSpaces, setShowParkingSpaces] = useState(true);
@@ -794,53 +806,127 @@ export default function SimpleMap() {
         </div>
       )}
 
-      {/* Top Left - Menu Button */}
-      <button
-        onClick={() => {/* TODO: Open menu */}}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          zIndex: 10,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-        title="Menu"
-      >
-        <Image
-          src="/logos/bolt.svg"
-          alt="Menu"
-          width={28}
-          height={28}
+      {/* Top Right - Theme Selector Button */}
+      <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 10 }}>
+        <button
+          onClick={() => setIsThemeSelectorOpen(!isThemeSelectorOpen)}
           style={{
-            filter: isDarkMode ? 'brightness(0) invert(1)' : 'none'
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+            border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s ease',
           }}
-        />
-      </button>
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+          }}
+          title="Theme Selector"
+        >
+          <Image
+            src="/logos/bolt.svg"
+            alt="Theme Selector"
+            width={28}
+            height={28}
+            style={{
+              filter: isDarkMode ? 'brightness(0) invert(1)' : 'none'
+            }}
+          />
+        </button>
 
-      {/* Top Right - Theme Toggle */}
+        {/* Expandable Theme Options */}
+        {isThemeSelectorOpen && (
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            right: '60px',
+            display: 'flex',
+            gap: '8px',
+            transition: 'all 0.3s ease',
+          }}>
+            {/* Light Mode Button */}
+            <button
+              onClick={() => {
+                if (isDarkMode) toggleTheme();
+                setIsThemeSelectorOpen(false);
+              }}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                backgroundColor: !isDarkMode ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
+                border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+              }}
+              title="Light Mode"
+            >
+              <Sun size={24} color={!isDarkMode ? '#ffffff' : '#111827'} />
+            </button>
+
+            {/* Dark Mode Button */}
+            <button
+              onClick={() => {
+                if (!isDarkMode) toggleTheme();
+                setIsThemeSelectorOpen(false);
+              }}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                backgroundColor: isDarkMode ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
+                border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+              }}
+              title="Dark Mode"
+            >
+              <Moon size={24} color={isDarkMode ? '#ffffff' : '#111827'} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Top Right Stack - Indoor Carparks Button */}
       <button
-        onClick={toggleTheme}
+        onClick={() => setShowIndoorCarparks(!showIndoorCarparks)}
         style={{
           position: 'absolute',
-          top: '20px',
+          top: '80px',
           right: '20px',
           zIndex: 10,
           width: '48px',
@@ -863,13 +949,70 @@ export default function SimpleMap() {
           e.currentTarget.style.transform = 'scale(1)';
           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
         }}
-        title="Toggle Theme"
+        title="Toggle Indoor Carparks"
       >
-        {isDarkMode ? (
-          <Sun size={24} color="#f3f4f6" />
-        ) : (
-          <Moon size={24} color="#111827" />
-        )}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={showIndoorCarparks ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
+        </svg>
+      </button>
+
+      {/* Top Right Stack - Metered Carparks Button */}
+      <button
+        onClick={() => setShowMeteredCarparks(!showMeteredCarparks)}
+        style={{
+          position: 'absolute',
+          top: '140px',
+          right: '20px',
+          zIndex: 10,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+        title="Toggle Metered Carparks"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={showMeteredCarparks ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M11 15h2"/>
+          <path d="M12 12v3"/>
+          <path d="M12 19v3"/>
+          <path d="M15.282 19a1 1 0 0 0 .948-.68l2.37-6.988a7 7 0 1 0-13.2 0l2.37 6.988a1 1 0 0 0 .948.68z"/>
+          <path d="M9 9a3 3 0 1 1 6 0"/>
+        </svg>
       </button>
 
       {/* Top Right Stack - 3D Buildings Button */}
@@ -877,7 +1020,7 @@ export default function SimpleMap() {
         onClick={() => setShow3DBuildings(!show3DBuildings)}
         style={{
           position: 'absolute',
-          top: '80px',
+          top: '200px',
           right: '20px',
           zIndex: 10,
           width: '48px',
@@ -913,7 +1056,7 @@ export default function SimpleMap() {
         onClick={handleMyLocation}
         style={{
           position: 'absolute',
-          top: '140px',
+          top: '260px',
           right: '20px',
           zIndex: 10,
           width: '48px',
@@ -994,6 +1137,7 @@ export default function SimpleMap() {
             selectedDispatchCarpark={selectedDispatchCarpark}
             setSelectedDispatchCarpark={setSelectedDispatchCarpark}
             onDispatchCarparkMarkerClick={handleDispatchCarparkMarkerClick}
+            showIndoorCarparks={showIndoorCarparks}
           />
         </Map>
 

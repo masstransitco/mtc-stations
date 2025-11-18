@@ -198,6 +198,34 @@ export function useOptimizedMarkers(
     setVisibleIds(newVisibleIds);
   }, [map, enabled, minZoom, maxZoom, bufferPercentage, markerLib]);
 
+  // Trigger marker update when items change (after spatial index rebuild)
+  useEffect(() => {
+    if (!map || !enabled || !markerLib) return;
+
+    // When items array changes, the spatial index is rebuilt (in the effect above)
+    // Now we need to update the markers to reflect the new data
+    updateMarkers();
+  }, [items, map, enabled, markerLib, updateMarkers]);
+
+  // Handle enabled state changes - properly show/hide all markers
+  useEffect(() => {
+    if (!map || !markerLib) return;
+
+    if (!enabled) {
+      // When disabled, detach all markers and clear visible set
+      markersRef.current.forEach(markerData => {
+        if (markerData.isAttached) {
+          markerData.marker.map = null;
+          markerData.isAttached = false;
+        }
+      });
+      setVisibleIds(new Set());
+    } else {
+      // When enabled, update markers to show them
+      updateMarkers();
+    }
+  }, [enabled, map, markerLib, updateMarkers]);
+
   // Listen to map events with debouncing
   useEffect(() => {
     if (!map || !enabled || !markerLib) return;

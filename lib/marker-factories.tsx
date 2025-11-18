@@ -232,7 +232,7 @@ export function createMeteredCarparkMarker(
   badge.style.minWidth = '18px';
   badge.style.height = '18px';
   badge.style.borderRadius = '9px';
-  badge.style.background = 'transparent';
+  badge.style.background = 'white';
   badge.style.border = '2px solid white';
   badge.style.display = 'flex';
   badge.style.alignItems = 'center';
@@ -243,7 +243,7 @@ export function createMeteredCarparkMarker(
   const badgeText = document.createElement('span');
   badgeText.style.fontSize = '10px';
   badgeText.style.fontWeight = 'bold';
-  badgeText.style.color = 'white';
+  badgeText.style.color = '#1a1a1a';
   badgeText.style.lineHeight = '1';
   badgeText.textContent = carpark.vacant_spaces.toString();
 
