@@ -101,7 +101,9 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
           maxWidth: '900px',
           width: '100%',
           maxHeight: '90vh',
-          overflow: 'auto',
+          height: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
           boxShadow: isDarkMode
             ? '0 25px 50px rgba(0, 0, 0, 0.8)'
             : '0 25px 50px rgba(0, 0, 0, 0.15)',
@@ -180,7 +182,12 @@ export function CarparkModal({ carpark, onClose }: CarparkModalProps) {
         </div>
 
         {/* Content */}
-        <div style={{ padding: '24px' }}>
+        <div style={{
+          padding: '24px',
+          flex: 1,
+          overflow: 'auto',
+          minHeight: 0,
+        }}>
           {/* Stats Grid */}
           <div style={{
             display: 'grid',

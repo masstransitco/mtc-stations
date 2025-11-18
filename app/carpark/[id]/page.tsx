@@ -49,6 +49,16 @@ export default function CarparkPage() {
     danger: '#ef4444',
   };
 
+  // Prevent body scroll
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   useEffect(() => {
     const fetchCarpark = async () => {
       try {
@@ -79,7 +89,7 @@ export default function CarparkPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh',
+        height: '100vh',
         background: isDarkMode ? '#111827' : '#f9fafb',
         color: colors.muted,
       }}>
@@ -95,7 +105,7 @@ export default function CarparkPage() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh',
+        height: '100vh',
         background: isDarkMode ? '#111827' : '#f9fafb',
         gap: '12px',
       }}>
@@ -132,13 +142,19 @@ export default function CarparkPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      height: '100vh',
       background: isDarkMode ? '#111827' : '#f9fafb',
       padding: '20px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     }}>
       <div style={{
         maxWidth: '1200px',
-        margin: '0 auto',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}>
         {/* Main Container */}
         <div style={{
@@ -147,6 +163,9 @@ export default function CarparkPage() {
           boxShadow: isDarkMode
             ? '0 25px 50px rgba(0, 0, 0, 0.8)'
             : '0 25px 50px rgba(0, 0, 0, 0.15)',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
           overflow: 'hidden',
         }}>
           {/* Header */}
@@ -201,7 +220,12 @@ export default function CarparkPage() {
           </div>
 
           {/* Content */}
-          <div style={{ padding: '24px' }}>
+          <div style={{
+            padding: '24px',
+            flex: 1,
+            overflow: 'auto',
+            minHeight: 0,
+          }}>
             {/* Stats Grid */}
             <div style={{
               display: 'grid',
