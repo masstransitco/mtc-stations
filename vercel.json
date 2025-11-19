@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/metered-carpark-occupancy",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-metered-snapshots",
+      "schedule": "0 3 * * 0"
     }
   ],
   "headers": [

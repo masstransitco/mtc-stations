@@ -194,12 +194,26 @@ npx tsx scripts/import-metered-carparks.ts
 4. Transform date format: `"11/17/2025 02:06:04 PM"` → ISO 8601 with HK timezone
 5. Batch insert snapshots (100 records per batch)
 6. Update `has_real_time_tracking` flags (500 space IDs per batch)
-7. Log statistics and return summary
+7. Refresh materialized view with optimized query (looks at last 2 hours only)
+8. Log statistics and return summary
 
-**Key Features**:
+### 3. Cron Job - Snapshot Cleanup
+**File**: `app/api/cron/cleanup-metered-snapshots/route.ts`
+
+**Schedule**: Weekly on Sunday at 3:00 AM (configured in `vercel.json`)
+
+**Process**:
+1. Verify cron secret authentication
+2. Delete snapshots older than 7 days
+3. Log deleted count and return summary
+
+**Purpose**: Prevents the `metered_space_occupancy_snapshots` table from growing too large, which would cause materialized view refresh timeouts.
+
+**Key Features** (Occupancy Ingestion):
 - **Batch processing** to avoid URI size limits (Cloudflare 414 errors)
 - **Date parsing** for government CSV format with 12/24-hour conversion
 - **Tracking flag updates** to identify spaces with active sensors
+- **Materialized view refresh** to update real-time data efficiently
 
 **Response Example**:
 ```json
@@ -216,7 +230,7 @@ npx tsx scripts/import-metered-carparks.ts
 }
 ```
 
-### 3. REST API - Carpark Data
+### 4. REST API - Carpark Data
 **File**: `app/api/metered-carparks/route.ts`
 
 **Endpoint**: `GET /api/metered-carparks`
@@ -447,6 +461,10 @@ const handleBottomSheetBack = () => {
     {
       "path": "/api/cron/metered-carpark-occupancy",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-metered-snapshots",
+      "schedule": "0 3 * * 0"
     }
   ]
 }
@@ -471,7 +489,38 @@ CRON_SECRET=your-secret-key
 
 ## Known Issues & Solutions
 
-### Issue 1: "414 Request-URI Too Large"
+### Issue 1: Materialized View Refresh Timeout (Nov 2025)
+**Problem**: After ~1.8 days of operation, the materialized view refresh started timing out. The `metered_space_occupancy_snapshots` table grew to 10.6 million records (5.9M per day), and the `DISTINCT ON` query was scanning all records to find the latest for each space.
+
+**Root Cause**: The CTE was looking at ALL snapshot records without any time filter, causing a full table scan of millions of rows.
+
+**Solution**:
+1. **Optimized the materialized view** to only look at last 2 hours of data (reduces scan from 10M+ rows to ~240k)
+2. **Added compound index** on `(is_valid, ingested_at DESC, parking_space_id)` for faster queries
+3. **Increased refresh timeout** to 60 seconds in the refresh function
+4. **Created cleanup cron job** to delete snapshots older than 7 days (runs weekly)
+
+```sql
+-- The key optimization in the CTE
+WITH latest_spaces AS (
+  SELECT DISTINCT ON (parking_space_id)
+    parking_space_id,
+    occupancy_status,
+    is_vacant,
+    occupancy_date_changed,
+    ingested_at
+  FROM metered_space_occupancy_snapshots
+  WHERE is_valid = true
+    AND ingested_at >= NOW() - INTERVAL '2 hours'  -- CRITICAL OPTIMIZATION
+  ORDER BY parking_space_id, ingested_at DESC
+)
+```
+
+**Files**:
+- `supabase/migrations/optimize_metered_view_performance.sql` - Optimized materialized view
+- `app/api/cron/cleanup-metered-snapshots/route.ts` - Weekly cleanup cron
+
+### Issue 2: "414 Request-URI Too Large"
 **Problem**: Updating `has_real_time_tracking` for 20,000+ space IDs in one query exceeded Cloudflare's URI limit.
 
 **Solution**: Batch UPDATE operations into groups of 500 space IDs.
@@ -487,7 +536,7 @@ for (let i = 0; i < uniqueSpaceIds.length; i += updateBatchSize) {
 }
 ```
 
-### Issue 2: Incorrect Timezone Display
+### Issue 3: Incorrect Timezone Display
 **Problem**: Timestamps from database (e.g., `2025-11-17T08:00:35.963068`) were parsed as local time instead of UTC, showing "08:00 AM" when actual Hong Kong time was "04:00 PM".
 
 **Solution**: Append `Z` to indicate UTC in API response.
@@ -499,7 +548,7 @@ const dataWithTimezone = data.map(carpark => ({
 }));
 ```
 
-### Issue 3: CSV Date Parsing
+### Issue 4: CSV Date Parsing
 **Problem**: Government API returns dates in format `"11/17/2025 02:06:04 PM"`.
 
 **Solution**: Custom parser for 12-hour → 24-hour conversion.
@@ -621,6 +670,12 @@ FROM latest_metered_carpark_occupancy;
 - Government API Documentation: https://data.gov.hk/en-data/dataset/hk-td-tis_2-real-time-parking-information
 
 ## Changelog
+
+### 2025-11-19
+- ✅ Fixed materialized view refresh timeout by optimizing query to only look at last 2 hours
+- ✅ Added compound index on `(is_valid, ingested_at DESC, parking_space_id)` for performance
+- ✅ Created weekly cleanup cron job to delete snapshots older than 7 days
+- ✅ Updated refresh function with 60-second timeout
 
 ### 2025-11-17
 - ✅ Initial implementation
