@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "scripts/**/*"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "!mtc-app-src/**/*", "mtc-app-src/store/**/*"],
+  "exclude": ["node_modules", "scripts/**/*", "mtc-app-src/**/*"]
 }

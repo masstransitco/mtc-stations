@@ -12,11 +12,33 @@ import type { ParkingSpace } from '@/types/parking-space';
 export function createIndoorCarparkMarker(
   carpark: CarparkWithVacancy,
   getMarkerColor: (vacancy: number) => string,
-  onClick: (carpark: CarparkWithVacancy) => void
+  onClick: (carpark: CarparkWithVacancy) => void,
+  isSelected: boolean = false
 ): HTMLElement {
+  // Add animations to document if not already present and marker is selected
+  if (isSelected && !document.getElementById('marker-animations')) {
+    const style = document.createElement('style');
+    style.id = 'marker-animations';
+    style.textContent = `
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.15); opacity: 0.9; }
+      }
+      @keyframes breatheRing {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.3); opacity: 0.3; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   const container = document.createElement('div');
-  container.style.width = '40px';
-  container.style.height = '40px';
+  const size = isSelected ? '50px' : '40px';
+  const innerSize = isSelected ? '34px' : '28px';
+  const iconSize = isSelected ? '18' : '16';
+
+  container.style.width = size;
+  container.style.height = size;
   container.style.display = 'flex';
   container.style.alignItems = 'center';
   container.style.justifyContent = 'center';
@@ -24,6 +46,18 @@ export function createIndoorCarparkMarker(
   container.style.position = 'relative';
 
   const color = getMarkerColor(carpark.vacancy);
+
+  // Outer breathing ring (only visible when selected)
+  if (isSelected) {
+    const breathingRing = document.createElement('div');
+    breathingRing.style.position = 'absolute';
+    breathingRing.style.width = '100%';
+    breathingRing.style.height = '100%';
+    breathingRing.style.borderRadius = '8px';
+    breathingRing.style.background = `${color}30`;
+    breathingRing.style.animation = 'breatheRing 2s ease-in-out infinite';
+    container.appendChild(breathingRing);
+  }
 
   // Glassmorphic outer ring
   const outerRing = document.createElement('div');
@@ -33,27 +67,37 @@ export function createIndoorCarparkMarker(
   outerRing.style.borderRadius = '8px';
   outerRing.style.background = `${color}20`;
   outerRing.style.backdropFilter = 'blur(8px)';
-  outerRing.style.border = `2px solid ${color}`;
-  outerRing.style.boxShadow = `0 4px 12px ${color}40, 0 0 0 1px ${color}20`;
+  outerRing.style.border = isSelected ? `3px solid ${color}` : `2px solid ${color}`;
+  outerRing.style.boxShadow = isSelected
+    ? `0 4px 16px ${color}60, 0 0 0 1px ${color}30`
+    : `0 4px 12px ${color}40, 0 0 0 1px ${color}20`;
+  if (isSelected) {
+    outerRing.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   // Inner rounded square
   const innerSquare = document.createElement('div');
   innerSquare.style.position = 'relative';
-  innerSquare.style.width = '28px';
-  innerSquare.style.height = '28px';
+  innerSquare.style.width = innerSize;
+  innerSquare.style.height = innerSize;
   innerSquare.style.borderRadius = '6px';
   innerSquare.style.background = color;
   innerSquare.style.display = 'flex';
   innerSquare.style.alignItems = 'center';
   innerSquare.style.justifyContent = 'center';
-  innerSquare.style.boxShadow = `0 2px 8px ${color}60`;
+  innerSquare.style.boxShadow = isSelected
+    ? `0 3px 12px ${color}70`
+    : `0 2px 8px ${color}60`;
+  if (isSelected) {
+    innerSquare.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   // Parking icon SVG
   innerSquare.innerHTML = `
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
+      width="${iconSize}"
+      height="${iconSize}"
       viewBox="0 0 24 24"
       fill="none"
       stroke="white"
@@ -167,11 +211,33 @@ export function createSelectedCarparkMarker(
 export function createMeteredCarparkMarker(
   carpark: MeteredCarpark,
   getMarkerColor: (vacancy: number) => string,
-  onClick: (carpark: MeteredCarpark) => void
+  onClick: (carpark: MeteredCarpark) => void,
+  isSelected: boolean = false
 ): HTMLElement {
+  // Add animations if selected and not already present
+  if (isSelected && !document.getElementById('marker-animations')) {
+    const style = document.createElement('style');
+    style.id = 'marker-animations';
+    style.textContent = `
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.15); opacity: 0.9; }
+      }
+      @keyframes breatheRing {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.3); opacity: 0.3; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   const container = document.createElement('div');
-  container.style.width = '44px';
-  container.style.height = '44px';
+  const size = isSelected ? '54px' : '44px';
+  const innerSize = isSelected ? '38px' : '32px';
+  const iconSize = isSelected ? '20' : '18';
+
+  container.style.width = size;
+  container.style.height = size;
   container.style.display = 'flex';
   container.style.alignItems = 'center';
   container.style.justifyContent = 'center';
@@ -179,6 +245,18 @@ export function createMeteredCarparkMarker(
   container.style.position = 'relative';
 
   const color = getMarkerColor(carpark.vacant_spaces);
+
+  // Outer breathing ring (only visible when selected)
+  if (isSelected) {
+    const breathingRing = document.createElement('div');
+    breathingRing.style.position = 'absolute';
+    breathingRing.style.width = '100%';
+    breathingRing.style.height = '100%';
+    breathingRing.style.borderRadius = '50%';
+    breathingRing.style.background = `${color}30`;
+    breathingRing.style.animation = 'breatheRing 2s ease-in-out infinite';
+    container.appendChild(breathingRing);
+  }
 
   // Glassmorphic outer ring - circle
   const outerRing = document.createElement('div');
@@ -188,27 +266,37 @@ export function createMeteredCarparkMarker(
   outerRing.style.borderRadius = '50%';
   outerRing.style.background = `${color}20`;
   outerRing.style.backdropFilter = 'blur(8px)';
-  outerRing.style.border = `2px solid ${color}`;
-  outerRing.style.boxShadow = `0 4px 12px ${color}40, 0 0 0 1px ${color}20`;
+  outerRing.style.border = isSelected ? `3px solid ${color}` : `2px solid ${color}`;
+  outerRing.style.boxShadow = isSelected
+    ? `0 4px 16px ${color}60, 0 0 0 1px ${color}30`
+    : `0 4px 12px ${color}40, 0 0 0 1px ${color}20`;
+  if (isSelected) {
+    outerRing.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   // Inner circle with parking meter icon
   const innerCircle = document.createElement('div');
   innerCircle.style.position = 'relative';
-  innerCircle.style.width = '32px';
-  innerCircle.style.height = '32px';
+  innerCircle.style.width = innerSize;
+  innerCircle.style.height = innerSize;
   innerCircle.style.borderRadius = '50%';
   innerCircle.style.background = color;
   innerCircle.style.display = 'flex';
   innerCircle.style.alignItems = 'center';
   innerCircle.style.justifyContent = 'center';
-  innerCircle.style.boxShadow = `0 2px 8px ${color}60`;
+  innerCircle.style.boxShadow = isSelected
+    ? `0 3px 12px ${color}70`
+    : `0 2px 8px ${color}60`;
+  if (isSelected) {
+    innerCircle.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   // Parking meter SVG icon
   innerCircle.innerHTML = `
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
+      width="${iconSize}"
+      height="${iconSize}"
       viewBox="0 0 24 24"
       fill="none"
       stroke="white"
@@ -261,11 +349,33 @@ export function createMeteredCarparkMarker(
 export function createConnectedCarparkMarker(
   carpark: ConnectedCarpark,
   isDarkMode: boolean,
-  onClick: (carpark: ConnectedCarpark) => void
+  onClick: (carpark: ConnectedCarpark) => void,
+  isSelected: boolean = false
 ): HTMLElement {
+  // Add animations if selected and not already present
+  if (isSelected && !document.getElementById('marker-animations')) {
+    const style = document.createElement('style');
+    style.id = 'marker-animations';
+    style.textContent = `
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.15); opacity: 0.9; }
+      }
+      @keyframes breatheRing {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.3); opacity: 0.3; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   const container = document.createElement('div');
-  container.style.width = '40px';
-  container.style.height = '40px';
+  const size = isSelected ? '50px' : '40px';
+  const innerSize = isSelected ? '34px' : '28px';
+  const logoSize = isSelected ? 20 : 18;
+
+  container.style.width = size;
+  container.style.height = size;
   container.style.display = 'flex';
   container.style.alignItems = 'center';
   container.style.justifyContent = 'center';
@@ -273,6 +383,18 @@ export function createConnectedCarparkMarker(
   container.style.position = 'relative';
 
   const evColor = isDarkMode ? '#f3f4f6' : '#1f2937';
+
+  // Outer breathing ring (only visible when selected)
+  if (isSelected) {
+    const breathingRing = document.createElement('div');
+    breathingRing.style.position = 'absolute';
+    breathingRing.style.width = '100%';
+    breathingRing.style.height = '100%';
+    breathingRing.style.borderRadius = '8px';
+    breathingRing.style.background = `${evColor}30`;
+    breathingRing.style.animation = 'breatheRing 2s ease-in-out infinite';
+    container.appendChild(breathingRing);
+  }
 
   // Glassmorphic outer ring
   const outerRing = document.createElement('div');
@@ -282,27 +404,37 @@ export function createConnectedCarparkMarker(
   outerRing.style.borderRadius = '8px';
   outerRing.style.background = `${evColor}20`;
   outerRing.style.backdropFilter = 'blur(8px)';
-  outerRing.style.border = `2px solid ${evColor}`;
-  outerRing.style.boxShadow = `0 4px 12px ${evColor}40, 0 0 0 1px ${evColor}20`;
+  outerRing.style.border = isSelected ? `3px solid ${evColor}` : `2px solid ${evColor}`;
+  outerRing.style.boxShadow = isSelected
+    ? `0 4px 16px ${evColor}60, 0 0 0 1px ${evColor}30`
+    : `0 4px 12px ${evColor}40, 0 0 0 1px ${evColor}20`;
+  if (isSelected) {
+    outerRing.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   // Inner rounded square
   const innerSquare = document.createElement('div');
   innerSquare.style.position = 'relative';
-  innerSquare.style.width = '28px';
-  innerSquare.style.height = '28px';
+  innerSquare.style.width = innerSize;
+  innerSquare.style.height = innerSize;
   innerSquare.style.borderRadius = '6px';
   innerSquare.style.background = evColor;
   innerSquare.style.display = 'flex';
   innerSquare.style.alignItems = 'center';
   innerSquare.style.justifyContent = 'center';
-  innerSquare.style.boxShadow = `0 2px 8px ${evColor}60`;
+  innerSquare.style.boxShadow = isSelected
+    ? `0 3px 12px ${evColor}70`
+    : `0 2px 8px ${evColor}60`;
+  if (isSelected) {
+    innerSquare.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   // Logo image
   const logo = document.createElement('img');
   logo.src = '/logos/mtc-logo-2025.svg';
   logo.alt = 'EV Charging';
-  logo.width = 18;
-  logo.height = 18;
+  logo.width = logoSize;
+  logo.height = logoSize;
   logo.style.filter = isDarkMode ? 'brightness(0)' : 'brightness(0) invert(1)';
 
   innerSquare.appendChild(logo);
@@ -317,11 +449,33 @@ export function createConnectedCarparkMarker(
 // Dispatch Carpark Marker
 export function createDispatchCarparkMarker(
   carpark: DispatchCarpark,
-  onClick: (carpark: DispatchCarpark) => void
+  onClick: (carpark: DispatchCarpark) => void,
+  isSelected: boolean = false
 ): HTMLElement {
+  // Inject animations if needed
+  if (isSelected && !document.getElementById('marker-animations')) {
+    const style = document.createElement('style');
+    style.id = 'marker-animations';
+    style.textContent = `
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.15); opacity: 0.9; }
+      }
+      @keyframes breatheRing {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.3); opacity: 0.3; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const size = isSelected ? '50px' : '40px';
+  const innerSize = isSelected ? '34px' : '28px';
+  const logoSize = isSelected ? 22 : 18;
+
   const container = document.createElement('div');
-  container.style.width = '40px';
-  container.style.height = '40px';
+  container.style.width = size;
+  container.style.height = size;
   container.style.display = 'flex';
   container.style.alignItems = 'center';
   container.style.justifyContent = 'center';
@@ -329,6 +483,20 @@ export function createDispatchCarparkMarker(
   container.style.position = 'relative';
 
   const dispatchColor = '#065f46';
+
+  // Outer breathing ring (only when selected)
+  if (isSelected) {
+    const breathingRing = document.createElement('div');
+    breathingRing.style.position = 'absolute';
+    breathingRing.style.width = '120%';
+    breathingRing.style.height = '120%';
+    breathingRing.style.borderRadius = '10px';
+    breathingRing.style.background = `${dispatchColor}15`;
+    breathingRing.style.border = `2px solid ${dispatchColor}60`;
+    breathingRing.style.animation = 'breatheRing 2s ease-in-out infinite';
+    breathingRing.style.pointerEvents = 'none';
+    container.appendChild(breathingRing);
+  }
 
   // Glassmorphic outer ring
   const outerRing = document.createElement('div');
@@ -338,14 +506,16 @@ export function createDispatchCarparkMarker(
   outerRing.style.borderRadius = '8px';
   outerRing.style.background = `${dispatchColor}20`;
   outerRing.style.backdropFilter = 'blur(8px)';
-  outerRing.style.border = `2px solid ${dispatchColor}`;
-  outerRing.style.boxShadow = `0 4px 12px ${dispatchColor}40, 0 0 0 1px ${dispatchColor}20`;
+  outerRing.style.border = isSelected ? `3px solid ${dispatchColor}` : `2px solid ${dispatchColor}`;
+  outerRing.style.boxShadow = isSelected
+    ? `0 6px 20px ${dispatchColor}60, 0 0 0 2px ${dispatchColor}30`
+    : `0 4px 12px ${dispatchColor}40, 0 0 0 1px ${dispatchColor}20`;
 
   // Inner rounded square
   const innerSquare = document.createElement('div');
   innerSquare.style.position = 'relative';
-  innerSquare.style.width = '28px';
-  innerSquare.style.height = '28px';
+  innerSquare.style.width = innerSize;
+  innerSquare.style.height = innerSize;
   innerSquare.style.borderRadius = '6px';
   innerSquare.style.background = dispatchColor;
   innerSquare.style.display = 'flex';
@@ -357,9 +527,15 @@ export function createDispatchCarparkMarker(
   const logo = document.createElement('img');
   logo.src = '/logos/noah-logo.svg';
   logo.alt = 'Dispatch Carpark';
-  logo.width = 18;
-  logo.height = 18;
+  logo.width = logoSize;
+  logo.height = logoSize;
   logo.style.filter = 'brightness(0) invert(1)';
+
+  // Apply animations to rings when selected
+  if (isSelected) {
+    outerRing.style.animation = 'breathe 2s ease-in-out infinite';
+    innerSquare.style.animation = 'breathe 2s ease-in-out infinite';
+  }
 
   innerSquare.appendChild(logo);
   container.appendChild(outerRing);

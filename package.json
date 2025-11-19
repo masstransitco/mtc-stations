@@ -11,9 +11,11 @@
     "convert-buildings": "tsx scripts/convert-buildings.ts",
     "tile-buildings": "tsx scripts/tile-buildings.ts",
     "process-buildings": "tsx scripts/process-buildings-stream.ts",
-    "process-buildings-sample": "tsx scripts/process-buildings-sample.ts"
+    "process-buildings-sample": "tsx scripts/process-buildings-sample.ts",
+    "build:pmtiles": "bash scripts/make-buildings-pmtiles.sh"
   },
   "dependencies": {
+    "@mapbox/vector-tile": "^2.0.4",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-scroll-area": "^1.2.10",
     "@supabase/supabase-js": "^2.39.3",
@@ -30,12 +32,16 @@
     "lucide-react": "^0.553.0",
     "next": "^14.2.33",
     "next-themes": "^0.4.6",
+    "pbf": "^4.0.1",
     "pg": "^8.16.3",
+    "pmtiles": "^4.3.0",
     "proj4": "^2.20.0",
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
     "recharts": "^3.4.1",
+    "redux-persist": "^6.0.0",
     "stream-json": "^1.9.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
@@ -43,7 +49,9 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/mapbox__vector-tile": "^1.3.4",
     "@types/node": "^20.11.5",
+    "@types/pbf": "^3.0.5",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "tsx": "^4.20.6",

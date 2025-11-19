@@ -5,7 +5,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { Navigation, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
-import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
+import { BuildingOverlay } from "@/components/building-overlay";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
@@ -20,6 +20,7 @@ import LoadingSpinner from "@/components/loading-spinner";
 import { useOptimizedMarkers } from "@/hooks/use-optimized-markers";
 import {
   createIndoorCarparkMarker,
+  createSelectedCarparkMarker,
   createMeteredCarparkMarker,
   createConnectedCarparkMarker,
   createDispatchCarparkMarker,
@@ -30,8 +31,6 @@ import type { ParkingSpace } from "@/types/parking-space";
 import type { MeteredCarpark } from "@/types/metered-carpark";
 import type { ConnectedCarpark } from "@/types/connected-carpark";
 import type { DispatchCarpark } from "@/types/dispatch-carpark";
-import { useCarparkActions, getCarparkManager } from "@/hooks/use-carpark-actions";
-import type { CarparkUnion } from "@/store/carparkSlice";
 
 interface SearchLocation {
   lat: number;
@@ -39,67 +38,76 @@ interface SearchLocation {
   address: string;
 }
 
-// Helper function to safely get vacancy from any carpark type
-function getCarparkVacancy(carpark: CarparkUnion): number {
-  if ('vacancy' in carpark) {
-    return carpark.vacancy;
-  }
-  // Default vacancy for carparks without vacancy info (metered, connected, dispatch)
-  return 50; // Medium occupancy as default
-}
-
 // Component to handle map reference with optimized markers
 function MapContent({
   carparks,
+  selectedCarpark,
+  setSelectedCarpark,
   currentLocation,
   isTracking,
   getMarkerColor,
   isDarkMode,
   show3DBuildings,
+  searchLocation,
+  onCarparkMarkerClick,
+  onMeteredCarparkMarkerClick,
+  bottomSheetHeight,
   parkingSpaces,
   showParkingSpaces,
   selectedParkingSpace,
   setSelectedParkingSpace,
   meteredCarparks,
   showMeteredCarparks,
+  selectedMeteredCarpark,
+  setSelectedMeteredCarpark,
   connectedCarparks,
   showConnectedCarparks,
+  selectedConnectedCarpark,
+  setSelectedConnectedCarpark,
+  onConnectedCarparkMarkerClick,
   dispatchCarparks,
   showDispatchCarparks,
+  selectedDispatchCarpark,
+  setSelectedDispatchCarpark,
+  onDispatchCarparkMarkerClick,
   showIndoorCarparks
 }: {
   carparks: CarparkWithVacancy[];
+  selectedCarpark: CarparkWithVacancy | null;
+  setSelectedCarpark: (carpark: CarparkWithVacancy | null) => void;
   currentLocation: any;
   isTracking: boolean;
   getMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
   show3DBuildings: boolean;
+  searchLocation: SearchLocation | null;
+  onCarparkMarkerClick: (carpark: CarparkWithVacancy) => void;
+  onMeteredCarparkMarkerClick: (carpark: MeteredCarpark) => void;
+  bottomSheetHeight: number;
   parkingSpaces: ParkingSpace[];
   showParkingSpaces: boolean;
   selectedParkingSpace: ParkingSpace | null;
   setSelectedParkingSpace: (space: ParkingSpace | null) => void;
   meteredCarparks: MeteredCarpark[];
   showMeteredCarparks: boolean;
+  selectedMeteredCarpark: MeteredCarpark | null;
+  setSelectedMeteredCarpark: (carpark: MeteredCarpark | null) => void;
   connectedCarparks: ConnectedCarpark[];
   showConnectedCarparks: boolean;
+  selectedConnectedCarpark: ConnectedCarpark | null;
+  setSelectedConnectedCarpark: (carpark: ConnectedCarpark | null) => void;
+  onConnectedCarparkMarkerClick: (carpark: ConnectedCarpark) => void;
   dispatchCarparks: DispatchCarpark[];
   showDispatchCarparks: boolean;
+  selectedDispatchCarpark: DispatchCarpark | null;
+  setSelectedDispatchCarpark: (carpark: DispatchCarpark | null) => void;
+  onDispatchCarparkMarkerClick: (carpark: DispatchCarpark) => void;
   showIndoorCarparks: boolean;
 }) {
-  // Access Redux state and actions within MapContent
-  const {
-    selectedCarpark,
-    selectedCarparkId,
-    selectedCarparkType,
-    bottomSheetHeight,
-    searchLocation,
-    handleMarkerClick,
-  } = useCarparkActions();
   const map = useMap();
   const prevHeightRef = useRef(100);
 
   // Convert data to MarkerItem format for optimized hooks
-  // IMPORTANT: Include isSelected in the item data so shouldUpdate can detect selection changes
   const indoorCarparkItems = useMemo(
     () =>
       showIndoorCarparks
@@ -107,13 +115,10 @@ function MapContent({
             id: `${carpark.park_id}-${carpark.vehicle_type}`,
             latitude: carpark.latitude,
             longitude: carpark.longitude,
-            data: {
-              ...carpark,
-              isSelected: selectedCarparkType === 'indoor' && selectedCarparkId === carpark.park_id,
-            },
+            data: carpark,
           }))
         : [],
-    [carparks, showIndoorCarparks, selectedCarparkId, selectedCarparkType]
+    [carparks, showIndoorCarparks]
   );
 
   const meteredCarparkItems = useMemo(
@@ -123,13 +128,10 @@ function MapContent({
             id: carpark.carpark_id,
             latitude: carpark.latitude,
             longitude: carpark.longitude,
-            data: {
-              ...carpark,
-              isSelected: selectedCarparkType === 'metered' && selectedCarparkId === carpark.carpark_id,
-            },
+            data: carpark,
           }))
         : [],
-    [meteredCarparks, showMeteredCarparks, selectedCarparkId, selectedCarparkType]
+    [meteredCarparks, showMeteredCarparks]
   );
 
   const connectedCarparkItems = useMemo(
@@ -138,12 +140,9 @@ function MapContent({
         id: carpark.park_id,
         latitude: carpark.latitude,
         longitude: carpark.longitude,
-        data: {
-          ...carpark,
-          isSelected: selectedCarparkType === 'connected' && selectedCarparkId === carpark.park_id,
-        },
+        data: carpark,
       })),
-    [connectedCarparks, selectedCarparkId, selectedCarparkType]
+    [connectedCarparks]
   );
 
   const dispatchCarparkItems = useMemo(
@@ -152,12 +151,9 @@ function MapContent({
         id: carpark.id,
         latitude: carpark.latitude,
         longitude: carpark.longitude,
-        data: {
-          ...carpark,
-          isSelected: selectedCarparkType === 'dispatch' && selectedCarparkId === carpark.id,
-        },
+        data: carpark,
       })),
-    [dispatchCarparks, selectedCarparkId, selectedCarparkType]
+    [dispatchCarparks]
   );
 
   const parkingSpaceItems = useMemo(
@@ -172,123 +168,58 @@ function MapContent({
   );
 
   // Optimized marker rendering hooks
-  const indoorCarparksMarkers = useOptimizedMarkers(
-    indoorCarparkItems,
-    {
-      createMarkerElement: (item) => {
-        return createIndoorCarparkMarker(
-          item.data,
-          getMarkerColor,
-          async (carpark) => {
-            const manager = await getCarparkManager();
-            manager.handleMarkerClick(carpark, 'indoor');
-          },
-          item.data.isSelected
-        );
-      },
-      getZIndex: (item) => {
-        return item.data.isSelected ? 99999 : item.data.vacancy;
-      },
-      getPriority: (item) => (
-        item.data.isSelected ? 'required' : 'optional'
-      ),
-      shouldUpdate: (item, prevItem) => {
-        // Check both vacancy AND selection state changes
-        return item.data.vacancy !== prevItem.data.vacancy ||
-               item.data.isSelected !== prevItem.data.isSelected;
-      },
-    }
-  );
+  const indoorCarparksMarkers = useOptimizedMarkers(indoorCarparkItems, {
+    createMarkerElement: (item) =>
+      createIndoorCarparkMarker(item.data, getMarkerColor, (carpark) => {
+        setSelectedCarpark(carpark);
+        onCarparkMarkerClick(carpark);
+      }),
+    getZIndex: (item) => item.data.vacancy,
+    getPriority: (item) => (selectedCarpark?.park_id === item.data.park_id ? 'required' : 'optional'),
+    shouldUpdate: (item, prevItem) => item.data.vacancy !== prevItem.data.vacancy,
+  });
 
   const meteredCarparksMarkers = useOptimizedMarkers(
     meteredCarparkItems,
     {
-      createMarkerElement: (item) => {
-        return createMeteredCarparkMarker(
-          item.data,
-          getMarkerColor,
-          async (carpark) => {
-            const manager = await getCarparkManager();
-            manager.handleMarkerClick(carpark, 'metered');
-          },
-          item.data.isSelected
-        );
-      },
-      getZIndex: (item) => {
-        return item.data.isSelected ? 99999 : item.data.vacant_spaces;
-      },
-      getPriority: (item) => (
-        item.data.isSelected ? 'required' : 'optional'
-      ),
-      shouldUpdate: (item, prevItem) => {
-        // Check both vacant_spaces AND selection state changes
-        return item.data.vacant_spaces !== prevItem.data.vacant_spaces ||
-               item.data.isSelected !== prevItem.data.isSelected;
-      },
+      createMarkerElement: (item) =>
+        createMeteredCarparkMarker(item.data, getMarkerColor, (carpark) => {
+          setSelectedMeteredCarpark(carpark);
+          onMeteredCarparkMarkerClick(carpark);
+        }),
+      getZIndex: (item) => item.data.vacant_spaces,
+      getPriority: (item) => (selectedMeteredCarpark?.carpark_id === item.data.carpark_id ? 'required' : 'optional'),
+      shouldUpdate: (item, prevItem) => item.data.vacant_spaces !== prevItem.data.vacant_spaces,
     },
-    {
-      enabled: showMeteredCarparks,
-      minZoom: 12,
-    }
+    { enabled: showMeteredCarparks, minZoom: 12 }
   );
 
   const connectedCarparksMarkers = useOptimizedMarkers(
     connectedCarparkItems,
     {
-      createMarkerElement: (item) => {
-        return createConnectedCarparkMarker(
-          item.data,
-          isDarkMode,
-          async (carpark) => {
-            const manager = await getCarparkManager();
-            manager.handleMarkerClick(carpark, 'connected');
-          },
-          item.data.isSelected
-        );
-      },
-      getZIndex: (item) => {
-        return item.data.isSelected ? 99999 : 100;
-      },
-      getPriority: (item) => (
-        item.data.isSelected ? 'required' : 'optional'
-      ),
-      shouldUpdate: (item, prevItem) => {
-        // Only check selection state changes (no other data changes for connected carparks)
-        return item.data.isSelected !== prevItem.data.isSelected;
-      },
+      createMarkerElement: (item) =>
+        createConnectedCarparkMarker(item.data, isDarkMode, (carpark) => {
+          setSelectedConnectedCarpark(carpark);
+          onConnectedCarparkMarkerClick(carpark);
+        }),
+      getZIndex: () => 100,
+      getPriority: (item) => (selectedConnectedCarpark?.park_id === item.data.park_id ? 'required' : 'optional'),
     },
-    {
-      enabled: showConnectedCarparks,
-    }
+    { enabled: showConnectedCarparks }
   );
 
   const dispatchCarparksMarkers = useOptimizedMarkers(
     dispatchCarparkItems,
     {
-      createMarkerElement: (item) => {
-        return createDispatchCarparkMarker(
-          item.data,
-          async (carpark) => {
-            const manager = await getCarparkManager();
-            manager.handleMarkerClick(carpark, 'dispatch');
-          },
-          item.data.isSelected
-        );
-      },
-      getZIndex: (item) => {
-        return item.data.isSelected ? 99999 : 150;
-      },
-      getPriority: (item) => (
-        item.data.isSelected ? 'required' : 'optional'
-      ),
-      shouldUpdate: (item, prevItem) => {
-        // Only check selection state changes (no other data changes for dispatch carparks)
-        return item.data.isSelected !== prevItem.data.isSelected;
-      },
+      createMarkerElement: (item) =>
+        createDispatchCarparkMarker(item.data, (carpark) => {
+          setSelectedDispatchCarpark(carpark);
+          onDispatchCarparkMarkerClick(carpark);
+        }),
+      getZIndex: () => 150,
+      getPriority: (item) => (selectedDispatchCarpark?.id === item.data.id ? 'required' : 'optional'),
     },
-    {
-      enabled: showDispatchCarparks,
-    }
+    { enabled: showDispatchCarparks }
   );
 
   const parkingSpacesMarkers = useOptimizedMarkers(
@@ -344,13 +275,21 @@ function MapContent({
     }
   }, [searchLocation, map]);
 
-  // Note: Camera animation for selected carpark is now handled by carparkSelectionManager
-  // The manager handles batched Redux updates + camera animation in selectCarpark()
+  // Auto-pan to selected carpark when set
+  useEffect(() => {
+    if (selectedCarpark && map) {
+      map.panTo({
+        lat: selectedCarpark.latitude,
+        lng: selectedCarpark.longitude
+      });
+      map.setZoom(17);
+    }
+  }, [selectedCarpark, map]);
 
   return (
     <>
-      {/* 3D Building Overlay - PMTiles version */}
-      <BuildingOverlayPMTiles visible={show3DBuildings} opacity={0.8} />
+      {/* 3D Building Overlay */}
+      <BuildingOverlay visible={show3DBuildings} opacity={0.8} />
 
       {/* Note: Optimized markers are managed by useOptimizedMarkers hooks above */}
       {/* Only special markers that need React state are rendered here */}
@@ -474,6 +413,100 @@ function MapContent({
           </div>
         </AdvancedMarker>
       )}
+
+      {/* Selected Carpark Marker with Breathing Animation */}
+      {selectedCarpark && (
+        <AdvancedMarker
+          position={{
+            lat: selectedCarpark.latitude,
+            lng: selectedCarpark.longitude
+          }}
+          zIndex={99999}
+        >
+          <style>{`
+            @keyframes breathe {
+              0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+              }
+              50% {
+                transform: scale(1.15);
+                opacity: 0.9;
+              }
+            }
+            @keyframes breatheRing {
+              0%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+              }
+              50% {
+                transform: scale(1.3);
+                opacity: 0.3;
+              }
+            }
+          `}</style>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            position: 'relative'
+          }}>
+            {/* Outer breathing ring */}
+            <div style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: `${getMarkerColor(selectedCarpark.vacancy)}30`,
+              animation: 'breatheRing 2s ease-in-out infinite',
+            }} />
+
+            {/* Middle glassmorphic ring */}
+            <div style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50%',
+              background: `${getMarkerColor(selectedCarpark.vacancy)}20`,
+              backdropFilter: 'blur(8px)',
+              border: `3px solid ${getMarkerColor(selectedCarpark.vacancy)}`,
+              boxShadow: `0 4px 16px ${getMarkerColor(selectedCarpark.vacancy)}60, 0 0 0 1px ${getMarkerColor(selectedCarpark.vacancy)}30`,
+              animation: 'breathe 2s ease-in-out infinite',
+            }} />
+
+            {/* Inner circle with parking icon */}
+            <div style={{
+              position: 'relative',
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              background: getMarkerColor(selectedCarpark.vacancy),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: `0 3px 12px ${getMarkerColor(selectedCarpark.vacancy)}70`,
+              animation: 'breathe 2s ease-in-out infinite',
+            }}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
+              </svg>
+            </div>
+          </div>
+        </AdvancedMarker>
+      )}
     </>
   );
 }
@@ -482,31 +515,17 @@ function MapContent({
 type BottomSheetView = 'home' | 'nearby' | 'station' | 'metered-carpark' | 'connected-carpark' | 'dispatch-carpark';
 
 export default function SimpleMap() {
-  // Redux state and actions for carpark selection
-  const {
-    selectedCarpark,
-    selectedCarparkType,
-    bottomSheetView,
-    isBottomSheetOpen,
-    bottomSheetHeight,
-    searchLocation,
-    nearbyCarparks,
-    bottomSheetTitle,
-    showBackButton,
-    handleSelectCarpark,
-    handleMarkerClick,
-    handleBack,
-    handleSetBottomSheetHeight,
-    handleSetSearchLocation,
-    handleSetNearbyCarparks,
-  } = useCarparkActions();
-
-  // Local state for data fetching and UI
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
+  const [selectedCarpark, setSelectedCarpark] = useState<CarparkWithVacancy | null>(null);
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
   const [show3DBuildings, setShow3DBuildings] = useState(true);
+  const [searchLocation, setSearchLocation] = useState<SearchLocation | null>(null);
+  const [nearbyCarparks, setNearbyCarparks] = useState<CarparkWithDistance[]>([]);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [loadingNearby, setLoadingNearby] = useState(false);
+  const [bottomSheetView, setBottomSheetView] = useState<BottomSheetView>('home');
+  const [bottomSheetHeight, setBottomSheetHeight] = useState(100); // Start with minimized height
 
   // Theme selector expansion state
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
@@ -522,10 +541,12 @@ export default function SimpleMap() {
   // Metered carparks state
   const [meteredCarparks, setMeteredCarparks] = useState<MeteredCarpark[]>([]);
   const [showMeteredCarparks, setShowMeteredCarparks] = useState(true);
+  const [selectedMeteredCarpark, setSelectedMeteredCarpark] = useState<MeteredCarpark | null>(null);
 
   // Connected carparks state (EV charging)
   const [connectedCarparks, setConnectedCarparks] = useState<ConnectedCarpark[]>([]);
   const [showConnectedCarparks, setShowConnectedCarparks] = useState(true);
+  const [selectedConnectedCarpark, setSelectedConnectedCarpark] = useState<ConnectedCarpark | null>(null);
 
   // Dispatch carparks state
   const [dispatchCarparks] = useState<DispatchCarpark[]>([
@@ -538,6 +559,7 @@ export default function SimpleMap() {
     }
   ]);
   const [showDispatchCarparks, setShowDispatchCarparks] = useState(true);
+  const [selectedDispatchCarpark, setSelectedDispatchCarpark] = useState<DispatchCarpark | null>(null);
 
   const { isDarkMode } = useTheme();
 
@@ -660,7 +682,7 @@ export default function SimpleMap() {
     }
   };
 
-  // Handle place selection from search - now using Redux
+  // Handle place selection from search
   const handlePlaceSelected = async (place: google.maps.places.PlaceResult) => {
     if (!place.geometry?.location) return;
 
@@ -668,7 +690,9 @@ export default function SimpleMap() {
     const lng = place.geometry.location.lng();
     const address = place.formatted_address || place.name || "";
 
-    handleSetSearchLocation({ lat, lng, address });
+    setSearchLocation({ lat, lng, address });
+    setIsBottomSheetOpen(true);
+    setBottomSheetView('nearby');
     setLoadingNearby(true);
 
     try {
@@ -676,7 +700,7 @@ export default function SimpleMap() {
         `/api/carparks/nearby?lat=${lat}&lng=${lng}&radius=2&limit=20`
       );
       const data = await response.json();
-      handleSetNearbyCarparks(data);
+      setNearbyCarparks(data);
     } catch (error) {
       console.error("Error fetching nearby carparks:", error);
     } finally {
@@ -684,20 +708,82 @@ export default function SimpleMap() {
     }
   };
 
-  // Handle clearing the search - now using Redux
+  // Handle clearing the search
   const handleClearSearch = () => {
-    handleSetSearchLocation(null);
-    handleSetNearbyCarparks([]);
+    setSearchLocation(null);
+    setNearbyCarparks([]);
+    setBottomSheetView('home');
   };
 
-  // Handle clicking on a nearby carpark - now using manager
+  // Handle clicking on a nearby carpark
   const handleNearbyCarparkClick = (carpark: CarparkWithDistance) => {
-    handleSelectCarpark(carpark, 'indoor');
+    setSelectedCarpark(carpark);
+    setBottomSheetView('station');
   };
 
-  // Handle clicking on a trending carpark - now using manager
+  // Handle clicking on a trending carpark
   const handleTrendingCarparkClick = (carpark: CarparkWithVacancy) => {
-    handleSelectCarpark(carpark, 'indoor');
+    setSelectedCarpark(carpark);
+    setBottomSheetView('station');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle back button in bottom sheet
+  const handleBottomSheetBack = () => {
+    if (bottomSheetView === 'station') {
+      setBottomSheetView(nearbyCarparks.length > 0 ? 'nearby' : 'home');
+      setSelectedCarpark(null);
+    } else if (bottomSheetView === 'metered-carpark') {
+      setBottomSheetView('home');
+      setSelectedMeteredCarpark(null);
+    } else if (bottomSheetView === 'connected-carpark') {
+      setBottomSheetView('home');
+      setSelectedConnectedCarpark(null);
+    } else if (bottomSheetView === 'dispatch-carpark') {
+      setBottomSheetView('home');
+      setSelectedDispatchCarpark(null);
+    } else if (bottomSheetView === 'nearby') {
+      setBottomSheetView('home');
+      setSearchLocation(null);
+      setNearbyCarparks([]);
+    }
+  };
+
+  // Get bottom sheet title based on current view
+  const getBottomSheetTitle = () => {
+    if (bottomSheetView === 'station') return 'Indoor Carpark';
+    if (bottomSheetView === 'metered-carpark') return 'Metered Carpark';
+    if (bottomSheetView === 'connected-carpark') return 'EV Charging Station';
+    if (bottomSheetView === 'dispatch-carpark') return 'Dispatch Carpark';
+    if (bottomSheetView === 'nearby') return 'Nearby Carparks';
+    return 'Search Carparks';
+  };
+
+  // Handle marker click on map
+  const handleCarparkMarkerClick = (carpark: CarparkWithVacancy) => {
+    setBottomSheetView('station');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle metered carpark marker click
+  const handleMeteredCarparkMarkerClick = (carpark: MeteredCarpark) => {
+    setSelectedMeteredCarpark(carpark);
+    setBottomSheetView('metered-carpark');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle connected carpark marker click
+  const handleConnectedCarparkMarkerClick = (carpark: ConnectedCarpark) => {
+    setSelectedConnectedCarpark(carpark);
+    setBottomSheetView('connected-carpark');
+    setIsBottomSheetOpen(true);
+  };
+
+  // Handle dispatch carpark marker click
+  const handleDispatchCarparkMarkerClick = (carpark: DispatchCarpark) => {
+    setSelectedDispatchCarpark(carpark);
+    setBottomSheetView('dispatch-carpark');
+    setIsBottomSheetOpen(true);
   };
 
   const { theme, setTheme } = useTheme();
@@ -1022,36 +1108,56 @@ export default function SimpleMap() {
         >
           <MapContent
             carparks={carparks}
+            selectedCarpark={selectedCarpark}
+            setSelectedCarpark={setSelectedCarpark}
             currentLocation={currentLocation}
             isTracking={isTracking}
             getMarkerColor={getMarkerColor}
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
+            searchLocation={searchLocation}
+            onCarparkMarkerClick={handleCarparkMarkerClick}
+            onMeteredCarparkMarkerClick={handleMeteredCarparkMarkerClick}
+            bottomSheetHeight={bottomSheetHeight}
             parkingSpaces={parkingSpaces}
             showParkingSpaces={showParkingSpaces}
             selectedParkingSpace={selectedParkingSpace}
             setSelectedParkingSpace={setSelectedParkingSpace}
             meteredCarparks={meteredCarparks}
             showMeteredCarparks={showMeteredCarparks}
+            selectedMeteredCarpark={selectedMeteredCarpark}
+            setSelectedMeteredCarpark={setSelectedMeteredCarpark}
             connectedCarparks={connectedCarparks}
             showConnectedCarparks={showConnectedCarparks}
+            selectedConnectedCarpark={selectedConnectedCarpark}
+            setSelectedConnectedCarpark={setSelectedConnectedCarpark}
+            onConnectedCarparkMarkerClick={handleConnectedCarparkMarkerClick}
             dispatchCarparks={dispatchCarparks}
             showDispatchCarparks={showDispatchCarparks}
+            selectedDispatchCarpark={selectedDispatchCarpark}
+            setSelectedDispatchCarpark={setSelectedDispatchCarpark}
+            onDispatchCarparkMarkerClick={handleDispatchCarparkMarkerClick}
             showIndoorCarparks={showIndoorCarparks}
           />
         </Map>
 
-        {/* Bottom Sheet - Now Redux-controlled */}
+        {/* Bottom Sheet - Always Mounted */}
         <BottomSheet
           isOpen={isBottomSheetOpen}
           onClose={() => {
-            // Clear selection using manager
-            handleBack();
+            setIsBottomSheetOpen(false);
+            setBottomSheetView('home');
+            setSelectedCarpark(null);
+            setSelectedMeteredCarpark(null);
+            setSelectedConnectedCarpark(null);
+            setSelectedDispatchCarpark(null);
+            setSearchLocation(null);
+            setNearbyCarparks([]);
           }}
-          title={bottomSheetTitle}
-          showBackButton={showBackButton}
-          onBack={handleBack}
-          onHeightChange={handleSetBottomSheetHeight}
+          title={getBottomSheetTitle()}
+          showBackButton={bottomSheetView !== 'home'}
+          onBack={handleBottomSheetBack}
+          onHeightChange={setBottomSheetHeight}
         >
           {/* Home View - Search + Trending */}
           {bottomSheetView === 'home' && (
@@ -1092,33 +1198,33 @@ export default function SimpleMap() {
             </>
           )}
 
-          {/* Station View - Selected Indoor Carpark Details */}
-          {bottomSheetView === 'station' && selectedCarpark && selectedCarparkType === 'indoor' && (
+          {/* Station View - Selected Carpark Details */}
+          {bottomSheetView === 'station' && selectedCarpark && (
             <IndoorCarparkDetails
-              carpark={selectedCarpark as CarparkWithVacancy}
+              carpark={selectedCarpark}
               getMarkerColor={getMarkerColor}
             />
           )}
 
           {/* Metered Carpark View - Selected Metered Carpark Details */}
-          {bottomSheetView === 'metered-carpark' && selectedCarpark && selectedCarparkType === 'metered' && (
+          {bottomSheetView === 'metered-carpark' && selectedMeteredCarpark && (
             <MeteredCarparkDetails
-              carpark={selectedCarpark as MeteredCarpark}
+              carpark={selectedMeteredCarpark}
               getMarkerColor={getMarkerColor}
             />
           )}
 
           {/* Connected Carpark View - Selected Connected Carpark Details */}
-          {bottomSheetView === 'connected-carpark' && selectedCarpark && selectedCarparkType === 'connected' && (
+          {bottomSheetView === 'connected-carpark' && selectedConnectedCarpark && (
             <ConnectedCarparkDetails
-              carpark={selectedCarpark as ConnectedCarpark}
+              carpark={selectedConnectedCarpark}
             />
           )}
 
           {/* Dispatch Carpark View - Selected Dispatch Carpark Details */}
-          {bottomSheetView === 'dispatch-carpark' && selectedCarpark && selectedCarparkType === 'dispatch' && (
+          {bottomSheetView === 'dispatch-carpark' && selectedDispatchCarpark && (
             <DispatchCarparkDetails
-              carpark={selectedCarpark as DispatchCarpark}
+              carpark={selectedDispatchCarpark}
             />
           )}
         </BottomSheet>

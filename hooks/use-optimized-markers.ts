@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useCallback, useState } from 'react';
 import { useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { SpatialIndex, googleBoundsToBounds, expandBounds, type Bounds } from '@/lib/spatial-index';
 
@@ -30,6 +30,7 @@ export function useOptimizedMarkers(
     minZoom?: number;
     maxZoom?: number;
     bufferPercentage?: number;
+    forceUpdateTrigger?: any;
   } = {}
 ) {
   const map = useMap();
@@ -42,7 +43,11 @@ export function useOptimizedMarkers(
   const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update refs when they change
-  useEffect(() => {
+  // IMPORTANT: Use useLayoutEffect to ensure config is updated BEFORE paint
+  // and BEFORE the forceUpdateTrigger effect runs. This ensures that when
+  // Redux state changes (e.g., selection cleared), the config functions
+  // (getPriority, createMarkerElement) use the latest state values.
+  useLayoutEffect(() => {
     configRef.current = config;
   }, [config]);
 
@@ -55,6 +60,7 @@ export function useOptimizedMarkers(
     minZoom = 0,
     maxZoom = 22,
     bufferPercentage = 0.15,
+    forceUpdateTrigger,
   } = options;
 
   // Update spatial index when items change
@@ -121,8 +127,8 @@ export function useOptimizedMarkers(
           configRef.current.shouldUpdate?.(item, existingMarkerData.item) ?? false;
         const priorityChanged = priority !== prevPriority;
 
-        if (shouldUpdate) {
-          // Update marker content
+        // Recreate marker content if data changed OR priority changed (selection state)
+        if (shouldUpdate || priorityChanged) {
           const newContent = configRef.current.createMarkerElement(item);
           existingMarkerData.marker.content = newContent;
           existingMarkerData.item = item;
@@ -225,6 +231,14 @@ export function useOptimizedMarkers(
       updateMarkers();
     }
   }, [enabled, map, markerLib, updateMarkers]);
+
+  // Force marker updates when forceUpdateTrigger changes (for external state like selection)
+  // NOTE: With isSelected now in item.data, this is only needed for edge cases
+  useEffect(() => {
+    if (!map || !enabled || !markerLib || forceUpdateTrigger === undefined) return;
+
+    updateMarkers();
+  }, [forceUpdateTrigger, map, enabled, markerLib, updateMarkers]);
 
   // Listen to map events with debouncing
   useEffect(() => {
