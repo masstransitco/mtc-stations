@@ -223,7 +223,14 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onBack();
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation();
               }}
               style={{
                 position: "absolute",

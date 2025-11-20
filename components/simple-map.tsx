@@ -2,7 +2,7 @@
 
 import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { Navigation, Sun, Moon } from "lucide-react";
+import { Navigation, Sun, Moon, Compass } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
@@ -46,6 +46,78 @@ function getCarparkVacancy(carpark: CarparkUnion): number {
   }
   // Default vacancy for carparks without vacancy info (metered, connected, dispatch)
   return 50; // Medium occupancy as default
+}
+
+// Compass button component with map access
+function CompassButton({ isDarkMode }: { isDarkMode: boolean }) {
+  const map = useMap();
+  const [mapHeading, setMapHeading] = useState(0);
+
+  // Track map heading changes
+  useEffect(() => {
+    if (!map) return;
+
+    const headingListener = map.addListener('heading_changed', () => {
+      const heading = map.getHeading() || 0;
+      setMapHeading(heading);
+    });
+
+    // Get initial heading
+    const initialHeading = map.getHeading() || 0;
+    setMapHeading(initialHeading);
+
+    return () => {
+      google.maps.event.removeListener(headingListener);
+    };
+  }, [map]);
+
+  // Handle compass button click - reset to north
+  const handleCompassClick = () => {
+    if (!map) return;
+    map.setHeading(0);
+    map.setTilt(0);
+  };
+
+  return (
+    <button
+      onClick={handleCompassClick}
+      style={{
+        position: 'absolute',
+        top: '20px',
+        left: '20px',
+        zIndex: 10,
+        width: '48px',
+        height: '48px',
+        borderRadius: '50%',
+        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+        border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.2s ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.1)';
+        e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      title="Reset to North"
+    >
+      <Compass
+        size={24}
+        color={isDarkMode ? '#f3f4f6' : '#111827'}
+        style={{
+          transform: `rotate(${mapHeading}deg)`,
+          transition: 'transform 0.3s ease',
+        }}
+      />
+    </button>
+  );
 }
 
 // Component to handle map reference with optimized markers
@@ -479,6 +551,7 @@ function MapContent({
           </div>
         </AdvancedMarker>
       )}
+
     </>
   );
 }
@@ -1033,6 +1106,7 @@ export default function SimpleMap() {
           tiltInteractionEnabled={true}
           headingInteractionEnabled={true}
         >
+          <CompassButton isDarkMode={isDarkMode} />
           <MapContent
             carparks={carparks}
             currentLocation={currentLocation}
