@@ -54,6 +54,7 @@ function MapContent({
   currentLocation,
   isTracking,
   getMarkerColor,
+  getMeteredMarkerColor,
   isDarkMode,
   show3DBuildings,
   parkingSpaces,
@@ -72,6 +73,7 @@ function MapContent({
   currentLocation: any;
   isTracking: boolean;
   getMarkerColor: (vacancy: number) => string;
+  getMeteredMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
   show3DBuildings: boolean;
   parkingSpaces: ParkingSpace[];
@@ -197,6 +199,9 @@ function MapContent({
         return item.data.vacancy !== prevItem.data.vacancy ||
                item.data.isSelected !== prevItem.data.isSelected;
       },
+    },
+    {
+      minZoom: 14,
     }
   );
 
@@ -206,7 +211,7 @@ function MapContent({
       createMarkerElement: (item) => {
         return createMeteredCarparkMarker(
           item.data,
-          getMarkerColor,
+          getMeteredMarkerColor,
           async (carpark) => {
             const manager = await getCarparkManager();
             manager.handleMarkerClick(carpark, 'metered');
@@ -228,7 +233,7 @@ function MapContent({
     },
     {
       enabled: showMeteredCarparks,
-      minZoom: 12,
+      minZoom: 16,
     }
   );
 
@@ -651,6 +656,14 @@ export default function SimpleMap() {
     return "#991b1b";                     // Dark muted red - full/closed
   };
 
+  const getMeteredMarkerColor = (vacancy: number) => {
+    if (vacancy >= 4) return "#10b981";  // Green (emerald-500) - good availability (4+)
+    if (vacancy === 3) return "#f59e0b"; // Yellow/amber (amber-500) - moderate (3)
+    if (vacancy === 2) return "#f97316"; // Orange/amber (orange-500) - low (2)
+    if (vacancy === 1) return "#ea580c"; // Deep orange (orange-600) - very low (1)
+    return "#ef4444";                     // Red (red-500) - full/closed (0)
+  };
+
   // Handle "My Location" button click
   const handleMyLocation = () => {
     if (isTracking) {
@@ -1025,6 +1038,7 @@ export default function SimpleMap() {
             currentLocation={currentLocation}
             isTracking={isTracking}
             getMarkerColor={getMarkerColor}
+            getMeteredMarkerColor={getMeteredMarkerColor}
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
             parkingSpaces={parkingSpaces}
@@ -1104,7 +1118,7 @@ export default function SimpleMap() {
           {bottomSheetView === 'metered-carpark' && selectedCarpark && selectedCarparkType === 'metered' && (
             <MeteredCarparkDetails
               carpark={selectedCarpark as MeteredCarpark}
-              getMarkerColor={getMarkerColor}
+              getMarkerColor={getMeteredMarkerColor}
             />
           )}
 
