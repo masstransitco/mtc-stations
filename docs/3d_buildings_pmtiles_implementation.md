@@ -132,12 +132,13 @@ renderer.resetState(); // Critical: prevent conflicts with Google Maps
 
 When map becomes idle after panning/zooming:
 
-1. **Calculate required tiles** for current viewport
+1. **Calculate required tiles** for current viewport (zero buffer)
 2. **Prune out-of-viewport tiles** immediately
 3. **Request new tiles** with distance-based priority
 
 ```typescript
-// Get tiles in viewport (no buffer)
+// Get tiles in actual viewport bounds (zero buffer)
+const bounds = getViewportBounds();
 const tiles = getTilesInBounds(sw.lat(), sw.lng(), ne.lat(), ne.lng(), tileZoom);
 
 // Build set of required tiles
@@ -148,10 +149,15 @@ tiles.forEach(tile => requiredTileKeys.add(`${tile.z}/${tile.x}/${tile.y}`));
 const prunedTiles = tileManager.pruneToBounds(requiredTileKeys);
 prunedTiles.forEach(tileGroup => {
   scene.remove(tileGroup);
-  // Dispose geometries
+  // Dispose geometries (materials are shared)
+  tileGroup.children.forEach(child => {
+    if (child instanceof THREE.Mesh) {
+      child.geometry.dispose();
+    }
+  });
 });
 
-// Request new tiles
+// Request new tiles with distance-based priority
 tileManager.requestTiles(tiles.map(tile => ({
   z: tile.z,
   x: tile.x,
@@ -200,13 +206,16 @@ requestRedraw() triggers render
 
 **Viewport-Aware Pruning** (Primary):
 - Every viewport change → remove tiles outside bounds
+- Zero-buffer approach: only keeps tiles in actual viewport
 - Immediate removal from scene and cache
 - Geometry disposed to free memory
+- Ensures only visible tiles are rendered
 
 **LRU Eviction** (Fallback):
-- Only triggers if cache exceeds 50 tiles
+- Only triggers if cache exceeds 50 tiles (rare with aggressive pruning)
 - Evicts least recently accessed tile
 - Returns evicted group to overlay for cleanup
+- Scene removal and geometry disposal handled by overlay
 
 ```typescript
 // handleTileReady - lines 316-358
@@ -363,9 +372,10 @@ class MaterialPalette {
 - Main thread only creates Three.js meshes
 
 ### 2. Viewport-Aware Pruning
-- Only loads tiles in current viewport (no buffer)
-- Removes off-screen tiles immediately
-- At z18: 4-12 tiles instead of 40-60
+- Only loads tiles in current viewport (zero buffer)
+- Aggressive pruning removes out-of-viewport tiles immediately on pan
+- At z18: 4-12 tiles instead of 40-60 (with old buffer approach)
+- Evicted tiles removed from scene and geometry disposed
 
 ### 3. Concurrency & Prioritization
 - Load 4 tiles concurrently
@@ -417,9 +427,11 @@ interface BuildingOverlayProps {
 ### Zoom Levels
 
 ```typescript
-MIN_BUILDING_ZOOM = 15  // Don't show buildings below z15
+MIN_BUILDING_ZOOM = 16  // Don't show buildings below z16
 PMTILES_ZOOM_RANGE = [15, 18]  // PMTiles available at z15-z18
 ```
+
+**Note**: Although PMTiles data is available from z15, buildings are only rendered starting at z16 to reduce tile loading at lower zoom levels and improve performance at city-wide views.
 
 ## Common Issues & Solutions
 
@@ -440,16 +452,24 @@ const matrix = transformer.fromLatLngAltitude(center);
 
 ### Issue: Too many tiles loading at high zoom
 
-**Cause**: Buffer too large or viewport calculation wrong
+**Cause**: Buffer loading extra tiles outside viewport
 
-**Solution**: Use actual viewport without buffer:
+**Solution**: Use actual viewport bounds with zero buffer:
 ```typescript
-// ✅ Correct - no buffer
-return map.getBounds() || null;
+// ✅ Correct - zero buffer (current implementation)
+const getViewportBounds = (): google.maps.LatLngBounds | null => {
+  if (!map) return null;
+  return map.getBounds() || null;
+};
 
 // ❌ Wrong - loads too many tiles
-const buffer = (ne.lat() - sw.lat()) * 0.2;
+const latBuffer = (ne.lat() - sw.lat()) * 0.2;  // Don't do this!
 ```
+
+**Why zero buffer works:**
+- Viewport-aware pruning removes offscreen tiles immediately
+- Large cache (50 tiles) handles rapid panning
+- At z18: 4-12 tiles instead of 40-60
 
 ### Issue: Tiles from old viewport stay visible
 
