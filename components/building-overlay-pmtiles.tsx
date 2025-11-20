@@ -87,14 +87,25 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
     console.log('✅ Worker and MaterialPalette initialized');
 
     return () => {
-      // Cleanup worker
+      // Ensure TileManager is torn down if still around
+      if (tileManagerRef.current) {
+        tileManagerRef.current.dispose();
+        tileManagerRef.current = null;
+      }
+
+      // Terminate worker once (we no longer terminate in TileManager.dispose)
       if (workerRef.current) {
         workerRef.current.terminate();
+        workerRef.current = null;
       }
+
       // Cleanup material palette
       if (materialPaletteRef.current) {
         materialPaletteRef.current.dispose();
+        materialPaletteRef.current = null;
       }
+
+      pmtilesRef.current = null;
     };
   }, []);
 
@@ -262,8 +273,30 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
      */
     overlay.onRemove = () => {
       console.log('🗑️ Removing BuildingOverlayPMTiles');
-      // Clean up resources properly
+
+      // Clear all tiles from scene and cache
       clearAllTiles();
+
+      // Dispose TileManager so it detaches its worker listener and clears queues
+      if (tileManagerRef.current) {
+        tileManagerRef.current.dispose();
+        tileManagerRef.current = null;
+      }
+
+      // Dispose Three.js renderer and clear scene to free GPU memory
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+        rendererRef.current = null;
+      }
+
+      if (sceneRef.current) {
+        sceneRef.current.clear();
+        sceneRef.current = null;
+      }
+
+      cameraRef.current = null;
+      anchorRef.current = { lat: 22.3193, lng: 114.1694, altitude: 0 };
+
       setIsInitialized(false);
     };
 

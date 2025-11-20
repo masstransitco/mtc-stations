@@ -46,6 +46,9 @@ export class TileManager {
   // Queue of tiles waiting to be loaded
   private loadQueue: TileLoadState[] = [];
 
+  // Bound worker listener so we can remove it on dispose
+  private handleWorkerMessageBound: (event: MessageEvent<WorkerResponse>) => void;
+
   // Statistics
   private stats = {
     tilesLoaded: 0,
@@ -57,8 +60,12 @@ export class TileManager {
   constructor(config: TileManagerConfig) {
     this.config = config;
 
-    // Listen for worker responses
-    this.config.worker.addEventListener('message', this.handleWorkerMessage.bind(this));
+    // Bind once so we can remove the listener properly in dispose()
+    this.handleWorkerMessageBound = this.handleWorkerMessage.bind(this);
+    this.config.worker.addEventListener(
+      'message',
+      this.handleWorkerMessageBound as EventListener,
+    );
   }
 
   /**
@@ -380,11 +387,31 @@ export class TileManager {
   }
 
   /**
-   * Cleanup
+   * Cleanup - removes worker listener and clears all internal state
+   * IMPORTANT: Does NOT terminate worker (owner controls worker lifecycle)
    */
   dispose(): void {
+    // Detach worker listener so this TileManager can be GC'ed
+    this.config.worker.removeEventListener(
+      'message',
+      this.handleWorkerMessageBound as EventListener,
+    );
+
+    // Clear internal state
     this.loadQueue = [];
     this.loadingTiles.clear();
-    this.config.worker.terminate();
+    this.staleTiles.clear();
+    this.tileCache.clear();
+    this.accessOrder = [];
+
+    this.stats = {
+      tilesLoaded: 0,
+      tilesEvicted: 0,
+      currentlyLoading: 0,
+      cacheSize: 0,
+    };
+
+    // IMPORTANT: Do NOT terminate the worker here;
+    // the owner (BuildingOverlayPMTiles) controls worker lifecycle.
   }
 }
