@@ -239,12 +239,15 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
       // Log scene stats periodically
       if (frameCount % 120 === 0 && tileManager) {
         const stats = tileManager.getStats();
+        const memoryInfo = renderer.info.memory;
         console.log(`🎨 Render stats:`, {
           cachedTiles: stats.cacheSize,
           loading: stats.currentlyLoading,
           queueSize: stats.queueSize,
           totalLoaded: stats.tilesLoaded,
           totalEvicted: stats.tilesEvicted,
+          webglGeometries: memoryInfo.geometries,
+          webglTextures: memoryInfo.textures,
         });
       }
       frameCount++;
@@ -336,13 +339,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
 
     // Remove evicted tiles from scene and dispose their geometries
     evictedTiles.forEach(evictedGroup => {
-      scene.remove(evictedGroup);
-      // Dispose geometries (materials are shared, so don't dispose them)
-      evictedGroup.children.forEach(child => {
-        if (child instanceof THREE.Mesh) {
-          child.geometry.dispose();
-        }
-      });
+      disposeTileGroup(evictedGroup, scene);
     });
 
     console.log(`✅ Tile ${tileKey} ready with ${buildings.length} buildings`);
@@ -413,6 +410,23 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
   }, [visible]);
 
   /**
+   * Dispose a tile group and all its geometries
+   * Uses traverse() to handle nested groups created by createBuildingMesh
+   */
+  const disposeTileGroup = (tileGroup: THREE.Group, scene: THREE.Scene) => {
+    // Remove from scene first
+    scene.remove(tileGroup);
+
+    // Traverse entire object tree to find all meshes
+    tileGroup.traverse((obj) => {
+      if (obj instanceof THREE.Mesh && obj.geometry) {
+        obj.geometry.dispose();
+        // Materials are shared via MaterialPalette, so don't dispose them
+      }
+    });
+  };
+
+  /**
    * Clear all loaded tiles and remove from scene
    */
   const clearAllTiles = () => {
@@ -424,14 +438,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
     // Get all tiles and remove from scene
     const allTiles = tileManager.clearAll();
     allTiles.forEach(tileGroup => {
-      scene.remove(tileGroup);
-
-      // Dispose geometries (materials are shared, so don't dispose them)
-      tileGroup.children.forEach((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.geometry.dispose();
-        }
-      });
+      disposeTileGroup(tileGroup, scene);
     });
 
     console.log('🗑️ Cleared all building tiles');
@@ -500,13 +507,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
     const scene = sceneRef.current;
     const prunedTiles = tileManager.pruneToBounds(requiredTileKeys);
     prunedTiles.forEach(tileGroup => {
-      scene.remove(tileGroup);
-      // Dispose geometries (materials are shared)
-      tileGroup.children.forEach(child => {
-        if (child instanceof THREE.Mesh) {
-          child.geometry.dispose();
-        }
-      });
+      disposeTileGroup(tileGroup, scene);
     });
 
     // Request tiles with simple distance-based priority from center
