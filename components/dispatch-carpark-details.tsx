@@ -2,8 +2,8 @@
 
 import { useTheme } from "@/components/theme-provider";
 import type { DispatchCarpark } from "@/types/dispatch-carpark";
-import { MapPin, Navigation, Car } from "lucide-react";
-import Image from "next/image";
+import { MapPin, Navigation } from "lucide-react";
+import AvailableDispatchCars from "@/components/available-dispatch-cars";
 
 interface DispatchCarparkDetailsProps {
   carpark: DispatchCarpark;
@@ -56,13 +56,9 @@ export default function DispatchCarparkDetails({ carpark }: DispatchCarparkDetai
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
           flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
           backgroundColor: isDarkMode ? '#065f4640' : '#d1fae5',
           color: isDarkMode ? '#6ee7b7' : '#065f46'
         }}>
-          <Car size={12} />
           Dispatch
         </span>
       </div>
@@ -94,57 +90,9 @@ export default function DispatchCarparkDetails({ carpark }: DispatchCarparkDetai
         </div>
       )}
 
-      {/* Dispatch Info Card */}
-      <div style={{
-        padding: '16px',
-        backgroundColor: isDarkMode ? '#065f4620' : '#d1fae540',
-        borderRadius: '12px',
-        border: `2px solid ${isDarkMode ? '#047857' : '#065f46'}`,
-        marginBottom: '16px'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          marginBottom: '12px'
-        }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(6, 95, 70, 0.3)'
-          }}>
-            <Image
-              src="/logos/noah-logo.svg"
-              alt="Noah Dispatch"
-              width={32}
-              height={32}
-              style={{
-                filter: 'brightness(0) invert(1)'
-              }}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{
-              fontSize: '16px',
-              fontWeight: 600,
-              color: isDarkMode ? '#f3f4f6' : '#111827',
-              marginBottom: '4px'
-            }}>
-              Noah Dispatch Available
-            </div>
-            <div style={{
-              fontSize: '13px',
-              color: isDarkMode ? '#9ca3af' : '#6b7280'
-            }}>
-              Vehicle dispatch services available at this location
-            </div>
-          </div>
-        </div>
+      {/* Available Dispatch Cars */}
+      <div style={{ marginBottom: '16px' }}>
+        <AvailableDispatchCars />
       </div>
 
       {/* Action Buttons */}
