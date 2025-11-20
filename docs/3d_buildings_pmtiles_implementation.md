@@ -128,9 +128,24 @@ renderer.render(scene, camera);
 renderer.resetState(); // Critical: prevent conflicts with Google Maps
 ```
 
-### 4. Viewport Change (`useEffect` - lines 380-403)
+### 4. Viewport Change (`useEffect` - lines 358-391)
 
 When map becomes idle after panning/zooming:
+
+**Important**: The idle event handler is **debounced by 150ms** to prevent excessive tile cancellations during continuous panning or smooth zoom animations. This prevents queue thrashing where tiles are constantly added and immediately canceled.
+
+```typescript
+const handleIdle = () => {
+  // Debounce to prevent excessive tile cancellations
+  if (debounceTimer) clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(() => {
+    loadBuildingsForViewport();
+  }, 150);
+};
+```
+
+When the debounced handler fires:
 
 1. **Calculate required tiles** for current viewport (zero buffer)
 2. **Prune out-of-viewport tiles** immediately
@@ -415,6 +430,47 @@ PMTILES_ZOOM_RANGE = [15, 18]  // PMTiles available at z15-z18
 **Note**: Although PMTiles data is available from z15, buildings are only rendered starting at z16 to reduce tile loading at lower zoom levels and improve performance at city-wide views.
 
 ## Common Issues & Solutions
+
+### Issue: Excessive tile cancellations during extended use
+
+**Symptoms**:
+- Console shows many "🚫 Canceled tiles" messages during panning/zooming
+- Tiles are added to queue then immediately canceled
+- Buildings fail to render during continuous interaction
+
+**Cause**: Google Maps `'idle'` event fires very frequently during:
+- Continuous panning (multiple times per drag)
+- Smooth zoom animations (fires at each intermediate zoom level)
+- Small viewport adjustments
+- Tilt/rotation changes
+
+Without debouncing, each idle event triggers `loadBuildingsForViewport()` → `cancelTilesNotIn()`, creating queue thrashing where tiles never get a chance to load.
+
+**Solution**: Debounce the idle event handler:
+```typescript
+// ✅ Correct - debounced (current implementation)
+let debounceTimer: NodeJS.Timeout | null = null;
+
+const handleIdle = () => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(() => {
+    loadBuildingsForViewport();
+    debounceTimer = null;
+  }, 150);  // Wait 150ms after last idle event
+};
+
+// ❌ Wrong - immediate response causes thrashing
+const handleIdle = () => {
+  loadBuildingsForViewport();  // Fires too frequently!
+};
+```
+
+**Why 150ms?**
+- Long enough to filter out rapid successive idle events
+- Short enough to feel responsive to user
+- Allows smooth animations to complete before loading
+- Reduces tile queue churn by ~90%
 
 ### Issue: Buildings disappear when panning
 

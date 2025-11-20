@@ -237,9 +237,10 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
       camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
 
       // Log scene stats periodically
-      if (frameCount % 120 === 0 && tileManager) {
+      if (frameCount % 120 === 0 && tileManager && materialPaletteRef.current) {
         const stats = tileManager.getStats();
         const memoryInfo = renderer.info.memory;
+        const paletteStats = materialPaletteRef.current.getStats();
         console.log(`🎨 Render stats:`, {
           cachedTiles: stats.cacheSize,
           loading: stats.currentlyLoading,
@@ -248,6 +249,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
           totalEvicted: stats.tilesEvicted,
           webglGeometries: memoryInfo.geometries,
           webglTextures: memoryInfo.textures,
+          materialColors: paletteStats.colors,
         });
       }
       frameCount++;
@@ -358,20 +360,33 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
       return;
     }
 
+    let debounceTimer: NodeJS.Timeout | null = null;
+
     const handleIdle = () => {
-      // Map has finished moving/zooming - load tiles for current viewport
-      loadBuildingsForViewport();
+      // Debounce to prevent excessive tile cancellations during continuous panning/zooming
+      // Only load tiles after map has been idle for 150ms
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+
+      debounceTimer = setTimeout(() => {
+        loadBuildingsForViewport();
+        debounceTimer = null;
+      }, 150);
     };
 
     // Load initial buildings immediately
     loadBuildingsForViewport();
 
     // Listen only to 'idle' event - fires when map finishes moving/zooming
-    // This prevents loading tiles for intermediate viewport states
+    // Debouncing prevents loading tiles for rapid intermediate viewport states
     const listener = map.addListener('idle', handleIdle);
 
     return () => {
       listener.remove();
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
     };
   }, [map, isInitialized, visible]);
 
@@ -494,7 +509,13 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
     const centerLng = center.lng();
     const centerTile = latLngToTile(centerLat, centerLng, tileZoom);
 
-    console.log(`📍 Viewport: zoom=${zoom.toFixed(1)}, tileZoom=${tileZoom}, tilt=${tilt.toFixed(1)}°, tiles=${tiles.length}`);
+    // Throttle viewport logging to reduce console noise
+    const now = Date.now();
+    const lastLogTime = (window as any).__lastViewportLogTime || 0;
+    if (now - lastLogTime > 500) {
+      console.log(`📍 Viewport: zoom=${zoom.toFixed(1)}, tileZoom=${tileZoom}, tilt=${tilt.toFixed(1)}°, tiles=${tiles.length}`);
+      (window as any).__lastViewportLogTime = now;
+    }
 
     // Build set of required tile keys
     const requiredTileKeys = new Set<string>();
