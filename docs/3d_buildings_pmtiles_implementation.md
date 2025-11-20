@@ -232,32 +232,12 @@ evictedTiles.forEach(evictedGroup => {
 
 ## Building Color Scheme
 
-### PMTiles Color Data
+### Color Data Source
 
-The PMTiles archive contains **3 distinct colors** that categorize buildings by type/height:
+Building colors are embedded in the PMTiles archive during the data processing stage. The color assignment is based on Hong Kong government building categorization data.
 
-| Color | Hex | RGB | Tailwind | Usage | Height Range |
-|-------|-----|-----|----------|-------|--------------|
-| 🔵 Blue | `#3b82f6` | rgb(59, 130, 246) | blue-500 | **75.1%** of buildings | Low-rise (typically 5-10m) |
-| ⬜ Light Gray | `#d1d5db` | rgb(209, 213, 219) | gray-300 | **23.8%** of buildings | Mid-rise (typically 15-35m) |
-| ⬛ Dark Gray | `#6b7280` | rgb(107, 114, 128) | gray-500 | **1.1%** of buildings | High-rise (typically 15-45m+) |
-
-### Color Interpretation
-
-The color coding appears to represent **building categories**:
-
-- **Blue (#3b82f6)**: Residential low-rise, commercial shops, small structures
-  - Most common building type in Hong Kong
-  - Typical heights: 5-10m (1-3 floors)
-
-- **Light Gray (#d1d5db)**: Mid-rise residential/commercial buildings
-  - Standard apartment blocks, office buildings
-  - Typical heights: 15-35m (5-12 floors)
-
-- **Dark Gray (#6b7280)**: High-rise towers, special structures
-  - Skyscrapers, prominent towers
-  - Typical heights: 40m+ (13+ floors)
-  - Includes notable buildings like Bank of China Tower, IFC, etc.
+**For detailed information about building categories, color coding logic, and data schema**, see:
+- **[Building Data Schema & Color Coding](./buildings-info-schema.md)**
 
 ### Color Application
 
@@ -276,10 +256,11 @@ const mesh = new THREE.Mesh(geometry, material);
 
 ### Material Reuse Benefit
 
-With only 3 colors, material sharing is extremely efficient:
-- **3 materials** shared across **thousands of buildings**
-- ~99.9% memory reduction vs unique materials
+With only 4 distinct colors in the dataset, material sharing is extremely efficient:
+- **4 materials** shared across **341,961 buildings**
+- ~99.9% memory reduction vs unique materials per building
 - Faster rendering (minimal material switching)
+- Only 4 shader programs compiled for all buildings
 
 ## Geometry Creation
 
@@ -347,7 +328,7 @@ class MaterialPalette {
 
   getMaterial(color: string): THREE.Material {
     if (!this.materials.has(color)) {
-      this.materials.set(color, new THREE.MeshStandardMaterial({
+      this.materials.set(color, new THREE.MeshLambertMaterial({
         color: new THREE.Color(color),
         transparent: true,
         opacity: this.opacity,
@@ -359,10 +340,10 @@ class MaterialPalette {
 ```
 
 **Benefits**:
-- Thousands of buildings share only **3 materials** (blue, light gray, dark gray)
+- Thousands of buildings share only **4 materials** (see [buildings-info-schema.md](./buildings-info-schema.md) for color details)
 - Reduces memory by ~99.9% compared to unique materials per building
 - Extremely fast rendering (minimal material switching)
-- Only 3 shader programs compiled for all buildings
+- Only 4 shader programs compiled for all buildings
 
 ## Performance Optimizations
 
@@ -388,8 +369,8 @@ class MaterialPalette {
 - Automatic eviction when full
 
 ### 5. Material Sharing
-- Only **3 materials** for all buildings (blue, light gray, dark gray)
-- Thousands of buildings share these 3 materials
+- Only **4 materials** for all buildings (see [buildings-info-schema.md](./buildings-info-schema.md))
+- Thousands of buildings share these materials
 - 99.9%+ memory reduction vs unique materials
 - Minimal GPU state changes (faster rendering)
 
