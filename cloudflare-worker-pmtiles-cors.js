@@ -93,8 +93,11 @@ export default {
         headers,
       });
 
-      // Cache the response (Cloudflare will cache based on Cache-Control)
-      ctx.waitUntil(cache.put(request, response.clone()));
+      // Only cache full responses (status 200), not range requests (status 206)
+      // Cloudflare Cache API doesn't support caching 206 Partial Content responses
+      if (status === 200) {
+        ctx.waitUntil(cache.put(request, response.clone()));
+      }
     }
 
     return response;
