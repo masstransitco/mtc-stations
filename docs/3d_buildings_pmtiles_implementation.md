@@ -472,6 +472,39 @@ const handleIdle = () => {
 - Allows smooth animations to complete before loading
 - Reduces tile queue churn by ~90%
 
+**Changes Made**:
+
+1. **Debounced the idle event handler** (`components/building-overlay-pmtiles.tsx:363-390`):
+   - Added 150ms debounce timer
+   - Only loads tiles after map has been idle for 150ms
+   - Cleans up timer on component unmount
+   - Reduces tile queue churn by ~90%
+
+2. **Throttled viewport logging** (`components/building-overlay-pmtiles.tsx:512-518`):
+   - Only log viewport changes every 500ms
+   - Reduces console noise during panning/zooming
+
+3. **Updated documentation** (`docs/3d_buildings_pmtiles_implementation.md`):
+   - Added new troubleshooting section explaining the issue
+   - Updated viewport change documentation to mention debouncing
+   - Explained why 150ms was chosen
+
+**Expected Results**:
+
+After this fix, you should see:
+- **Fewer cancellation messages** - Only when viewport actually changes significantly
+- **Tiles actually loading** - Queue has time to process before next viewport change
+- **Buildings rendering** - Tiles complete loading and appear on screen
+- **Cleaner console output** - Less noise from rapid viewport changes
+
+The 150ms debounce is:
+- ✅ Long enough to filter out rapid successive idle events
+- ✅ Short enough to feel responsive to the user
+- ✅ Allows smooth animations to complete
+- ✅ Still maintains responsive feel for discrete interactions (single zoom in/out, single pan)
+
+Test this by panning/zooming continuously - you should see far fewer cancellations and buildings should actually render.
+
 ### Issue: Buildings disappear when panning
 
 **Cause**: Anchor mismatch between geometry and camera matrix
