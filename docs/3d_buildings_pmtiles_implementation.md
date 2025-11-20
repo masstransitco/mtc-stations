@@ -132,7 +132,7 @@ renderer.resetState(); // Critical: prevent conflicts with Google Maps
 
 When map becomes idle after panning/zooming:
 
-**Important**: The idle event handler is **debounced by 150ms** to prevent excessive tile cancellations during continuous panning or smooth zoom animations. This prevents queue thrashing where tiles are constantly added and immediately canceled.
+**Important**: The idle event handler is **debounced by 150ms** to prevent excessive tile cancellations during continuous panning or smooth zoom animations. This prevents the system from recalculating required tiles on every intermediate viewport state.
 
 ```typescript
 const handleIdle = () => {
@@ -141,9 +141,17 @@ const handleIdle = () => {
 
   debounceTimer = setTimeout(() => {
     loadBuildingsForViewport();
+    debounceTimer = null;
   }, 150);
 };
 ```
+
+**Why 150ms debounce is critical:**
+- Google Maps `idle` event fires multiple times during continuous user interaction
+- Without debouncing, `loadBuildingsForViewport()` would be called repeatedly
+- Each call triggers `cancelTilesNotIn()`, clearing the load queue
+- 150ms gives enough time for smooth interactions while preventing queue thrashing
+- Tiles that are already loading continue to completion (managed by stale tile tracking)
 
 When the debounced handler fires:
 
@@ -467,43 +475,50 @@ const handleIdle = () => {
 ```
 
 **Why 150ms?**
-- Long enough to filter out rapid successive idle events
-- Short enough to feel responsive to user
-- Allows smooth animations to complete before loading
-- Reduces tile queue churn by ~90%
+- Long enough to filter out rapid successive idle events during continuous interaction
+- Short enough to feel responsive to the user for discrete actions (single pan/zoom)
+- Allows smooth animations to complete before recalculating tiles
+- Reduces unnecessary tile queue churn by ~90%
+- Balances performance with user experience
 
-**Changes Made**:
+**Implementation Summary**:
 
-1. **Debounced the idle event handler** (`components/building-overlay-pmtiles.tsx:363-390`):
-   - Added 150ms debounce timer
-   - Only loads tiles after map has been idle for 150ms
+The fix consists of two key changes:
+
+1. **Debounced idle event handler** (`components/building-overlay-pmtiles.tsx:363-390`):
+   ```typescript
+   let debounceTimer: NodeJS.Timeout | null = null;
+
+   const handleIdle = () => {
+     if (debounceTimer) clearTimeout(debounceTimer);
+
+     debounceTimer = setTimeout(() => {
+       loadBuildingsForViewport();
+       debounceTimer = null;
+     }, 150);
+   };
+   ```
+   - Waits 150ms after last idle event before loading tiles
    - Cleans up timer on component unmount
-   - Reduces tile queue churn by ~90%
+   - Prevents recalculating tiles during rapid viewport changes
 
 2. **Throttled viewport logging** (`components/building-overlay-pmtiles.tsx:512-518`):
-   - Only log viewport changes every 500ms
-   - Reduces console noise during panning/zooming
+   - Only logs viewport changes every 500ms
+   - Reduces console noise without affecting functionality
 
-3. **Updated documentation** (`docs/3d_buildings_pmtiles_implementation.md`):
-   - Added new troubleshooting section explaining the issue
-   - Updated viewport change documentation to mention debouncing
-   - Explained why 150ms was chosen
+**Expected Behavior After Fix**:
 
-**Expected Results**:
+✅ **Normal operation:**
+- Tiles load and render correctly during normal panning/zooming
+- Some "🚫 Canceled" messages are normal - they indicate queued tiles being replaced
+- "✅ Tile ready" messages show successful tile loading
+- Buildings appear and remain visible during viewport changes
 
-After this fix, you should see:
-- **Fewer cancellation messages** - Only when viewport actually changes significantly
-- **Tiles actually loading** - Queue has time to process before next viewport change
-- **Buildings rendering** - Tiles complete loading and appear on screen
-- **Cleaner console output** - Less noise from rapid viewport changes
-
-The 150ms debounce is:
-- ✅ Long enough to filter out rapid successive idle events
-- ✅ Short enough to feel responsive to the user
-- ✅ Allows smooth animations to complete
-- ✅ Still maintains responsive feel for discrete interactions (single zoom in/out, single pan)
-
-Test this by panning/zooming continuously - you should see far fewer cancellations and buildings should actually render.
+✅ **Performance:**
+- Responsive feel for discrete interactions (single pan/zoom)
+- Smooth experience during continuous panning
+- Efficient tile loading without excessive cancellations
+- Proper memory management via viewport-aware pruning
 
 ### Issue: Buildings disappear when panning
 
