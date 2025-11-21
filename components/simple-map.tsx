@@ -416,6 +416,7 @@ function MapContent({
         lat: currentLocation.latitude,
         lng: currentLocation.longitude
       });
+      map.setZoom(18);
     }
   }, [isTracking, isCameraLocked, currentLocation, map]);
 
@@ -783,10 +784,19 @@ export default function SimpleMap() {
         setShouldPanOnLocation(true);
       }
     } else if (!isCameraLocked) {
-      // Second press: Lock camera to follow user
+      // Second press: Lock camera to follow user at zoom 18
       setIsCameraLocked(true);
+
+      // Immediately pan and zoom to user location
+      if (currentLocation && mapRef.current) {
+        mapRef.current.panTo({
+          lat: currentLocation.latitude,
+          lng: currentLocation.longitude
+        });
+        mapRef.current.setZoom(18);
+      }
     } else {
-      // Third press: Stop tracking and unlock camera
+      // Third press: Stop tracking and unlock camera (no pan/zoom)
       stopTracking();
       setIsCameraLocked(false);
     }
