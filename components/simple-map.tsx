@@ -143,14 +143,31 @@ function CompassButton({
       }}
       title={isHeadingLocked ? "Unlock Heading" : (Math.abs(mapHeading) < 5 ? "Lock to Heading" : "Reset to North")}
     >
-      <Compass
-        size={24}
-        color={isHeadingLocked ? '#ffffff' : (isDarkMode ? '#f3f4f6' : '#111827')}
-        style={{
-          transform: `rotate(${mapHeading}deg)`,
-          transition: 'transform 0.3s ease',
-        }}
-      />
+      {Math.abs(mapHeading) < 5 ? (
+        // North indicator when map is at north
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <text
+            x="12"
+            y="18"
+            textAnchor="middle"
+            fontSize="16"
+            fontWeight="bold"
+            fill={isHeadingLocked ? '#ffffff' : (isDarkMode ? '#f3f4f6' : '#111827')}
+          >
+            N
+          </text>
+        </svg>
+      ) : (
+        // Rotating compass when map is rotated
+        <Compass
+          size={24}
+          color={isHeadingLocked ? '#ffffff' : (isDarkMode ? '#f3f4f6' : '#111827')}
+          style={{
+            transform: `rotate(${mapHeading}deg)`,
+            transition: 'transform 0.3s ease',
+          }}
+        />
+      )}
     </button>
   );
 }
