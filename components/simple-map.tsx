@@ -182,7 +182,8 @@ function MapContent({
   showConnectedCarparks,
   dispatchCarparks,
   showDispatchCarparks,
-  showIndoorCarparks
+  showIndoorCarparks,
+  setIsMapAtUserLocation
 }: {
   carparks: CarparkWithVacancy[];
   currentLocation: any;
@@ -206,6 +207,7 @@ function MapContent({
   dispatchCarparks: DispatchCarpark[];
   showDispatchCarparks: boolean;
   showIndoorCarparks: boolean;
+  setIsMapAtUserLocation: (value: boolean) => void;
 }) {
   // Access Redux state and actions within MapContent
   const {
@@ -1333,6 +1335,7 @@ export default function SimpleMap() {
             dispatchCarparks={dispatchCarparks}
             showDispatchCarparks={showDispatchCarparks}
             showIndoorCarparks={showIndoorCarparks}
+            setIsMapAtUserLocation={setIsMapAtUserLocation}
           />
         </Map>
 
