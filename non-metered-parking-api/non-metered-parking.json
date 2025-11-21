@@ -1,0 +1,4211 @@
+{
+	"type" : "FeatureCollection",
+	"name" : "non_meter_parking_space",
+	"features" : [
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237398, 22.502201 ]
+			},
+			"properties" : {
+				"OBJECTID" : 1,
+				"FeatureID" : 2068,
+				"ParkingSpaceId" : "A101_BC_013",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "C",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23737, 22.502198 ]
+			},
+			"properties" : {
+				"OBJECTID" : 2,
+				"FeatureID" : 2067,
+				"ParkingSpaceId" : "A101_BC_014",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "C",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237341, 22.502196 ]
+			},
+			"properties" : {
+				"OBJECTID" : 3,
+				"FeatureID" : 2066,
+				"ParkingSpaceId" : "A101_BC_015",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "C",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237742, 22.502228 ]
+			},
+			"properties" : {
+				"OBJECTID" : 4,
+				"FeatureID" : 2065,
+				"ParkingSpaceId" : "A101_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237713, 22.502226 ]
+			},
+			"properties" : {
+				"OBJECTID" : 5,
+				"FeatureID" : 2064,
+				"ParkingSpaceId" : "A101_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237685, 22.502223 ]
+			},
+			"properties" : {
+				"OBJECTID" : 6,
+				"FeatureID" : 2063,
+				"ParkingSpaceId" : "A101_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237656, 22.502221 ]
+			},
+			"properties" : {
+				"OBJECTID" : 7,
+				"FeatureID" : 2062,
+				"ParkingSpaceId" : "A101_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237627, 22.502219 ]
+			},
+			"properties" : {
+				"OBJECTID" : 8,
+				"FeatureID" : 2061,
+				"ParkingSpaceId" : "A101_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237599, 22.502217 ]
+			},
+			"properties" : {
+				"OBJECTID" : 9,
+				"FeatureID" : 2060,
+				"ParkingSpaceId" : "A101_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23757, 22.502214 ]
+			},
+			"properties" : {
+				"OBJECTID" : 10,
+				"FeatureID" : 2059,
+				"ParkingSpaceId" : "A101_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237542, 22.502212 ]
+			},
+			"properties" : {
+				"OBJECTID" : 11,
+				"FeatureID" : 2058,
+				"ParkingSpaceId" : "A101_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237513, 22.50221 ]
+			},
+			"properties" : {
+				"OBJECTID" : 12,
+				"FeatureID" : 2057,
+				"ParkingSpaceId" : "A101_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237484, 22.502207 ]
+			},
+			"properties" : {
+				"OBJECTID" : 13,
+				"FeatureID" : 2056,
+				"ParkingSpaceId" : "A101_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237456, 22.502205 ]
+			},
+			"properties" : {
+				"OBJECTID" : 14,
+				"FeatureID" : 2055,
+				"ParkingSpaceId" : "A101_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.237427, 22.502203 ]
+			},
+			"properties" : {
+				"OBJECTID" : 15,
+				"FeatureID" : 2054,
+				"ParkingSpaceId" : "A101_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool ex-Bus Terminus)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭前巴士總站）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭前巴士总站）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236933, 22.502787 ]
+			},
+			"properties" : {
+				"OBJECTID" : 16,
+				"FeatureID" : 2042,
+				"ParkingSpaceId" : "A102_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236896, 22.502829 ]
+			},
+			"properties" : {
+				"OBJECTID" : 17,
+				"FeatureID" : 2041,
+				"ParkingSpaceId" : "A102_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236854, 22.502869 ]
+			},
+			"properties" : {
+				"OBJECTID" : 18,
+				"FeatureID" : 2040,
+				"ParkingSpaceId" : "A102_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236817, 22.5029 ]
+			},
+			"properties" : {
+				"OBJECTID" : 19,
+				"FeatureID" : 2039,
+				"ParkingSpaceId" : "A102_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236769, 22.502946 ]
+			},
+			"properties" : {
+				"OBJECTID" : 20,
+				"FeatureID" : 2038,
+				"ParkingSpaceId" : "A102_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236736, 22.502979 ]
+			},
+			"properties" : {
+				"OBJECTID" : 21,
+				"FeatureID" : 2037,
+				"ParkingSpaceId" : "A102_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23669, 22.503025 ]
+			},
+			"properties" : {
+				"OBJECTID" : 22,
+				"FeatureID" : 2036,
+				"ParkingSpaceId" : "A102_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.236658, 22.50306 ]
+			},
+			"properties" : {
+				"OBJECTID" : 23,
+				"FeatureID" : 2035,
+				"ParkingSpaceId" : "A102_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Wu Kau Tang",
+				"SubDistrict_tc" : "烏蛟騰",
+				"SubDistrict_sc" : "乌蛟腾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Waterfall)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭瀑布）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭瀑布）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238461, 22.502286 ]
+			},
+			"properties" : {
+				"OBJECTID" : 24,
+				"FeatureID" : 2080,
+				"ParkingSpaceId" : "A103_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238495, 22.502275 ]
+			},
+			"properties" : {
+				"OBJECTID" : 25,
+				"FeatureID" : 2081,
+				"ParkingSpaceId" : "A103_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238528, 22.502266 ]
+			},
+			"properties" : {
+				"OBJECTID" : 26,
+				"FeatureID" : 2082,
+				"ParkingSpaceId" : "A103_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238562, 22.502258 ]
+			},
+			"properties" : {
+				"OBJECTID" : 27,
+				"FeatureID" : 2083,
+				"ParkingSpaceId" : "A103_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238593, 22.502249 ]
+			},
+			"properties" : {
+				"OBJECTID" : 28,
+				"FeatureID" : 2084,
+				"ParkingSpaceId" : "A103_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238627, 22.502242 ]
+			},
+			"properties" : {
+				"OBJECTID" : 29,
+				"FeatureID" : 2085,
+				"ParkingSpaceId" : "A103_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23866, 22.502235 ]
+			},
+			"properties" : {
+				"OBJECTID" : 30,
+				"FeatureID" : 2086,
+				"ParkingSpaceId" : "A103_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23838, 22.502216 ]
+			},
+			"properties" : {
+				"OBJECTID" : 31,
+				"FeatureID" : 2070,
+				"ParkingSpaceId" : "A103_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238413, 22.50221 ]
+			},
+			"properties" : {
+				"OBJECTID" : 32,
+				"FeatureID" : 2071,
+				"ParkingSpaceId" : "A103_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238444, 22.5022 ]
+			},
+			"properties" : {
+				"OBJECTID" : 33,
+				"FeatureID" : 2072,
+				"ParkingSpaceId" : "A103_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238475, 22.502192 ]
+			},
+			"properties" : {
+				"OBJECTID" : 34,
+				"FeatureID" : 2073,
+				"ParkingSpaceId" : "A103_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238509, 22.502184 ]
+			},
+			"properties" : {
+				"OBJECTID" : 35,
+				"FeatureID" : 2074,
+				"ParkingSpaceId" : "A103_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238542, 22.502174 ]
+			},
+			"properties" : {
+				"OBJECTID" : 36,
+				"FeatureID" : 2075,
+				"ParkingSpaceId" : "A103_CL_013",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238576, 22.502165 ]
+			},
+			"properties" : {
+				"OBJECTID" : 37,
+				"FeatureID" : 2076,
+				"ParkingSpaceId" : "A103_CL_014",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238609, 22.502157 ]
+			},
+			"properties" : {
+				"OBJECTID" : 38,
+				"FeatureID" : 2077,
+				"ParkingSpaceId" : "A103_CL_015",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23864, 22.502148 ]
+			},
+			"properties" : {
+				"OBJECTID" : 39,
+				"FeatureID" : 2078,
+				"ParkingSpaceId" : "A103_CL_016",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238676, 22.502136 ]
+			},
+			"properties" : {
+				"OBJECTID" : 40,
+				"FeatureID" : 2079,
+				"ParkingSpaceId" : "A103_CL_017",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.238709, 22.502126 ]
+			},
+			"properties" : {
+				"OBJECTID" : 41,
+				"FeatureID" : 112598,
+				"ParkingSpaceId" : "A103_CL_018",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Tai po District",
+				"District_tc" : "大埔區",
+				"District_sc" : "大埔区",
+				"SubDistrict" : "Shuen Wan",
+				"SubDistrict_tc" : "船灣",
+				"SubDistrict_sc" : "船湾",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Bride’s Pool Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近新娘潭燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近新娘潭烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.301143, 22.291601 ]
+			},
+			"properties" : {
+				"OBJECTID" : 42,
+				"FeatureID" : 8882,
+				"ParkingSpaceId" : "A104_DR_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sai Kung District",
+				"District_tc" : "西貢區",
+				"District_sc" : "西贡区",
+				"SubDistrict" : "Hang Hau East",
+				"SubDistrict_tc" : "坑口東",
+				"SubDistrict_sc" : "坑口东",
+				"Street" : "Clear Water Bay Road",
+				"Street_tc" : "清水灣道",
+				"Street_sc" : "清水湾道",
+				"SectionOfStreet" : "Clear Water Bay Road (near Tai Hang Tun Barbecue Site)",
+				"SectionOfStreet_tc" : "清水灣道（近大坑墩燒烤場）",
+				"SectionOfStreet_sc" : "清水湾道（近大坑墩烧烤场）",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216663, 22.524391 ]
+			},
+			"properties" : {
+				"OBJECTID" : 43,
+				"FeatureID" : 396,
+				"ParkingSpaceId" : "A106_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216689, 22.524397 ]
+			},
+			"properties" : {
+				"OBJECTID" : 44,
+				"FeatureID" : 397,
+				"ParkingSpaceId" : "A106_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216717, 22.524406 ]
+			},
+			"properties" : {
+				"OBJECTID" : 45,
+				"FeatureID" : 398,
+				"ParkingSpaceId" : "A106_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216739, 22.524412 ]
+			},
+			"properties" : {
+				"OBJECTID" : 46,
+				"FeatureID" : 399,
+				"ParkingSpaceId" : "A106_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216763, 22.524419 ]
+			},
+			"properties" : {
+				"OBJECTID" : 47,
+				"FeatureID" : 400,
+				"ParkingSpaceId" : "A106_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216785, 22.524424 ]
+			},
+			"properties" : {
+				"OBJECTID" : 48,
+				"FeatureID" : 401,
+				"ParkingSpaceId" : "A106_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216807, 22.524434 ]
+			},
+			"properties" : {
+				"OBJECTID" : 49,
+				"FeatureID" : 402,
+				"ParkingSpaceId" : "A106_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216832, 22.52444 ]
+			},
+			"properties" : {
+				"OBJECTID" : 50,
+				"FeatureID" : 403,
+				"ParkingSpaceId" : "A106_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216851, 22.524447 ]
+			},
+			"properties" : {
+				"OBJECTID" : 51,
+				"FeatureID" : 404,
+				"ParkingSpaceId" : "A106_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.21688, 22.524454 ]
+			},
+			"properties" : {
+				"OBJECTID" : 52,
+				"FeatureID" : 405,
+				"ParkingSpaceId" : "A106_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216902, 22.524461 ]
+			},
+			"properties" : {
+				"OBJECTID" : 53,
+				"FeatureID" : 406,
+				"ParkingSpaceId" : "A106_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.216929, 22.524468 ]
+			},
+			"properties" : {
+				"OBJECTID" : 54,
+				"FeatureID" : 407,
+				"ParkingSpaceId" : "A106_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Luk Keng Road)",
+				"SectionOfStreet_tc" : "新娘潭路（近鹿頸路）",
+				"SectionOfStreet_sc" : "新娘潭路（近鹿颈路）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226382, 22.520732 ]
+			},
+			"properties" : {
+				"OBJECTID" : 55,
+				"FeatureID" : 432,
+				"ParkingSpaceId" : "A107_CL_017",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226371, 22.520749 ]
+			},
+			"properties" : {
+				"OBJECTID" : 56,
+				"FeatureID" : 431,
+				"ParkingSpaceId" : "A107_CL_016",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226358, 22.520768 ]
+			},
+			"properties" : {
+				"OBJECTID" : 57,
+				"FeatureID" : 430,
+				"ParkingSpaceId" : "A107_CL_015",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226348, 22.520789 ]
+			},
+			"properties" : {
+				"OBJECTID" : 58,
+				"FeatureID" : 429,
+				"ParkingSpaceId" : "A107_CL_014",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226336, 22.520809 ]
+			},
+			"properties" : {
+				"OBJECTID" : 59,
+				"FeatureID" : 428,
+				"ParkingSpaceId" : "A107_CL_013",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226324, 22.520829 ]
+			},
+			"properties" : {
+				"OBJECTID" : 60,
+				"FeatureID" : 427,
+				"ParkingSpaceId" : "A107_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226312, 22.520846 ]
+			},
+			"properties" : {
+				"OBJECTID" : 61,
+				"FeatureID" : 426,
+				"ParkingSpaceId" : "A107_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.2263, 22.520868 ]
+			},
+			"properties" : {
+				"OBJECTID" : 62,
+				"FeatureID" : 425,
+				"ParkingSpaceId" : "A107_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226291, 22.520886 ]
+			},
+			"properties" : {
+				"OBJECTID" : 63,
+				"FeatureID" : 424,
+				"ParkingSpaceId" : "A107_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226279, 22.520904 ]
+			},
+			"properties" : {
+				"OBJECTID" : 64,
+				"FeatureID" : 423,
+				"ParkingSpaceId" : "A107_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226265, 22.520924 ]
+			},
+			"properties" : {
+				"OBJECTID" : 65,
+				"FeatureID" : 422,
+				"ParkingSpaceId" : "A107_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226256, 22.520942 ]
+			},
+			"properties" : {
+				"OBJECTID" : 66,
+				"FeatureID" : 421,
+				"ParkingSpaceId" : "A107_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226242, 22.520962 ]
+			},
+			"properties" : {
+				"OBJECTID" : 67,
+				"FeatureID" : 420,
+				"ParkingSpaceId" : "A107_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.22623, 22.520982 ]
+			},
+			"properties" : {
+				"OBJECTID" : 68,
+				"FeatureID" : 419,
+				"ParkingSpaceId" : "A107_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226219, 22.521002 ]
+			},
+			"properties" : {
+				"OBJECTID" : 69,
+				"FeatureID" : 418,
+				"ParkingSpaceId" : "A107_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226207, 22.521021 ]
+			},
+			"properties" : {
+				"OBJECTID" : 70,
+				"FeatureID" : 417,
+				"ParkingSpaceId" : "A107_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.226195, 22.52104 ]
+			},
+			"properties" : {
+				"OBJECTID" : 71,
+				"FeatureID" : 416,
+				"ParkingSpaceId" : "A107_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Fung Hang Family Walk)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.22919, 22.517942 ]
+			},
+			"properties" : {
+				"OBJECTID" : 72,
+				"FeatureID" : 101702,
+				"ParkingSpaceId" : "A108_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229144, 22.517992 ]
+			},
+			"properties" : {
+				"OBJECTID" : 73,
+				"FeatureID" : 101700,
+				"ParkingSpaceId" : "A108_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229114, 22.518027 ]
+			},
+			"properties" : {
+				"OBJECTID" : 74,
+				"FeatureID" : 101698,
+				"ParkingSpaceId" : "A108_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.22907, 22.518081 ]
+			},
+			"properties" : {
+				"OBJECTID" : 75,
+				"FeatureID" : 101696,
+				"ParkingSpaceId" : "A108_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229035, 22.518134 ]
+			},
+			"properties" : {
+				"OBJECTID" : 76,
+				"FeatureID" : 101693,
+				"ParkingSpaceId" : "A108_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229, 22.518187 ]
+			},
+			"properties" : {
+				"OBJECTID" : 77,
+				"FeatureID" : 101692,
+				"ParkingSpaceId" : "A108_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.22922, 22.517985 ]
+			},
+			"properties" : {
+				"OBJECTID" : 78,
+				"FeatureID" : 101701,
+				"ParkingSpaceId" : "A108_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229191, 22.518023 ]
+			},
+			"properties" : {
+				"OBJECTID" : 79,
+				"FeatureID" : 101699,
+				"ParkingSpaceId" : "A108_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229162, 22.518062 ]
+			},
+			"properties" : {
+				"OBJECTID" : 80,
+				"FeatureID" : 101697,
+				"ParkingSpaceId" : "A108_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229134, 22.5181 ]
+			},
+			"properties" : {
+				"OBJECTID" : 81,
+				"FeatureID" : 101695,
+				"ParkingSpaceId" : "A108_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229105, 22.518139 ]
+			},
+			"properties" : {
+				"OBJECTID" : 82,
+				"FeatureID" : 101694,
+				"ParkingSpaceId" : "A108_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229076, 22.518177 ]
+			},
+			"properties" : {
+				"OBJECTID" : 83,
+				"FeatureID" : 101691,
+				"ParkingSpaceId" : "A108_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near road section between Fung Hang Family Walk and Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近鳳坑家樂徑與降下坳燒烤場之間的路段）",
+				"SectionOfStreet_sc" : "新娘潭路（近凤坑家乐径与降下坳烧烤场之间的路段）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23215, 22.514736 ]
+			},
+			"properties" : {
+				"OBJECTID" : 84,
+				"FeatureID" : 2004,
+				"ParkingSpaceId" : "A109_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.23217, 22.514721 ]
+			},
+			"properties" : {
+				"OBJECTID" : 85,
+				"FeatureID" : 2005,
+				"ParkingSpaceId" : "A109_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232186, 22.514703 ]
+			},
+			"properties" : {
+				"OBJECTID" : 86,
+				"FeatureID" : 2006,
+				"ParkingSpaceId" : "A109_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232205, 22.514685 ]
+			},
+			"properties" : {
+				"OBJECTID" : 87,
+				"FeatureID" : 2007,
+				"ParkingSpaceId" : "A109_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232222, 22.51467 ]
+			},
+			"properties" : {
+				"OBJECTID" : 88,
+				"FeatureID" : 2008,
+				"ParkingSpaceId" : "A109_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232239, 22.514651 ]
+			},
+			"properties" : {
+				"OBJECTID" : 89,
+				"FeatureID" : 2009,
+				"ParkingSpaceId" : "A109_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232303, 22.514591 ]
+			},
+			"properties" : {
+				"OBJECTID" : 90,
+				"FeatureID" : 2010,
+				"ParkingSpaceId" : "A109_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232322, 22.514576 ]
+			},
+			"properties" : {
+				"OBJECTID" : 91,
+				"FeatureID" : 2011,
+				"ParkingSpaceId" : "A109_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232337, 22.514562 ]
+			},
+			"properties" : {
+				"OBJECTID" : 92,
+				"FeatureID" : 2012,
+				"ParkingSpaceId" : "A109_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232353, 22.514544 ]
+			},
+			"properties" : {
+				"OBJECTID" : 93,
+				"FeatureID" : 2013,
+				"ParkingSpaceId" : "A109_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232369, 22.514528 ]
+			},
+			"properties" : {
+				"OBJECTID" : 94,
+				"FeatureID" : 2014,
+				"ParkingSpaceId" : "A109_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232387, 22.514511 ]
+			},
+			"properties" : {
+				"OBJECTID" : 95,
+				"FeatureID" : 2015,
+				"ParkingSpaceId" : "A109_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232403, 22.514496 ]
+			},
+			"properties" : {
+				"OBJECTID" : 96,
+				"FeatureID" : 2016,
+				"ParkingSpaceId" : "A109_CL_013",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232419, 22.51448 ]
+			},
+			"properties" : {
+				"OBJECTID" : 97,
+				"FeatureID" : 2017,
+				"ParkingSpaceId" : "A109_CL_014",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232435, 22.514464 ]
+			},
+			"properties" : {
+				"OBJECTID" : 98,
+				"FeatureID" : 2018,
+				"ParkingSpaceId" : "A109_CL_015",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232451, 22.514449 ]
+			},
+			"properties" : {
+				"OBJECTID" : 99,
+				"FeatureID" : 2019,
+				"ParkingSpaceId" : "A109_CL_016",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.232467, 22.514434 ]
+			},
+			"properties" : {
+				"OBJECTID" : 100,
+				"FeatureID" : 2020,
+				"ParkingSpaceId" : "A109_CL_017",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "North District",
+				"District_tc" : "北區",
+				"District_sc" : "北区",
+				"SubDistrict" : "Luk Keng",
+				"SubDistrict_tc" : "鹿頸",
+				"SubDistrict_sc" : "鹿颈",
+				"Street" : "Bride’s Pool Road",
+				"Street_tc" : "新娘潭路",
+				"Street_sc" : "新娘潭路",
+				"SectionOfStreet" : "Bride’s Pool Road (near Kong Ha Au Barbecue Site)",
+				"SectionOfStreet_tc" : "新娘潭路（近降下坳燒烤場）",
+				"SectionOfStreet_sc" : "新娘潭路（近降下坳烧烤场）",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.06248, 22.420251 ]
+			},
+			"properties" : {
+				"OBJECTID" : 101,
+				"FeatureID" : 13960,
+				"ParkingSpaceId" : "A110_CL_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062453, 22.420244 ]
+			},
+			"properties" : {
+				"OBJECTID" : 102,
+				"FeatureID" : 13961,
+				"ParkingSpaceId" : "A110_CL_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062425, 22.420233 ]
+			},
+			"properties" : {
+				"OBJECTID" : 103,
+				"FeatureID" : 13962,
+				"ParkingSpaceId" : "A110_CL_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062398, 22.420227 ]
+			},
+			"properties" : {
+				"OBJECTID" : 104,
+				"FeatureID" : 13963,
+				"ParkingSpaceId" : "A110_CL_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.06237, 22.420219 ]
+			},
+			"properties" : {
+				"OBJECTID" : 105,
+				"FeatureID" : 13964,
+				"ParkingSpaceId" : "A110_CL_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062342, 22.42021 ]
+			},
+			"properties" : {
+				"OBJECTID" : 106,
+				"FeatureID" : 13965,
+				"ParkingSpaceId" : "A110_CL_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062315, 22.420201 ]
+			},
+			"properties" : {
+				"OBJECTID" : 107,
+				"FeatureID" : 13966,
+				"ParkingSpaceId" : "A110_CL_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062287, 22.420193 ]
+			},
+			"properties" : {
+				"OBJECTID" : 108,
+				"FeatureID" : 13967,
+				"ParkingSpaceId" : "A110_CL_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.06226, 22.420182 ]
+			},
+			"properties" : {
+				"OBJECTID" : 109,
+				"FeatureID" : 13968,
+				"ParkingSpaceId" : "A110_CL_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062232, 22.420172 ]
+			},
+			"properties" : {
+				"OBJECTID" : 110,
+				"FeatureID" : 13969,
+				"ParkingSpaceId" : "A110_CL_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062059, 22.420222 ]
+			},
+			"properties" : {
+				"OBJECTID" : 111,
+				"FeatureID" : 13971,
+				"ParkingSpaceId" : "A110_CL_016",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062029, 22.420183 ]
+			},
+			"properties" : {
+				"OBJECTID" : 112,
+				"FeatureID" : 13972,
+				"ParkingSpaceId" : "A110_CL_015",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062025, 22.420118 ]
+			},
+			"properties" : {
+				"OBJECTID" : 113,
+				"FeatureID" : 13973,
+				"ParkingSpaceId" : "A110_CL_014",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062048, 22.420079 ]
+			},
+			"properties" : {
+				"OBJECTID" : 114,
+				"FeatureID" : 13974,
+				"ParkingSpaceId" : "A110_CL_013",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062091, 22.420047 ]
+			},
+			"properties" : {
+				"OBJECTID" : 115,
+				"FeatureID" : 13975,
+				"ParkingSpaceId" : "A110_CL_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062147, 22.420039 ]
+			},
+			"properties" : {
+				"OBJECTID" : 116,
+				"FeatureID" : 13976,
+				"ParkingSpaceId" : "A110_CL_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062463, 22.420293 ]
+			},
+			"properties" : {
+				"OBJECTID" : 117,
+				"FeatureID" : 13959,
+				"ParkingSpaceId" : "A110_CL_026",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062436, 22.420285 ]
+			},
+			"properties" : {
+				"OBJECTID" : 118,
+				"FeatureID" : 13958,
+				"ParkingSpaceId" : "A110_CL_025",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.06241, 22.420276 ]
+			},
+			"properties" : {
+				"OBJECTID" : 119,
+				"FeatureID" : 13957,
+				"ParkingSpaceId" : "A110_CL_024",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062381, 22.420266 ]
+			},
+			"properties" : {
+				"OBJECTID" : 120,
+				"FeatureID" : 13956,
+				"ParkingSpaceId" : "A110_CL_023",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062357, 22.420257 ]
+			},
+			"properties" : {
+				"OBJECTID" : 121,
+				"FeatureID" : 13955,
+				"ParkingSpaceId" : "A110_CL_022",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062326, 22.420248 ]
+			},
+			"properties" : {
+				"OBJECTID" : 122,
+				"FeatureID" : 13954,
+				"ParkingSpaceId" : "A110_CL_021",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062299, 22.420239 ]
+			},
+			"properties" : {
+				"OBJECTID" : 123,
+				"FeatureID" : 13953,
+				"ParkingSpaceId" : "A110_CL_020",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062272, 22.42023 ]
+			},
+			"properties" : {
+				"OBJECTID" : 124,
+				"FeatureID" : 13952,
+				"ParkingSpaceId" : "A110_CL_019",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062246, 22.42022 ]
+			},
+			"properties" : {
+				"OBJECTID" : 125,
+				"FeatureID" : 13951,
+				"ParkingSpaceId" : "A110_CL_018",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.062218, 22.420211 ]
+			},
+			"properties" : {
+				"OBJECTID" : 126,
+				"FeatureID" : 13950,
+				"ParkingSpaceId" : "A110_CL_017",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Yuen Long District",
+				"District_tc" : "元朗區",
+				"District_sc" : "元朗区",
+				"SubDistrict" : "Pat Heung",
+				"SubDistrict_tc" : "八鄉",
+				"SubDistrict_sc" : "八乡",
+				"Street" : "Pat Heung Road",
+				"Street_tc" : "八鄉路",
+				"Street_sc" : "八乡路",
+				"SectionOfStreet" : "Pat Heung Road (near Tai Lam Chung Country Trail)",
+				"SectionOfStreet_tc" : "八鄉路(近大欖涌郊遊徑)",
+				"SectionOfStreet_sc" : "八乡路(近大榄涌郊游径)",
+				"VehicleType" : "A",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.211837, 22.412616 ]
+			},
+			"properties" : {
+				"OBJECTID" : 127,
+				"FeatureID" : 3848,
+				"ParkingSpaceId" : "A115_DR_001",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Ma Liu Shui",
+				"SubDistrict_tc" : "馬料水",
+				"SubDistrict_sc" : "马料水",
+				"Street" : "Chak Cheung Street",
+				"Street_tc" : "澤祥街",
+				"Street_sc" : "泽祥街",
+				"SectionOfStreet" : "Chak Cheung Street (near University Station)",
+				"SectionOfStreet_tc" : "澤祥街（近大學站）",
+				"SectionOfStreet_sc" : "泽祥街（近大学站）",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.19208, 22.383901 ]
+			},
+			"properties" : {
+				"OBJECTID" : 128,
+				"FeatureID" : 5302,
+				"ParkingSpaceId" : "A115_DR_002",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Shatin",
+				"SubDistrict_tc" : "沙田",
+				"SubDistrict_sc" : "沙田",
+				"Street" : "Lek Yuen Street",
+				"Street_tc" : "瀝源街",
+				"Street_sc" : "沥源街",
+				"SectionOfStreet" : "Lek Yuen Street",
+				"SectionOfStreet_tc" : "瀝源街",
+				"SectionOfStreet_sc" : "N沥源街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.234867, 22.423795 ]
+			},
+			"properties" : {
+				"OBJECTID" : 129,
+				"FeatureID" : 3723,
+				"ParkingSpaceId" : "A115_DR_004",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Ma On Shan",
+				"SubDistrict_tc" : "馬鞍山",
+				"SubDistrict_sc" : "马鞍山",
+				"Street" : "Ma Kam Street",
+				"Street_tc" : "馬錦街",
+				"Street_sc" : "马锦街",
+				"SectionOfStreet" : "Ma Kam Street",
+				"SectionOfStreet_tc" : "馬錦街",
+				"SectionOfStreet_sc" : "马锦街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.234878, 22.423836 ]
+			},
+			"properties" : {
+				"OBJECTID" : 130,
+				"FeatureID" : 3724,
+				"ParkingSpaceId" : "A115_DR_003",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Ma On Shan",
+				"SubDistrict_tc" : "馬鞍山",
+				"SubDistrict_sc" : "马鞍山",
+				"Street" : "Ma Kam Street",
+				"Street_tc" : "馬錦街",
+				"Street_sc" : "马锦街",
+				"SectionOfStreet" : "Ma Kam Street",
+				"SectionOfStreet_tc" : "馬錦街",
+				"SectionOfStreet_sc" : "马锦街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.183718, 22.377653 ]
+			},
+			"properties" : {
+				"OBJECTID" : 131,
+				"FeatureID" : 2425,
+				"ParkingSpaceId" : "A115_DR_005",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Man Lam Road",
+				"Street_tc" : "文林路",
+				"Street_sc" : "文林路",
+				"SectionOfStreet" : "Man Lam Road",
+				"SectionOfStreet_tc" : "文林路",
+				"SectionOfStreet_sc" : "文林路",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.176912, 22.365397 ]
+			},
+			"properties" : {
+				"OBJECTID" : 132,
+				"FeatureID" : 4974,
+				"ParkingSpaceId" : "A115_DR_006",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Fu Kin Street",
+				"Street_tc" : "富健街",
+				"Street_sc" : "富健街",
+				"SectionOfStreet" : "Fu Kin Street",
+				"SectionOfStreet_tc" : "富健街",
+				"SectionOfStreet_sc" : "富健街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.176899, 22.365426 ]
+			},
+			"properties" : {
+				"OBJECTID" : 133,
+				"FeatureID" : 4975,
+				"ParkingSpaceId" : "A115_DR_007",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Fu Kin Street",
+				"Street_tc" : "富健街",
+				"Street_sc" : "富健街",
+				"SectionOfStreet" : "Fu Kin Street",
+				"SectionOfStreet_tc" : "富健街",
+				"SectionOfStreet_sc" : "富健街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.178535, 22.374542 ]
+			},
+			"properties" : {
+				"OBJECTID" : 134,
+				"FeatureID" : 4288,
+				"ParkingSpaceId" : "A115_DR_008",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Chik Fu Street",
+				"Street_tc" : "積富街",
+				"Street_sc" : "积富街",
+				"SectionOfStreet" : "Chik Fu Street",
+				"SectionOfStreet_tc" : "積富街",
+				"SectionOfStreet_sc" : "积富街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.177364, 22.375703 ]
+			},
+			"properties" : {
+				"OBJECTID" : 135,
+				"FeatureID" : 4223,
+				"ParkingSpaceId" : "A115_DR_009",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Tai Wai Road",
+				"Street_tc" : "大圍道",
+				"Street_sc" : "大围道",
+				"SectionOfStreet" : "Tai Wai Road",
+				"SectionOfStreet_tc" : "大圍道",
+				"SectionOfStreet_sc" : "大围道",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.194852, 22.396231 ]
+			},
+			"properties" : {
+				"OBJECTID" : 136,
+				"FeatureID" : 5147,
+				"ParkingSpaceId" : "A115_DR_010",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Fo Tan",
+				"SubDistrict_tc" : "火炭",
+				"SubDistrict_sc" : "火炭",
+				"Street" : "Shan Mei Street",
+				"Street_tc" : "山尾街",
+				"Street_sc" : "山尾街",
+				"SectionOfStreet" : "Shan Mei Street",
+				"SectionOfStreet_tc" : "山尾街",
+				"SectionOfStreet_sc" : "山尾街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.173782, 22.362844 ]
+			},
+			"properties" : {
+				"OBJECTID" : 137,
+				"FeatureID" : 4905,
+				"ParkingSpaceId" : "A115_DR_011",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Hin Tin Street",
+				"Street_tc" : "顯田街",
+				"Street_sc" : "显田街",
+				"SectionOfStreet" : "Hin Tin Street",
+				"SectionOfStreet_tc" : "顯田街",
+				"SectionOfStreet_sc" : "显田街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.191214, 22.375048 ]
+			},
+			"properties" : {
+				"OBJECTID" : 138,
+				"FeatureID" : 5910,
+				"ParkingSpaceId" : "A115_DR_012",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Shatin",
+				"SubDistrict_tc" : "沙田",
+				"SubDistrict_sc" : "沙田",
+				"Street" : "Sha Kok Street",
+				"Street_tc" : "沙角街",
+				"Street_sc" : "沙角街",
+				"SectionOfStreet" : "Sha Kok Street",
+				"SectionOfStreet_tc" : "沙角街",
+				"SectionOfStreet_sc" : "沙角街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.204722, 22.378501 ]
+			},
+			"properties" : {
+				"OBJECTID" : 139,
+				"FeatureID" : 5626,
+				"ParkingSpaceId" : "A115_DR_013",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Shatin",
+				"SubDistrict_tc" : "沙田",
+				"SubDistrict_sc" : "沙田",
+				"Street" : "To Shek Street",
+				"Street_tc" : "多石街",
+				"Street_sc" : "多石街",
+				"SectionOfStreet" : "To Shek Street",
+				"SectionOfStreet_tc" : "多石街",
+				"SectionOfStreet_sc" : "多石街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.17009, 22.373559 ]
+			},
+			"properties" : {
+				"OBJECTID" : 140,
+				"FeatureID" : 4136,
+				"ParkingSpaceId" : "A115_DR_014",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Tai Wai",
+				"SubDistrict_tc" : "大圍",
+				"SubDistrict_sc" : "大围",
+				"Street" : "Yau On Street",
+				"Street_tc" : "悠安街",
+				"Street_sc" : "悠安街",
+				"SectionOfStreet" : "Yau On Street",
+				"SectionOfStreet_tc" : "悠安街",
+				"SectionOfStreet_sc" : "悠安街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.209634, 22.396563 ]
+			},
+			"properties" : {
+				"OBJECTID" : 141,
+				"FeatureID" : 5252,
+				"ParkingSpaceId" : "A115_DR_015",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Shatin",
+				"SubDistrict_tc" : "沙田",
+				"SubDistrict_sc" : "沙田",
+				"Street" : "On King Street",
+				"Street_tc" : "安景街",
+				"Street_sc" : "安景街",
+				"SectionOfStreet" : "On King Street",
+				"SectionOfStreet_tc" : "安景街",
+				"SectionOfStreet_sc" : "安景街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.209659, 22.396588 ]
+			},
+			"properties" : {
+				"OBJECTID" : 142,
+				"FeatureID" : 5251,
+				"ParkingSpaceId" : "A115_DR_016",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Shatin",
+				"SubDistrict_tc" : "沙田",
+				"SubDistrict_sc" : "沙田",
+				"Street" : "On King Street",
+				"Street_tc" : "安景街",
+				"Street_sc" : "安景街",
+				"SectionOfStreet" : "On King Street",
+				"SectionOfStreet_tc" : "安景街",
+				"SectionOfStreet_sc" : "安景街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.223089, 22.407261 ]
+			},
+			"properties" : {
+				"OBJECTID" : 143,
+				"FeatureID" : 5136,
+				"ParkingSpaceId" : "A115_DR_017",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Ma On Shan",
+				"SubDistrict_tc" : "馬鞍山",
+				"SubDistrict_sc" : "马鞍山",
+				"Street" : "Hang Shun Street",
+				"Street_tc" : "恆信街",
+				"Street_sc" : "恆信街",
+				"SectionOfStreet" : "Hang Shun Street",
+				"SectionOfStreet_tc" : "恆信街",
+				"SectionOfStreet_sc" : "恆信街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.228966, 22.422347 ]
+			},
+			"properties" : {
+				"OBJECTID" : 144,
+				"FeatureID" : 3692,
+				"ParkingSpaceId" : "A115_DR_018",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Ma On Shan",
+				"SubDistrict_tc" : "馬鞍山",
+				"SubDistrict_sc" : "马鞍山",
+				"Street" : "Hang Kwong Street",
+				"Street_tc" : "恆光街",
+				"Street_sc" : "恆光街",
+				"SectionOfStreet" : "Hang Kwong Street",
+				"SectionOfStreet_tc" : "恆光街",
+				"SectionOfStreet_sc" : "恆光街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 114.229003, 22.422324 ]
+			},
+			"properties" : {
+				"OBJECTID" : 145,
+				"FeatureID" : 3693,
+				"ParkingSpaceId" : "A115_DR_019",
+				"Region" : "New Territories",
+				"Region_tc" : "新界",
+				"Region_sc" : "新界",
+				"District" : "Sha Tin District",
+				"District_tc" : "沙田區",
+				"District_sc" : "沙田区",
+				"SubDistrict" : "Ma On Shan",
+				"SubDistrict_tc" : "馬鞍山",
+				"SubDistrict_sc" : "马鞍山",
+				"Street" : "Hang Kwong Street",
+				"Street_tc" : "恆光街",
+				"Street_sc" : "恆光街",
+				"SectionOfStreet" : "Hang Kwong Street",
+				"SectionOfStreet_tc" : "恆光街",
+				"SectionOfStreet_sc" : "恆光街",
+				"VehicleType" : "D",
+				"Occupancy_Status" : "https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus"
+			}
+		}
+	]
+}

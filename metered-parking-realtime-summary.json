@@ -1,0 +1,10 @@
+{
+  "total_carpark_groups": 1310,
+  "carparks_10plus_spaces": 650,
+  "carparks_with_realtime_10plus": 649,
+  "carparks_90plus_coverage": 615,
+  "carparks_100_coverage": 565,
+  "total_spaces_in_tracked_carparks": 17211,
+  "total_tracked_spaces": 16971,
+  "overall_coverage_pct": 98.61
+}

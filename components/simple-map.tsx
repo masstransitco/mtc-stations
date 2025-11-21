@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { Navigation, Sun, Moon, Compass } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
+import { useDeviceHeading } from "@/hooks/use-device-heading";
 import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
@@ -126,6 +127,7 @@ function MapContent({
   currentLocation,
   isTracking,
   isCameraLocked,
+  heading,
   mapRef,
   getMarkerColor,
   getMeteredMarkerColor,
@@ -147,6 +149,7 @@ function MapContent({
   currentLocation: any;
   isTracking: boolean;
   isCameraLocked: boolean;
+  heading: number | null;
   mapRef: React.MutableRefObject<google.maps.Map | null>;
   getMarkerColor: (vacancy: number) => string;
   getMeteredMarkerColor: (vacancy: number) => string;
@@ -452,13 +455,9 @@ function MapContent({
           zIndex={10000}
         >
           <div style={{
+            position: 'relative',
             width: '24px',
             height: '24px',
-            borderRadius: '50%',
-            backgroundColor: '#3b82f6',
-            border: '4px solid white',
-            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.5)',
-            position: 'relative'
           }}>
             {/* Pulsing ring animation */}
             <div style={{
@@ -470,7 +469,50 @@ function MapContent({
               height: '40px',
               borderRadius: '50%',
               backgroundColor: 'rgba(59, 130, 246, 0.2)',
-              animation: 'pulse 2s ease-out infinite'
+              animation: 'pulse 2s ease-out infinite',
+              zIndex: 1,
+            }} />
+
+            {/* Direction indicator (cone/wedge) - shown when heading is available */}
+            {heading !== null && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: '60px',
+                height: '60px',
+                transform: `translate(-50%, -50%) rotate(${heading}deg)`,
+                zIndex: 2,
+                pointerEvents: 'none',
+              }}>
+                {/* Cone shape pointing upward (north when rotation = 0) */}
+                <svg width="60" height="60" viewBox="0 0 60 60" style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))'
+                }}>
+                  {/* Wider cone/wedge for better visibility */}
+                  <path
+                    d="M 30 12 L 20 35 Q 30 32 40 35 Z"
+                    fill="rgba(59, 130, 246, 0.5)"
+                    stroke="rgba(59, 130, 246, 0.8)"
+                    strokeWidth="1"
+                  />
+                </svg>
+              </div>
+            )}
+
+            {/* Center blue dot */}
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              backgroundColor: '#3b82f6',
+              border: '4px solid white',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.5)',
+              zIndex: 3,
             }} />
           </div>
         </AdvancedMarker>
@@ -646,6 +688,11 @@ export default function SimpleMap() {
     idleTimeout: 30000
   });
 
+  // Initialize device heading tracking (enabled when camera is locked)
+  const { heading, permissionGranted, requestPermission } = useDeviceHeading({
+    enabled: isCameraLocked
+  });
+
   // Pan to location when it first becomes available after pressing locate button
   useEffect(() => {
     if (shouldPanOnLocation && currentLocation && mapRef.current) {
@@ -784,8 +831,13 @@ export default function SimpleMap() {
         setShouldPanOnLocation(true);
       }
     } else if (!isCameraLocked) {
-      // Second press: Lock camera to follow user at zoom 18
+      // Second press: Lock camera to follow user at zoom 18 and request heading permission
       setIsCameraLocked(true);
+
+      // Request device orientation permission (iOS)
+      requestPermission().catch(err => {
+        console.error('Failed to get device orientation permission:', err);
+      });
 
       // Immediately pan and zoom to user location
       if (currentLocation && mapRef.current) {
@@ -1164,6 +1216,7 @@ export default function SimpleMap() {
             currentLocation={currentLocation}
             isTracking={isTracking}
             isCameraLocked={isCameraLocked}
+            heading={heading}
             mapRef={mapRef}
             getMarkerColor={getMarkerColor}
             getMeteredMarkerColor={getMeteredMarkerColor}
