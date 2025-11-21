@@ -198,7 +198,7 @@ function MapContent({
     connectedCarparkItems,
     {
       createMarkerElement: (item) =>
-        createConnectedCarparkMarker(item.data, isDarkMode, (carpark) => {
+        createConnectedCarparkMarker(item.data, (carpark) => {
           setSelectedConnectedCarpark(carpark);
           onConnectedCarparkMarkerClick(carpark);
         }),
