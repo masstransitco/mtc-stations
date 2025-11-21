@@ -49,17 +49,26 @@ function getCarparkVacancy(carpark: CarparkUnion): number {
   return 50; // Medium occupancy as default
 }
 
+// Helper function to get cardinal direction from heading
+const getCardinalDirection = (heading: number): string => {
+  const normalized = ((heading % 360) + 360) % 360;
+  if (normalized >= 337.5 || normalized < 22.5) return 'N';
+  if (normalized >= 22.5 && normalized < 67.5) return 'NE';
+  if (normalized >= 67.5 && normalized < 112.5) return 'E';
+  if (normalized >= 112.5 && normalized < 157.5) return 'SE';
+  if (normalized >= 157.5 && normalized < 202.5) return 'S';
+  if (normalized >= 202.5 && normalized < 247.5) return 'SW';
+  if (normalized >= 247.5 && normalized < 292.5) return 'W';
+  return 'NW';
+};
+
 // Compass button component with map access
 function CompassButton({
   isDarkMode,
-  isHeadingLocked,
-  setIsHeadingLocked,
   deviceHeading,
   requestPermission
 }: {
   isDarkMode: boolean;
-  isHeadingLocked: boolean;
-  setIsHeadingLocked: (locked: boolean) => void;
   deviceHeading: number | null;
   requestPermission: () => Promise<boolean>;
 }) {
@@ -84,30 +93,21 @@ function CompassButton({
     };
   }, [map]);
 
-  // Handle compass button click - three-state logic
+  // Handle compass button click - two-state logic (no locking)
   const handleCompassClick = async () => {
     if (!map) return;
 
-    if (isHeadingLocked) {
-      // Third press: Unlock heading and reset to north
-      setIsHeadingLocked(false);
-      map.setHeading(0);
-      map.setTilt(0);
-    } else if (Math.abs(mapHeading) < 5) {
-      // Second press: Map is already at north, lock to device heading
+    if (Math.abs(mapHeading) < 5) {
+      // Map at north - rotate to device heading (one-time)
       if (deviceHeading !== null) {
-        // Heading already available, lock immediately
-        setIsHeadingLocked(true);
         map.setHeading(deviceHeading);
       } else {
-        // Need to request permission first (iOS)
-        const granted = await requestPermission();
-        if (granted) {
-          setIsHeadingLocked(true);
-        }
+        // Request permission first (iOS)
+        await requestPermission();
+        // Heading will be available after permission granted
       }
     } else {
-      // First press: Reset to north
+      // Map rotated - reset to north
       map.setHeading(0);
       map.setTilt(0);
     }
@@ -124,9 +124,9 @@ function CompassButton({
         width: '48px',
         height: '48px',
         borderRadius: '50%',
-        backgroundColor: isHeadingLocked ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
-        border: isHeadingLocked ? '2px solid #3b82f6' : (isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb'),
-        boxShadow: isHeadingLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
+        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+        border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
@@ -135,39 +135,26 @@ function CompassButton({
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.1)';
-        e.currentTarget.style.boxShadow = isHeadingLocked ? '0 6px 16px rgba(59, 130, 246, 0.5)' : '0 6px 16px rgba(0, 0, 0, 0.2)';
+        e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'scale(1)';
-        e.currentTarget.style.boxShadow = isHeadingLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
       }}
-      title={isHeadingLocked ? "Unlock Heading" : (Math.abs(mapHeading) < 5 ? "Lock to Heading" : "Reset to North")}
+      title={Math.abs(mapHeading) < 5 ? "Align to Heading" : "Reset to North"}
     >
-      {Math.abs(mapHeading) < 5 ? (
-        // North indicator when map is at north
-        <svg width="24" height="24" viewBox="0 0 24 24">
-          <text
-            x="12"
-            y="18"
-            textAnchor="middle"
-            fontSize="16"
-            fontWeight="bold"
-            fill={isHeadingLocked ? '#ffffff' : (isDarkMode ? '#f3f4f6' : '#111827')}
-          >
-            N
-          </text>
-        </svg>
-      ) : (
-        // Rotating compass when map is rotated
-        <Compass
-          size={24}
-          color={isHeadingLocked ? '#ffffff' : (isDarkMode ? '#f3f4f6' : '#111827')}
-          style={{
-            transform: `rotate(${mapHeading}deg)`,
-            transition: 'transform 0.3s ease',
-          }}
-        />
-      )}
+      <svg width="24" height="24" viewBox="0 0 24 24">
+        <text
+          x="12"
+          y="17"
+          textAnchor="middle"
+          fontSize="12"
+          fontWeight="bold"
+          fill={isDarkMode ? '#f3f4f6' : '#111827'}
+        >
+          {getCardinalDirection(mapHeading)}
+        </text>
+      </svg>
     </button>
   );
 }
@@ -908,8 +895,9 @@ export default function SimpleMap() {
         setShouldPanOnLocation(true);
       }
     } else if (!isCameraLocked) {
-      // Second press: Lock camera to follow user at zoom 18 and request heading permission
+      // Second press: Lock BOTH camera AND heading for full navigation mode
       setIsCameraLocked(true);
+      setIsHeadingLocked(true);
 
       // Request device orientation permission (iOS)
       requestPermission().catch(err => {
@@ -925,9 +913,10 @@ export default function SimpleMap() {
         mapRef.current.setZoom(18);
       }
     } else {
-      // Third press: Stop tracking and unlock camera (no pan/zoom)
+      // Third press: Stop tracking and unlock BOTH camera and heading
       stopTracking();
       setIsCameraLocked(false);
+      setIsHeadingLocked(false);
     }
   };
 
@@ -1289,8 +1278,6 @@ export default function SimpleMap() {
         >
           <CompassButton
             isDarkMode={isDarkMode}
-            isHeadingLocked={isHeadingLocked}
-            setIsHeadingLocked={setIsHeadingLocked}
             deviceHeading={heading}
             requestPermission={requestPermission}
           />
