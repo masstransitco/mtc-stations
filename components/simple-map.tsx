@@ -50,7 +50,17 @@ function getCarparkVacancy(carpark: CarparkUnion): number {
 }
 
 // Compass button component with map access
-function CompassButton({ isDarkMode }: { isDarkMode: boolean }) {
+function CompassButton({
+  isDarkMode,
+  isHeadingLocked,
+  setIsHeadingLocked,
+  deviceHeading
+}: {
+  isDarkMode: boolean;
+  isHeadingLocked: boolean;
+  setIsHeadingLocked: (locked: boolean) => void;
+  deviceHeading: number | null;
+}) {
   const map = useMap();
   const [mapHeading, setMapHeading] = useState(0);
 
@@ -72,11 +82,26 @@ function CompassButton({ isDarkMode }: { isDarkMode: boolean }) {
     };
   }, [map]);
 
-  // Handle compass button click - reset to north
+  // Handle compass button click - three-state logic
   const handleCompassClick = () => {
     if (!map) return;
-    map.setHeading(0);
-    map.setTilt(0);
+
+    if (isHeadingLocked) {
+      // Third press: Unlock heading and reset to north
+      setIsHeadingLocked(false);
+      map.setHeading(0);
+      map.setTilt(0);
+    } else if (Math.abs(mapHeading) < 5) {
+      // Second press: Map is already at north, lock to device heading
+      if (deviceHeading !== null) {
+        setIsHeadingLocked(true);
+        map.setHeading(deviceHeading);
+      }
+    } else {
+      // First press: Reset to north
+      map.setHeading(0);
+      map.setTilt(0);
+    }
   };
 
   return (
@@ -90,9 +115,9 @@ function CompassButton({ isDarkMode }: { isDarkMode: boolean }) {
         width: '48px',
         height: '48px',
         borderRadius: '50%',
-        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-        border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        backgroundColor: isHeadingLocked ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
+        border: isHeadingLocked ? '2px solid #3b82f6' : (isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb'),
+        boxShadow: isHeadingLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
@@ -101,17 +126,17 @@ function CompassButton({ isDarkMode }: { isDarkMode: boolean }) {
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.1)';
-        e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        e.currentTarget.style.boxShadow = isHeadingLocked ? '0 6px 16px rgba(59, 130, 246, 0.5)' : '0 6px 16px rgba(0, 0, 0, 0.2)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'scale(1)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        e.currentTarget.style.boxShadow = isHeadingLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)';
       }}
-      title="Reset to North"
+      title={isHeadingLocked ? "Unlock Heading" : (Math.abs(mapHeading) < 5 ? "Lock to Heading" : "Reset to North")}
     >
       <Compass
         size={24}
-        color={isDarkMode ? '#f3f4f6' : '#111827'}
+        color={isHeadingLocked ? '#ffffff' : (isDarkMode ? '#f3f4f6' : '#111827')}
         style={{
           transform: `rotate(${mapHeading}deg)`,
           transition: 'transform 0.3s ease',
@@ -127,6 +152,7 @@ function MapContent({
   currentLocation,
   isTracking,
   isCameraLocked,
+  isHeadingLocked,
   heading,
   mapRef,
   getMarkerColor,
@@ -149,6 +175,7 @@ function MapContent({
   currentLocation: any;
   isTracking: boolean;
   isCameraLocked: boolean;
+  isHeadingLocked: boolean;
   heading: number | null;
   mapRef: React.MutableRefObject<google.maps.Map | null>;
   getMarkerColor: (vacancy: number) => string;
@@ -423,6 +450,13 @@ function MapContent({
     }
   }, [isTracking, isCameraLocked, currentLocation, map]);
 
+  // Auto-rotate map heading ONLY when heading is locked
+  useEffect(() => {
+    if (isHeadingLocked && heading !== null && map) {
+      map.setHeading(heading);
+    }
+  }, [isHeadingLocked, heading, map]);
+
   // Auto-pan to search location when set
   useEffect(() => {
     if (searchLocation && map) {
@@ -693,6 +727,8 @@ export default function SimpleMap() {
   const [isCameraLocked, setIsCameraLocked] = useState(false);
   // Track if we need to pan on first location received
   const [shouldPanOnLocation, setShouldPanOnLocation] = useState(false);
+  // Heading lock state: false = unlocked, true = locked to device heading
+  const [isHeadingLocked, setIsHeadingLocked] = useState(false);
 
   // Initialize location tracking
   const { currentLocation, isTracking, startTracking, stopTracking } = useLocationTracking({
@@ -1225,12 +1261,18 @@ export default function SimpleMap() {
           tiltInteractionEnabled={true}
           headingInteractionEnabled={true}
         >
-          <CompassButton isDarkMode={isDarkMode} />
+          <CompassButton
+            isDarkMode={isDarkMode}
+            isHeadingLocked={isHeadingLocked}
+            setIsHeadingLocked={setIsHeadingLocked}
+            deviceHeading={heading}
+          />
           <MapContent
             carparks={carparks}
             currentLocation={currentLocation}
             isTracking={isTracking}
             isCameraLocked={isCameraLocked}
+            isHeadingLocked={isHeadingLocked}
             heading={heading}
             mapRef={mapRef}
             getMarkerColor={getMarkerColor}
