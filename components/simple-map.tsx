@@ -452,6 +452,22 @@ function MapContent({
     prevHeightRef.current = bottomSheetHeight;
   }, [map, bottomSheetHeight]);
 
+  // Listen for user dragging the map to mark map as no longer at user location
+  useEffect(() => {
+    if (!map) return;
+
+    const dragListener = map.addListener('dragstart', () => {
+      // Only set to false if not camera locked (camera lock will override manual panning)
+      if (!isCameraLocked) {
+        setIsMapAtUserLocation(false);
+      }
+    });
+
+    return () => {
+      google.maps.event.removeListener(dragListener);
+    };
+  }, [map, isCameraLocked]);
+
   // Auto-pan to user location ONLY when camera is locked
   useEffect(() => {
     if (isTracking && isCameraLocked && currentLocation && map) {
@@ -742,6 +758,8 @@ export default function SimpleMap() {
   const [shouldPanOnLocation, setShouldPanOnLocation] = useState(false);
   // Heading lock state: false = unlocked, true = locked to device heading
   const [isHeadingLocked, setIsHeadingLocked] = useState(false);
+  // Track if map is currently at user location (set true when locate button pans to user, false when user manually drags)
+  const [isMapAtUserLocation, setIsMapAtUserLocation] = useState(false);
 
   // Initialize location tracking
   const { currentLocation, isTracking, startTracking, stopTracking } = useLocationTracking({
@@ -884,6 +902,7 @@ export default function SimpleMap() {
       // First press: Start tracking and pan to location (unlocked)
       startTracking();
       setIsCameraLocked(false);
+      setIsMapAtUserLocation(true); // Mark map as at user location
 
       // Pan to current location if available, or set flag to pan when it becomes available
       if (currentLocation && mapRef.current) {
@@ -894,8 +913,18 @@ export default function SimpleMap() {
       } else {
         setShouldPanOnLocation(true);
       }
-    } else if (!isCameraLocked) {
-      // Second press: Lock BOTH camera AND heading for full navigation mode
+    } else if (!isCameraLocked && !isMapAtUserLocation) {
+      // User panned away: Pan back to user location (stay unlocked)
+      setIsMapAtUserLocation(true);
+
+      if (currentLocation && mapRef.current) {
+        mapRef.current.panTo({
+          lat: currentLocation.latitude,
+          lng: currentLocation.longitude
+        });
+      }
+    } else if (!isCameraLocked && isMapAtUserLocation) {
+      // Second press at location: Lock BOTH camera AND heading for full navigation mode
       setIsCameraLocked(true);
       setIsHeadingLocked(true);
 
@@ -913,10 +942,10 @@ export default function SimpleMap() {
         mapRef.current.setZoom(18);
       }
     } else {
-      // Third press: Stop tracking and unlock BOTH camera and heading
-      stopTracking();
+      // Third press: Unlock BOTH camera and heading but KEEP tracking on
       setIsCameraLocked(false);
       setIsHeadingLocked(false);
+      // Keep isMapAtUserLocation as true since we're still at the location
     }
   };
 
@@ -1254,7 +1283,7 @@ export default function SimpleMap() {
         <Navigation
           size={24}
           color={isCameraLocked ? '#ffffff' : (isTracking ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827'))}
-          fill={isTracking ? (isCameraLocked ? '#ffffff' : '#3b82f6') : 'none'}
+          fill={isTracking ? (isCameraLocked ? '#ffffff' : (isMapAtUserLocation ? '#3b82f6' : 'none')) : 'none'}
         />
       </button>
 
