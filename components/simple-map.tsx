@@ -125,6 +125,8 @@ function MapContent({
   carparks,
   currentLocation,
   isTracking,
+  isCameraLocked,
+  mapRef,
   getMarkerColor,
   getMeteredMarkerColor,
   isDarkMode,
@@ -144,6 +146,8 @@ function MapContent({
   carparks: CarparkWithVacancy[];
   currentLocation: any;
   isTracking: boolean;
+  isCameraLocked: boolean;
+  mapRef: React.MutableRefObject<google.maps.Map | null>;
   getMarkerColor: (vacancy: number) => string;
   getMeteredMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
@@ -171,6 +175,13 @@ function MapContent({
   } = useCarparkActions();
   const map = useMap();
   const prevHeightRef = useRef(100);
+
+  // Store map instance in ref for parent component
+  useEffect(() => {
+    if (map) {
+      mapRef.current = map;
+    }
+  }, [map, mapRef]);
 
   // Convert data to MarkerItem format for optimized hooks
   // IMPORTANT: Include isSelected in the item data so shouldUpdate can detect selection changes
@@ -398,16 +409,15 @@ function MapContent({
     prevHeightRef.current = bottomSheetHeight;
   }, [map, bottomSheetHeight]);
 
-  // Auto-pan to user location when tracking starts and location is available
+  // Auto-pan to user location ONLY when camera is locked
   useEffect(() => {
-    if (isTracking && currentLocation && map) {
+    if (isTracking && isCameraLocked && currentLocation && map) {
       map.panTo({
         lat: currentLocation.latitude,
         lng: currentLocation.longitude
       });
-      map.setZoom(15);
     }
-  }, [isTracking, currentLocation, map]);
+  }, [isTracking, isCameraLocked, currentLocation, map]);
 
   // Auto-pan to search location when set
   useEffect(() => {
@@ -621,6 +631,11 @@ export default function SimpleMap() {
   const apiKey = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "").trim();
   const mapId = (process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "").trim();
 
+  // Camera lock state: false = unlocked, true = locked to follow user
+  const [isCameraLocked, setIsCameraLocked] = useState(false);
+  // Track if we need to pan on first location received
+  const [shouldPanOnLocation, setShouldPanOnLocation] = useState(false);
+
   // Initialize location tracking
   const { currentLocation, isTracking, startTracking, stopTracking } = useLocationTracking({
     enableTracking: true,
@@ -629,6 +644,17 @@ export default function SimpleMap() {
     motionThreshold: 5,
     idleTimeout: 30000
   });
+
+  // Pan to location when it first becomes available after pressing locate button
+  useEffect(() => {
+    if (shouldPanOnLocation && currentLocation && mapRef.current) {
+      mapRef.current.panTo({
+        lat: currentLocation.latitude,
+        lng: currentLocation.longitude
+      });
+      setShouldPanOnLocation(false);
+    }
+  }, [shouldPanOnLocation, currentLocation]);
 
   useEffect(() => {
     fetch("/api/carparks", {
@@ -737,12 +763,32 @@ export default function SimpleMap() {
     return "#374151";                     // Darker gray (gray-700) - full/closed (0)
   };
 
+  // Ref to store map instance for location button
+  const mapRef = useRef<google.maps.Map | null>(null);
+
   // Handle "My Location" button click
   const handleMyLocation = () => {
-    if (isTracking) {
-      stopTracking();
-    } else {
+    if (!isTracking) {
+      // First press: Start tracking and pan to location (unlocked)
       startTracking();
+      setIsCameraLocked(false);
+
+      // Pan to current location if available, or set flag to pan when it becomes available
+      if (currentLocation && mapRef.current) {
+        mapRef.current.panTo({
+          lat: currentLocation.latitude,
+          lng: currentLocation.longitude
+        });
+      } else {
+        setShouldPanOnLocation(true);
+      }
+    } else if (!isCameraLocked) {
+      // Second press: Lock camera to follow user
+      setIsCameraLocked(true);
+    } else {
+      // Third press: Stop tracking and unlock camera
+      stopTracking();
+      setIsCameraLocked(false);
     }
   };
 
@@ -1058,9 +1104,9 @@ export default function SimpleMap() {
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          backgroundColor: isCameraLocked ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
+          border: isCameraLocked ? '2px solid #3b82f6' : (isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb'),
+          boxShadow: isCameraLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -1069,18 +1115,18 @@ export default function SimpleMap() {
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+          e.currentTarget.style.boxShadow = isCameraLocked ? '0 6px 16px rgba(59, 130, 246, 0.5)' : '0 6px 16px rgba(0, 0, 0, 0.2)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+          e.currentTarget.style.boxShadow = isCameraLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)';
         }}
-        title="My Location"
+        title={!isTracking ? "Show my location" : (isCameraLocked ? "Stop tracking" : "Lock to my location")}
       >
         <Navigation
           size={24}
-          color={isTracking ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827')}
-          fill={isTracking ? '#3b82f6' : 'none'}
+          color={isCameraLocked ? '#ffffff' : (isTracking ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827'))}
+          fill={isTracking ? (isCameraLocked ? '#ffffff' : '#3b82f6') : 'none'}
         />
       </button>
 
@@ -1107,6 +1153,8 @@ export default function SimpleMap() {
             carparks={carparks}
             currentLocation={currentLocation}
             isTracking={isTracking}
+            isCameraLocked={isCameraLocked}
+            mapRef={mapRef}
             getMarkerColor={getMarkerColor}
             getMeteredMarkerColor={getMeteredMarkerColor}
             isDarkMode={isDarkMode}
