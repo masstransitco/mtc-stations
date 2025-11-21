@@ -19,7 +19,6 @@ import {
   Cell,
 } from 'recharts';
 import { useTheme } from '@/components/theme-provider';
-import { AdminMenu } from '@/components/admin-menu';
 
 interface MetricsData {
   activity: Array<{
@@ -196,22 +195,15 @@ export default function DashboardPage() {
         top: 0,
         zIndex: 10,
       }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+        <h1 style={{
+          margin: 0,
           marginBottom: '16px',
+          fontSize: '24px',
+          fontWeight: 700,
+          color: colors.text,
         }}>
-          <h1 style={{
-            margin: 0,
-            fontSize: '24px',
-            fontWeight: 700,
-            color: colors.text,
-          }}>
-            Admin Dashboard
-          </h1>
-          <AdminMenu />
-        </div>
+          Admin Dashboard
+        </h1>
 
         {/* Filters */}
         <div style={{

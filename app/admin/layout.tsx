@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { AdminNav } from '@/components/admin-nav';
 
 export const metadata: Metadata = {
   title: 'Admin Console - MTC Parking Stations',
@@ -19,6 +20,7 @@ export default function AdminLayout({
       background: 'var(--background)',
       color: 'var(--foreground)',
     }}>
+      <AdminNav />
       {children}
     </div>
   );
