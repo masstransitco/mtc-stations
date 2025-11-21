@@ -426,7 +426,7 @@ function MapContent({
   return (
     <>
       {/* 3D Building Overlay - PMTiles version */}
-      <BuildingOverlayPMTiles visible={show3DBuildings} opacity={0.8} />
+      <BuildingOverlayPMTiles visible={show3DBuildings} opacity={0.6} />
 
       {/* Note: Optimized markers are managed by useOptimizedMarkers hooks above */}
       {/* Only special markers that need React state are rendered here */}
