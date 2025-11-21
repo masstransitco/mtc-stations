@@ -473,28 +473,43 @@ function MapContent({
               zIndex: 1,
             }} />
 
-            {/* Direction indicator (cone/wedge) - shown when heading is available */}
+            {/* Direction indicator - shown when heading is available */}
             {heading !== null && (
               <div style={{
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                width: '60px',
-                height: '60px',
+                width: '100px',
+                height: '100px',
                 transform: `translate(-50%, -50%) rotate(${heading}deg)`,
                 zIndex: 2,
                 pointerEvents: 'none',
               }}>
-                {/* Cone shape pointing upward (north when rotation = 0) */}
-                <svg width="60" height="60" viewBox="0 0 60 60" style={{
-                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))'
+                {/* Clean arrow pointing upward (north when rotation = 0) */}
+                <svg width="100" height="100" viewBox="0 0 100 100" style={{
+                  filter: 'drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25))'
                 }}>
-                  {/* Wider cone/wedge for better visibility */}
+                  {/* Arrow shaft */}
+                  <rect
+                    x="47"
+                    y="35"
+                    width="6"
+                    height="30"
+                    fill="#3b82f6"
+                    rx="3"
+                  />
+                  {/* Arrow head - clean triangle */}
                   <path
-                    d="M 30 12 L 20 35 Q 30 32 40 35 Z"
-                    fill="rgba(59, 130, 246, 0.5)"
-                    stroke="rgba(59, 130, 246, 0.8)"
-                    strokeWidth="1"
+                    d="M 50 20 L 38 38 L 62 38 Z"
+                    fill="#3b82f6"
+                  />
+                  {/* Subtle white outline for contrast */}
+                  <path
+                    d="M 50 20 L 38 38 L 62 38 Z"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
                   />
                 </svg>
               </div>
