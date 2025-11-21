@@ -544,36 +544,24 @@ function MapContent({
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                width: '100px',
-                height: '100px',
+                width: '120px',
+                height: '120px',
                 transform: `translate(-50%, -50%) rotate(${isHeadingLocked ? 0 : heading}deg)`,
                 zIndex: 2,
                 pointerEvents: 'none',
               }}>
-                {/* Clean arrow pointing upward (north when rotation = 0) */}
-                <svg width="100" height="100" viewBox="0 0 100 100" style={{
-                  filter: 'drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25))'
+                {/* Upside-down cone shaped directional indicator */}
+                <svg width="120" height="120" viewBox="0 0 120 120" style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))'
                 }}>
-                  {/* Arrow shaft */}
-                  <rect
-                    x="47"
-                    y="35"
-                    width="6"
-                    height="30"
-                    fill="#3b82f6"
-                    rx="3"
-                  />
-                  {/* Arrow head - clean triangle */}
+                  {/* Cone shape - wide at top (far), narrow at bottom (near user) */}
                   <path
-                    d="M 50 20 L 38 38 L 62 38 Z"
+                    d="M 60 65 L 25 10 L 95 10 Z"
                     fill="#3b82f6"
-                  />
-                  {/* Subtle white outline for contrast */}
-                  <path
-                    d="M 50 20 L 38 38 L 62 38 Z"
-                    fill="none"
-                    stroke="white"
+                    fillOpacity="0.35"
+                    stroke="#3b82f6"
                     strokeWidth="1.5"
+                    strokeOpacity="0.5"
                     strokeLinejoin="round"
                   />
                 </svg>
