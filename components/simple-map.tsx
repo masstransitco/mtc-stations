@@ -54,12 +54,14 @@ function CompassButton({
   isDarkMode,
   isHeadingLocked,
   setIsHeadingLocked,
-  deviceHeading
+  deviceHeading,
+  requestPermission
 }: {
   isDarkMode: boolean;
   isHeadingLocked: boolean;
   setIsHeadingLocked: (locked: boolean) => void;
   deviceHeading: number | null;
+  requestPermission: () => Promise<boolean>;
 }) {
   const map = useMap();
   const [mapHeading, setMapHeading] = useState(0);
@@ -83,7 +85,7 @@ function CompassButton({
   }, [map]);
 
   // Handle compass button click - three-state logic
-  const handleCompassClick = () => {
+  const handleCompassClick = async () => {
     if (!map) return;
 
     if (isHeadingLocked) {
@@ -94,8 +96,15 @@ function CompassButton({
     } else if (Math.abs(mapHeading) < 5) {
       // Second press: Map is already at north, lock to device heading
       if (deviceHeading !== null) {
+        // Heading already available, lock immediately
         setIsHeadingLocked(true);
         map.setHeading(deviceHeading);
+      } else {
+        // Need to request permission first (iOS)
+        const granted = await requestPermission();
+        if (granted) {
+          setIsHeadingLocked(true);
+        }
       }
     } else {
       // First press: Reset to north
@@ -739,9 +748,9 @@ export default function SimpleMap() {
     idleTimeout: 30000
   });
 
-  // Initialize device heading tracking (enabled when camera is locked)
+  // Initialize device heading tracking (enabled when either camera or heading is locked)
   const { heading, permissionGranted, requestPermission } = useDeviceHeading({
-    enabled: isCameraLocked
+    enabled: isCameraLocked || isHeadingLocked
   });
 
   // Pan to location when it first becomes available after pressing locate button
@@ -1266,6 +1275,7 @@ export default function SimpleMap() {
             isHeadingLocked={isHeadingLocked}
             setIsHeadingLocked={setIsHeadingLocked}
             deviceHeading={heading}
+            requestPermission={requestPermission}
           />
           <MapContent
             carparks={carparks}
