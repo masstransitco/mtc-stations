@@ -315,7 +315,6 @@ function MapContent({
       createMarkerElement: (item) => {
         return createConnectedCarparkMarker(
           item.data,
-          isDarkMode,
           async (carpark) => {
             const manager = await getCarparkManager();
             manager.handleMarkerClick(carpark, 'connected');
@@ -330,7 +329,7 @@ function MapContent({
         item.data.isSelected ? 'required' : 'optional'
       ),
       shouldUpdate: (item, prevItem) => {
-        // Only check selection state changes (no other data changes for connected carparks)
+        // Check selection state changes - theme changes handled in marker factory
         return item.data.isSelected !== prevItem.data.isSelected;
       },
     },
@@ -359,7 +358,7 @@ function MapContent({
         item.data.isSelected ? 'required' : 'optional'
       ),
       shouldUpdate: (item, prevItem) => {
-        // Only check selection state changes (no other data changes for dispatch carparks)
+        // Check selection state changes - theme changes handled in marker factory
         return item.data.isSelected !== prevItem.data.isSelected;
       },
     },
@@ -730,11 +729,12 @@ export default function SimpleMap() {
   };
 
   const getMeteredMarkerColor = (vacancy: number) => {
-    if (vacancy >= 4) return "#10b981";  // Green (emerald-500) - good availability (4+)
-    if (vacancy === 3) return "#f59e0b"; // Yellow/amber (amber-500) - moderate (3)
-    if (vacancy === 2) return "#f97316"; // Orange/amber (orange-500) - low (2)
-    if (vacancy === 1) return "#ea580c"; // Deep orange (orange-600) - very low (1)
-    return "#ef4444";                     // Red (red-500) - full/closed (0)
+    // Neutral gray shades - lighter for more vacancies, darker for fewer
+    if (vacancy >= 4) return "#d1d5db";  // Light gray (gray-300) - good availability (4+)
+    if (vacancy === 3) return "#9ca3af"; // Medium-light gray (gray-400) - moderate (3)
+    if (vacancy === 2) return "#6b7280"; // Medium gray (gray-500) - low (2)
+    if (vacancy === 1) return "#4b5563"; // Dark gray (gray-600) - very low (1)
+    return "#374151";                     // Darker gray (gray-700) - full/closed (0)
   };
 
   // Handle "My Location" button click
@@ -787,10 +787,6 @@ export default function SimpleMap() {
   };
 
   const { theme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -857,7 +853,7 @@ export default function SimpleMap() {
             {/* Light Mode Button */}
             <button
               onClick={() => {
-                if (isDarkMode) toggleTheme();
+                setTheme('light');
                 setIsThemeSelectorOpen(false);
               }}
               style={{
@@ -883,13 +879,13 @@ export default function SimpleMap() {
               }}
               title="Light Mode"
             >
-              <Sun size={24} color={!isDarkMode ? '#ffffff' : '#111827'} />
+              <Sun size={24} color="#ffffff" />
             </button>
 
             {/* Dark Mode Button */}
             <button
               onClick={() => {
-                if (!isDarkMode) toggleTheme();
+                setTheme('dark');
                 setIsThemeSelectorOpen(false);
               }}
               style={{

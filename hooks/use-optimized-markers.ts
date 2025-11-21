@@ -240,6 +240,27 @@ export function useOptimizedMarkers(
     updateMarkers();
   }, [forceUpdateTrigger, map, enabled, markerLib, updateMarkers]);
 
+  // Handle map instance changes (e.g., when theme changes and map is recreated)
+  const previousMapRef = useRef<google.maps.Map | null>(null);
+
+  useEffect(() => {
+    if (!map || !markerLib) return;
+
+    // Detect map instance change (not just initial mount)
+    if (previousMapRef.current && previousMapRef.current !== map) {
+      // Map instance changed - reattach all markers to new map
+      markersRef.current.forEach((markerData) => {
+        markerData.marker.map = map;
+        markerData.isAttached = true;
+      });
+
+      // Trigger update to ensure markers are in correct state
+      updateMarkers();
+    }
+
+    previousMapRef.current = map;
+  }, [map, markerLib, updateMarkers]);
+
   // Listen to map events with debouncing
   useEffect(() => {
     if (!map || !enabled || !markerLib) return;
