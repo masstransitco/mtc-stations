@@ -515,7 +515,7 @@ function MapContent({
                 left: '50%',
                 width: '100px',
                 height: '100px',
-                transform: `translate(-50%, -50%) rotate(${heading}deg)`,
+                transform: `translate(-50%, -50%) rotate(${isHeadingLocked ? 0 : heading}deg)`,
                 zIndex: 2,
                 pointerEvents: 'none',
               }}>
