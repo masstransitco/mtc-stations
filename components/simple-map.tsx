@@ -17,9 +17,9 @@ import MeteredCarparkDetails from "@/components/metered-carpark-details";
 import ConnectedCarparkDetails from "@/components/connected-carpark-details";
 import DispatchCarparkDetails from "@/components/dispatch-carpark-details";
 import Image from "next/image";
-import Box3DIcon from "@/components/icons/box-3d-icon";
-import PedestrianNetworkIcon from "@/components/icons/pedestrian-network-icon";
 import LoadingSpinner from "@/components/loading-spinner";
+import { MapControls } from "@/components/map-controls";
+import { ThemeSelector } from "@/components/map-controls/theme-selector";
 import { useOptimizedMarkers } from "@/hooks/use-optimized-markers";
 import {
   createIndoorCarparkMarker,
@@ -186,7 +186,8 @@ function MapContent({
   dispatchCarparks,
   showDispatchCarparks,
   showIndoorCarparks,
-  setIsMapAtUserLocation
+  setIsMapAtUserLocation,
+  setCurrentZoom
 }: {
   carparks: CarparkWithVacancy[];
   currentLocation: any;
@@ -212,6 +213,7 @@ function MapContent({
   showDispatchCarparks: boolean;
   showIndoorCarparks: boolean;
   setIsMapAtUserLocation: (value: boolean) => void;
+  setCurrentZoom: (zoom: number) => void;
 }) {
   // Access Redux state and actions within MapContent
   const {
@@ -474,6 +476,24 @@ function MapContent({
     };
   }, [map, isCameraLocked]);
 
+  // Track zoom changes to update button visibility
+  useEffect(() => {
+    if (!map) return;
+
+    const zoomListener = map.addListener('zoom_changed', () => {
+      const zoom = map.getZoom() ?? 11;
+      setCurrentZoom(zoom);
+    });
+
+    // Get initial zoom
+    const initialZoom = map.getZoom() ?? 11;
+    setCurrentZoom(initialZoom);
+
+    return () => {
+      google.maps.event.removeListener(zoomListener);
+    };
+  }, [map, setCurrentZoom]);
+
   // Auto-pan to user location ONLY when camera is locked
   useEffect(() => {
     if (isTracking && isCameraLocked && currentLocation && map) {
@@ -710,15 +730,13 @@ export default function SimpleMap() {
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
-  const [show3DBuildings, setShow3DBuildings] = useState(true);
-  const [showPedestrianNetwork, setShowPedestrianNetwork] = useState(true);
+  const [show3DBuildings, setShow3DBuildings] = useState(false);
+  const [showPedestrianNetwork, setShowPedestrianNetwork] = useState(false);
   const [loadingNearby, setLoadingNearby] = useState(false);
-
-  // Theme selector expansion state
-  const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(11);
 
   // Indoor carparks visibility state
-  const [showIndoorCarparks, setShowIndoorCarparks] = useState(true);
+  const [showIndoorCarparks, setShowIndoorCarparks] = useState(false);
 
   // Parking spaces state
   const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
@@ -1003,323 +1021,36 @@ export default function SimpleMap() {
         </div>
       )}
 
-      {/* Top Right - Theme Selector Button */}
-      <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 10 }}>
-        <button
-          onClick={() => setIsThemeSelectorOpen(!isThemeSelectorOpen)}
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-            border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-          }}
-          title="Theme Selector"
-        >
-          <Image
-            src="/logos/bolt.svg"
-            alt="Theme Selector"
-            width={28}
-            height={28}
-            style={{
-              filter: isDarkMode ? 'brightness(0) invert(1)' : 'none'
-            }}
-          />
-        </button>
+      {/* Theme Selector */}
+      <ThemeSelector isDarkMode={isDarkMode} onThemeChange={setTheme} />
 
-        {/* Expandable Theme Options */}
-        {isThemeSelectorOpen && (
-          <div style={{
-            position: 'absolute',
-            top: '0',
-            right: '60px',
-            display: 'flex',
-            gap: '8px',
-            transition: 'all 0.3s ease',
-          }}>
-            {/* Light Mode Button */}
-            <button
-              onClick={() => {
-                setTheme('light');
-                setIsThemeSelectorOpen(false);
-              }}
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                backgroundColor: !isDarkMode ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
-                border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-              }}
-              title="Light Mode"
-            >
-              <Sun size={24} color="#ffffff" />
-            </button>
-
-            {/* Dark Mode Button */}
-            <button
-              onClick={() => {
-                setTheme('dark');
-                setIsThemeSelectorOpen(false);
-              }}
-              style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                backgroundColor: isDarkMode ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
-                border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-              }}
-              title="Dark Mode"
-            >
-              <Moon size={24} color={isDarkMode ? '#ffffff' : '#111827'} />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Top Right Stack - Indoor Carparks Button */}
-      <button
-        onClick={() => setShowIndoorCarparks(!showIndoorCarparks)}
-        style={{
-          position: 'absolute',
-          top: '80px',
-          right: '20px',
-          zIndex: 10,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease',
+      {/* Map Controls (Indoor, Metered, Buildings, Pedestrian, Location) */}
+      <MapControls
+        currentZoom={currentZoom}
+        isDarkMode={isDarkMode}
+        isTracking={isTracking}
+        isCameraLocked={isCameraLocked}
+        isMapAtUserLocation={isMapAtUserLocation}
+        onControlChange={(id, enabled) => {
+          switch(id) {
+            case 'indoor':
+              setShowIndoorCarparks(enabled);
+              break;
+            case 'metered':
+              setShowMeteredCarparks(enabled);
+              break;
+            case 'buildings':
+              setShow3DBuildings(enabled);
+              break;
+            case 'pedestrian':
+              setShowPedestrianNetwork(enabled);
+              break;
+            case 'location':
+              handleMyLocation();
+              break;
+          }
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-        title="Toggle Indoor Carparks"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={showIndoorCarparks ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
-        </svg>
-      </button>
-
-      {/* Top Right Stack - Metered Carparks Button */}
-      <button
-        onClick={() => setShowMeteredCarparks(!showMeteredCarparks)}
-        style={{
-          position: 'absolute',
-          top: '140px',
-          right: '20px',
-          zIndex: 10,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-        title="Toggle Metered Carparks"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={showMeteredCarparks ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M11 15h2"/>
-          <path d="M12 12v3"/>
-          <path d="M12 19v3"/>
-          <path d="M15.282 19a1 1 0 0 0 .948-.68l2.37-6.988a7 7 0 1 0-13.2 0l2.37 6.988a1 1 0 0 0 .948.68z"/>
-          <path d="M9 9a3 3 0 1 1 6 0"/>
-        </svg>
-      </button>
-
-      {/* Top Right Stack - 3D Buildings Button */}
-      <button
-        onClick={() => setShow3DBuildings(!show3DBuildings)}
-        style={{
-          position: 'absolute',
-          top: '200px',
-          right: '20px',
-          zIndex: 10,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-        title="Toggle 3D Buildings"
-      >
-        <Box3DIcon
-          size={24}
-          color={show3DBuildings ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
-        />
-      </button>
-
-      {/* Top Right Stack - Pedestrian Network Button */}
-      <button
-        onClick={() => setShowPedestrianNetwork(!showPedestrianNetwork)}
-        style={{
-          position: 'absolute',
-          top: '260px',
-          right: '20px',
-          zIndex: 10,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-        title="Toggle Pedestrian Network"
-      >
-        <PedestrianNetworkIcon
-          size={24}
-          color={showPedestrianNetwork ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
-        />
-      </button>
-
-      {/* Top Right Stack - My Location Button */}
-      <button
-        onClick={handleMyLocation}
-        style={{
-          position: 'absolute',
-          top: '320px',
-          right: '20px',
-          zIndex: 10,
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          backgroundColor: isCameraLocked ? '#3b82f6' : (isDarkMode ? '#1f2937' : '#ffffff'),
-          border: isCameraLocked ? '2px solid #3b82f6' : (isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb'),
-          boxShadow: isCameraLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.boxShadow = isCameraLocked ? '0 6px 16px rgba(59, 130, 246, 0.5)' : '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow = isCameraLocked ? '0 4px 12px rgba(59, 130, 246, 0.4)' : '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-        title={!isTracking ? "Show my location" : (isCameraLocked ? "Stop tracking" : "Lock to my location")}
-      >
-        <Navigation
-          size={24}
-          color={isCameraLocked ? '#ffffff' : (isTracking ? '#3b82f6' : (isDarkMode ? '#f3f4f6' : '#111827'))}
-          fill={isTracking ? (isCameraLocked ? '#ffffff' : (isMapAtUserLocation ? '#3b82f6' : 'none')) : 'none'}
-        />
-      </button>
+      />
 
       <APIProvider apiKey={apiKey}>
         <Map
@@ -1369,6 +1100,7 @@ export default function SimpleMap() {
             showDispatchCarparks={showDispatchCarparks}
             showIndoorCarparks={showIndoorCarparks}
             setIsMapAtUserLocation={setIsMapAtUserLocation}
+            setCurrentZoom={setCurrentZoom}
           />
         </Map>
 
