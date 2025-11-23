@@ -7,6 +7,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import { useDeviceHeading } from "@/hooks/use-device-heading";
 import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
+import { PedestrianNetworkOverlayPMTiles } from "@/components/pedestrian-network-overlay-pmtiles";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
@@ -17,6 +18,7 @@ import ConnectedCarparkDetails from "@/components/connected-carpark-details";
 import DispatchCarparkDetails from "@/components/dispatch-carpark-details";
 import Image from "next/image";
 import Box3DIcon from "@/components/icons/box-3d-icon";
+import PedestrianNetworkIcon from "@/components/icons/pedestrian-network-icon";
 import LoadingSpinner from "@/components/loading-spinner";
 import { useOptimizedMarkers } from "@/hooks/use-optimized-markers";
 import {
@@ -172,6 +174,7 @@ function MapContent({
   getMeteredMarkerColor,
   isDarkMode,
   show3DBuildings,
+  showPedestrianNetwork,
   parkingSpaces,
   showParkingSpaces,
   selectedParkingSpace,
@@ -196,6 +199,7 @@ function MapContent({
   getMeteredMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
   show3DBuildings: boolean;
+  showPedestrianNetwork: boolean;
   parkingSpaces: ParkingSpace[];
   showParkingSpaces: boolean;
   selectedParkingSpace: ParkingSpace | null;
@@ -507,6 +511,9 @@ function MapContent({
       {/* 3D Building Overlay - PMTiles version */}
       <BuildingOverlayPMTiles visible={show3DBuildings} opacity={0.6} />
 
+      {/* 3D Pedestrian Network Overlay - PMTiles version */}
+      <PedestrianNetworkOverlayPMTiles visible={showPedestrianNetwork} opacity={0.9} />
+
       {/* Note: Optimized markers are managed by useOptimizedMarkers hooks above */}
       {/* Only special markers that need React state are rendered here */}
 
@@ -704,6 +711,7 @@ export default function SimpleMap() {
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
   const [show3DBuildings, setShow3DBuildings] = useState(true);
+  const [showPedestrianNetwork, setShowPedestrianNetwork] = useState(true);
   const [loadingNearby, setLoadingNearby] = useState(false);
 
   // Theme selector expansion state
@@ -1240,12 +1248,48 @@ export default function SimpleMap() {
         />
       </button>
 
+      {/* Top Right Stack - Pedestrian Network Button */}
+      <button
+        onClick={() => setShowPedestrianNetwork(!showPedestrianNetwork)}
+        style={{
+          position: 'absolute',
+          top: '260px',
+          right: '20px',
+          zIndex: 10,
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+          border: isDarkMode ? '2px solid #374151' : '2px solid #e5e7eb',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+        title="Toggle Pedestrian Network"
+      >
+        <PedestrianNetworkIcon
+          size={24}
+          color={showPedestrianNetwork ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
+        />
+      </button>
+
       {/* Top Right Stack - My Location Button */}
       <button
         onClick={handleMyLocation}
         style={{
           position: 'absolute',
-          top: '260px',
+          top: '320px',
           right: '20px',
           zIndex: 10,
           width: '48px',
@@ -1312,6 +1356,7 @@ export default function SimpleMap() {
             getMeteredMarkerColor={getMeteredMarkerColor}
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
+            showPedestrianNetwork={showPedestrianNetwork}
             parkingSpaces={parkingSpaces}
             showParkingSpaces={showParkingSpaces}
             selectedParkingSpace={selectedParkingSpace}

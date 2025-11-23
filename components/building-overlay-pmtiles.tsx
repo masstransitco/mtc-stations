@@ -317,7 +317,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
   /**
    * Handle tile ready callback from TileManager
    */
-  const handleTileReady = (tileKey: string, buildings: BuildingData[]) => {
+  const handleTileReady = (tileKey: string, response: WorkerResponse) => {
     if (!sceneRef.current || !materialPaletteRef.current || !tileManagerRef.current) {
       return;
     }
@@ -328,6 +328,9 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
 
     // Parse tile coordinates from tileKey
     const [z, x, y] = tileKey.split('/').map(Number);
+
+    // Extract buildings from response
+    const buildings = response.buildings || [];
 
     // Create tile group
     const tileGroup = createBuildingsFromWorkerData(buildings, materialPalette);

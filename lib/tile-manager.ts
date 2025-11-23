@@ -17,7 +17,8 @@ export interface TileManagerConfig {
   maxCachedTiles: number;       // Max tiles to keep in memory (e.g., 8-12)
   pmtiles: PMTiles;
   worker: Worker;
-  onTileReady: (tileKey: string, buildings: BuildingData[]) => void;
+  onTileReady: (tileKey: string, response: WorkerResponse) => void;
+  requestType?: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE'; // Type of tiles to decode
 }
 
 interface TileLoadState {
@@ -177,7 +178,7 @@ export class TileManager {
 
       // Send to worker for processing
       const request = {
-        type: 'DECODE_TILE' as const,
+        type: (this.config.requestType || 'DECODE_TILE') as const,
         z,
         x,
         y,
@@ -197,9 +198,9 @@ export class TileManager {
    * Handle worker response
    */
   private handleWorkerMessage(event: MessageEvent<WorkerResponse>): void {
-    const { type, tileKey, buildings, error } = event.data;
+    const { type, tileKey, error } = event.data;
 
-    if (type !== 'TILE_DECODED') {
+    if (type !== 'TILE_DECODED' && type !== 'PEDESTRIAN_TILE_DECODED') {
       return;
     }
 
@@ -221,8 +222,8 @@ export class TileManager {
       return;
     }
 
-    // Notify caller
-    this.config.onTileReady(tileKey, buildings);
+    // Notify caller with full response
+    this.config.onTileReady(tileKey, event.data);
 
     // Continue processing queue
     this.processQueue();
@@ -384,6 +385,13 @@ export class TileManager {
    */
   getCachedTileKeys(): string[] {
     return Array.from(this.tileCache.keys());
+  }
+
+  /**
+   * Get the cache map (for external access)
+   */
+  getCacheMap(): Map<string, THREE.Group> {
+    return this.tileCache;
   }
 
   /**
