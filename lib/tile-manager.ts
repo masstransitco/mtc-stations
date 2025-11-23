@@ -177,8 +177,9 @@ export class TileManager {
       }
 
       // Send to worker for processing
+      const requestType = this.config.requestType || 'DECODE_TILE';
       const request = {
-        type: (this.config.requestType || 'DECODE_TILE') as const,
+        type: requestType,
         z,
         x,
         y,

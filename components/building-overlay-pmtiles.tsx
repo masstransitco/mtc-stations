@@ -7,7 +7,7 @@ import { PMTiles } from 'pmtiles';
 import { latLngAltToVector3, type LatLngAltitudeLiteral } from '@/lib/geo-utils';
 import { TileManager } from '@/lib/tile-manager';
 import { MaterialPalette } from '@/lib/material-palette';
-import type { BuildingData } from '@/workers/pmtiles-worker';
+import type { BuildingData, WorkerResponse } from '@/workers/pmtiles-worker';
 
 interface BuildingOverlayProps {
   visible?: boolean;
@@ -249,7 +249,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
           totalEvicted: stats.tilesEvicted,
           webglGeometries: memoryInfo.geometries,
           webglTextures: memoryInfo.textures,
-          materialColors: paletteStats.colors,
+          materialColors: paletteStats.meshColors,
         });
       }
       frameCount++;
