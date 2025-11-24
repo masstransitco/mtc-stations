@@ -78,10 +78,12 @@ function CompassButton({
   const [mapHeading, setMapHeading] = useState(0);
 
   // Track map heading changes
+  // Using 'idle' event instead of 'heading_changed' for better performance
+  // 'idle' fires once after rotation completes vs 10-30+ times during rotation animation
   useEffect(() => {
     if (!map) return;
 
-    const headingListener = map.addListener('heading_changed', () => {
+    const idleListener = map.addListener('idle', () => {
       const heading = map.getHeading() || 0;
       setMapHeading(heading);
     });
@@ -91,7 +93,7 @@ function CompassButton({
     setMapHeading(initialHeading);
 
     return () => {
-      google.maps.event.removeListener(headingListener);
+      google.maps.event.removeListener(idleListener);
     };
   }, [map]);
 
@@ -477,10 +479,12 @@ function MapContent({
   }, [map, isCameraLocked]);
 
   // Track zoom changes to update button visibility
+  // Using 'idle' event instead of 'zoom_changed' for better performance
+  // 'idle' fires once after zoom completes vs 10-30+ times during zoom animation
   useEffect(() => {
     if (!map) return;
 
-    const zoomListener = map.addListener('zoom_changed', () => {
+    const idleListener = map.addListener('idle', () => {
       const zoom = map.getZoom() ?? 11;
       setCurrentZoom(zoom);
     });
@@ -490,7 +494,7 @@ function MapContent({
     setCurrentZoom(initialZoom);
 
     return () => {
-      google.maps.event.removeListener(zoomListener);
+      google.maps.event.removeListener(idleListener);
     };
   }, [map, setCurrentZoom]);
 

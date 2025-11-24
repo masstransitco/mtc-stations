@@ -251,13 +251,14 @@ export function PedestrianNetworkOverlayPMTiles({
   /**
    * Dispose a tile group and all its geometries
    * Uses traverse() to recursively dispose nested geometries
+   * Handles both individual Line objects and merged LineSegments
    */
   const disposeTileGroup = (tileGroup: THREE.Group, scene: THREE.Scene) => {
     scene.remove(tileGroup);
 
-    // Traverse entire object tree to find all meshes and lines
+    // Traverse entire object tree to find all meshes, lines, and line segments
     tileGroup.traverse((obj) => {
-      if ((obj instanceof THREE.Mesh || obj instanceof THREE.Line) && obj.geometry) {
+      if ((obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.LineSegments) && obj.geometry) {
         obj.geometry.dispose();
         // Materials are shared via MaterialPalette, so don't dispose them
       }
@@ -279,14 +280,17 @@ export function PedestrianNetworkOverlayPMTiles({
     }
 
     const pedestrianLines = response.pedestrianLines || [];
-    console.log(`PedestrianNetwork: ✅ Tile ${tileKey} ready with ${pedestrianLines.length} lines`);
 
     // Create tile group
     const tileGroup = new THREE.Group();
     tileGroup.name = `tile-${tileKey}`;
 
-    // Create line meshes from worker data
+    // Create line meshes from worker data (with geometry merging)
     createLinesFromWorkerData(pedestrianLines, tileGroup, anchor, materialPalette);
+
+    // Log optimization stats
+    const mergedObjectCount = tileGroup.children.length;
+    console.log(`PedestrianNetwork: ✅ Tile ${tileKey} ready with ${pedestrianLines.length} lines merged into ${mergedObjectCount} objects (${Math.round(pedestrianLines.length / mergedObjectCount)}x reduction)`);
 
     // Add to scene
     scene.add(tileGroup);
@@ -307,12 +311,17 @@ export function PedestrianNetworkOverlayPMTiles({
   };
 
   // Create Three.js line geometries from worker data
+  // OPTIMIZED: Merges all lines per color into single LineSegments for better performance
   const createLinesFromWorkerData = (
     lines: PedestrianLineData[],
     tileGroup: THREE.Group,
     anchor: { lat: number; lng: number; altitude: number },
     materialPalette: MaterialPalette
   ) => {
+    // Group line points by color to merge geometries
+    const pointsByColor = new Map<string, THREE.Vector3[]>();
+    const metadataByColor = new Map<string, any[]>();
+
     for (const line of lines) {
       try {
         const { coordinates, color, widthMeters } = line;
@@ -346,26 +355,58 @@ export function PedestrianNetworkOverlayPMTiles({
           continue;
         }
 
-        // Create line geometry
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        // Group points by color for geometry merging
+        const colorKey = `${color}`;
+        if (!pointsByColor.has(colorKey)) {
+          pointsByColor.set(colorKey, []);
+          metadataByColor.set(colorKey, []);
+        }
 
-        // Get line material from palette (uses LineBasicMaterial, not MeshLambertMaterial)
-        const material = materialPalette.getLineMaterial(color);
+        // Add all points from this line to the color group
+        // For LineSegments, we need pairs of points (start, end) for each segment
+        const colorPoints = pointsByColor.get(colorKey)!;
+        for (let i = 0; i < points.length - 1; i++) {
+          colorPoints.push(points[i], points[i + 1]);
+        }
 
-        // Create line mesh
-        const lineMesh = new THREE.Line(geometry, material);
-        lineMesh.userData = {
+        // Store metadata for this line
+        metadataByColor.get(colorKey)!.push({
           featureType: line.featureType,
           wheelchair: line.wheelchair,
           weatherProtected: line.weatherProtected,
-        };
-
-        tileGroup.add(lineMesh);
+        });
       } catch (error) {
-        console.error('PedestrianNetwork: Failed to create line mesh:', error);
+        console.error('PedestrianNetwork: Failed to process line:', error);
         // Continue processing other lines
       }
     }
+
+    // Create one LineSegments object per color (merged geometry)
+    pointsByColor.forEach((points, colorKey) => {
+      if (points.length < 2) return;
+
+      try {
+        // Create merged geometry from all points for this color
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+        // Get line material from palette (colorKey is already a string)
+        const material = materialPalette.getLineMaterial(colorKey);
+
+        // Create LineSegments (more efficient than multiple Line objects)
+        const lineSegments = new THREE.LineSegments(geometry, material);
+
+        // Store aggregated metadata
+        lineSegments.userData = {
+          color: colorKey,
+          lineCount: metadataByColor.get(colorKey)?.length || 0,
+          metadata: metadataByColor.get(colorKey),
+        };
+
+        tileGroup.add(lineSegments);
+      } catch (error) {
+        console.error(`PedestrianNetwork: Failed to create merged geometry for color ${colorKey}:`, error);
+      }
+    });
   };
 
   // Load pedestrian network for current viewport

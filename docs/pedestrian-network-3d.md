@@ -91,7 +91,7 @@ NEXT_PUBLIC_PEDESTRIAN_PMTILES_URL=https://<r2-public-url>/pedestrian.pmtiles
 ## Progress log
 - ✅ Generated full network PMTiles from shapefile (EPSG:2326→4326, z15–18, coalesced): `pedestrian.pmtiles` size ~69 MB.
 - ✅ Uploaded to R2 bucket `mtc-buildings-tiles`: `https://pub-1fe455741dc34c92bb2b492e811ddc5c.r2.dev/pedestrian.pmtiles`.
-- ✅ Environment variable configured: `NEXT_PUBLIC_PEDESTRIAN_PMTILES_URL=https://pub-1fe455741dc34c92bb2b492e811ddc5c.r2.dev/pedestrian.pmtiles`
+- ✅ Environment variable configured: `NEXT_PUBLIC_PEDESTRIAN_PMTILES_URL=https://pmtiles-cors-proxy.mark-737.workers.dev/pedestrian.pmtiles` (via Cloudflare Worker for edge caching)
 - ✅ **Client overlay implemented**: `PedestrianNetworkOverlayPMTiles` component with full feature parity to buildings
 - ✅ **Worker extended**: Decodes `pedestrian` layer from PMTiles MVT tiles
 - ✅ **UI toggle**: Pedestrian network button (position: 260px from top) with on/off state
@@ -425,7 +425,8 @@ const prunedTiles = tileManager.pruneToBounds(requiredTileKeys);
 **Environment Variables**:
 ```bash
 # .env.local
-NEXT_PUBLIC_PEDESTRIAN_PMTILES_URL=https://pub-1fe455741dc34c92bb2b492e811ddc5c.r2.dev/pedestrian.pmtiles
+# Served via Cloudflare Worker for edge caching (same as buildings)
+NEXT_PUBLIC_PEDESTRIAN_PMTILES_URL=https://pmtiles-cors-proxy.mark-737.workers.dev/pedestrian.pmtiles
 ```
 
 **Component Props**:
