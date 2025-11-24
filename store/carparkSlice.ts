@@ -380,7 +380,7 @@ export const selectBottomSheetTitle = createSelector(
       case 'metered-carpark':
         return 'Metered Carpark';
       case 'connected-carpark':
-        return 'EV Charging Station';
+        return 'Connected Carpark';
       case 'dispatch-carpark':
         return 'Dispatch Carpark';
       case 'nearby':
