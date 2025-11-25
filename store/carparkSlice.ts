@@ -24,6 +24,11 @@ export type BottomSheetView =
 export type CarparkType = 'indoor' | 'metered' | 'connected' | 'dispatch';
 
 /**
+ * Trending tab type for the home view
+ */
+export type TrendingTab = 'indoor' | 'metered';
+
+/**
  * Union type for all carpark types
  */
 export type CarparkUnion = CarparkWithVacancy | MeteredCarpark | ConnectedCarpark | DispatchCarpark;
@@ -88,6 +93,9 @@ export interface CarparkSelectionState {
 
   // Animation state
   isAnimating: boolean;
+
+  // Trending tab selection (persists across navigation)
+  trendingTab: TrendingTab;
 }
 
 /**
@@ -118,6 +126,7 @@ const initialState: CarparkSelectionState = {
 
   lastCameraPosition: null,
   isAnimating: false,
+  trendingTab: 'indoor',
 };
 
 /**
@@ -303,6 +312,13 @@ const carparkSlice = createSlice({
     },
 
     /**
+     * Set trending tab selection
+     */
+    setTrendingTab: (state, action: PayloadAction<TrendingTab>) => {
+      state.trendingTab = action.payload;
+    },
+
+    /**
      * Reset entire carpark selection state
      */
     resetCarparkSelection: (state) => {
@@ -330,6 +346,7 @@ export const {
   saveCameraPosition,
   clearCameraPosition,
   setIsAnimating,
+  setTrendingTab,
   resetCarparkSelection,
 } = carparkSlice.actions;
 
@@ -355,6 +372,7 @@ export const selectNearbyCarparks = (state: RootState) => state.carparkSelection
 export const selectFilterOptions = (state: RootState) => state.carparkSelection.filterOptions;
 export const selectLastCameraPosition = (state: RootState) => state.carparkSelection.lastCameraPosition;
 export const selectIsAnimating = (state: RootState) => state.carparkSelection.isAnimating;
+export const selectTrendingTab = (state: RootState) => state.carparkSelection.trendingTab;
 
 /**
  * Memoized selectors

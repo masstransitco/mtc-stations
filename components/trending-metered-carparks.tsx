@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
-import { TrendingUp, Loader2 } from "lucide-react";
+import { TrendingUp } from "lucide-react";
+import TrendingSkeleton from "@/components/trending-skeleton";
 import type { MeteredCarpark } from "@/types/metered-carpark";
 
 interface TrendingMeteredCarpark extends MeteredCarpark {
@@ -38,6 +39,25 @@ export default function TrendingMeteredCarparks({
   const [carparks, setCarparks] = useState<TrendingMeteredCarpark[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Theme-aware color function for list text (darker colors in light mode for readability)
+  const getListVacancyColor = (vacancy: number): string => {
+    if (isDarkMode) {
+      // Dark mode: lighter grays are readable
+      if (vacancy >= 4) return "#d1d5db"; // gray-300
+      if (vacancy === 3) return "#9ca3af"; // gray-400
+      if (vacancy === 2) return "#6b7280"; // gray-500
+      if (vacancy === 1) return "#4b5563"; // gray-600
+      return "#374151"; // gray-700
+    } else {
+      // Light mode: darker grays needed for white background
+      if (vacancy >= 4) return "#374151"; // gray-700 (was gray-300)
+      if (vacancy === 3) return "#4b5563"; // gray-600 (was gray-400)
+      if (vacancy === 2) return "#6b7280"; // gray-500 (same)
+      if (vacancy === 1) return "#9ca3af"; // gray-400 (was gray-600)
+      return "#d1d5db"; // gray-300 (was gray-700, inverted for "full")
+    }
+  };
+
   useEffect(() => {
     const fetchTrendingCarparks = async () => {
       try {
@@ -57,38 +77,7 @@ export default function TrendingMeteredCarparks({
   }, []);
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "40px 20px",
-          gap: "12px",
-        }}
-      >
-        <Loader2
-          size={32}
-          color={isDarkMode ? "#9ca3af" : "#6b7280"}
-          style={{ animation: "spin 1s linear infinite" }}
-        />
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-        <span
-          style={{
-            fontSize: "14px",
-            color: isDarkMode ? "#9ca3af" : "#6b7280",
-          }}
-        >
-          Loading trending metered carparks...
-        </span>
-      </div>
-    );
+    return <TrendingSkeleton rows={5} showHeader={showHeader} type="metered" />;
   }
 
   return (
@@ -258,7 +247,7 @@ export default function TrendingMeteredCarparks({
                   style={{
                     fontSize: "18px",
                     fontWeight: 700,
-                    color: getMarkerColor(carpark.vacant_spaces),
+                    color: getListVacancyColor(carpark.vacant_spaces),
                     lineHeight: 1,
                   }}
                 >

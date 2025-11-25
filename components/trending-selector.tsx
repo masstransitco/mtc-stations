@@ -5,6 +5,8 @@ import { useTheme } from "@/components/theme-provider";
 import { TrendingUp, ChevronDown } from "lucide-react";
 import TrendingCarparks from "@/components/trending-carparks";
 import TrendingMeteredCarparks from "@/components/trending-metered-carparks";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { selectTrendingTab, setTrendingTab, type TrendingTab } from "@/store/carparkSlice";
 import type { MeteredCarpark } from "@/types/metered-carpark";
 
 interface CarparkData {
@@ -24,8 +26,6 @@ interface CarparkData {
   activity_score?: number;
 }
 
-type TrendingType = "indoor" | "metered";
-
 interface TrendingSelectorProps {
   onIndoorCarparkClick: (carpark: CarparkData) => void;
   onMeteredCarparkClick: (carpark: MeteredCarpark) => void;
@@ -33,7 +33,7 @@ interface TrendingSelectorProps {
   getMeteredMarkerColor: (vacancy: number) => string;
 }
 
-const TRENDING_OPTIONS: { value: TrendingType; label: string }[] = [
+const TRENDING_OPTIONS: { value: TrendingTab; label: string }[] = [
   { value: "indoor", label: "Trending Carparks" },
   { value: "metered", label: "Trending Metered Carparks" },
 ];
@@ -45,7 +45,8 @@ export default function TrendingSelector({
   getMeteredMarkerColor,
 }: TrendingSelectorProps) {
   const { isDarkMode } = useTheme();
-  const [selectedType, setSelectedType] = useState<TrendingType>("indoor");
+  const dispatch = useAppDispatch();
+  const selectedType = useAppSelector(selectTrendingTab);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -129,7 +130,7 @@ export default function TrendingSelector({
               <button
                 key={option.value}
                 onClick={() => {
-                  setSelectedType(option.value);
+                  dispatch(setTrendingTab(option.value));
                   setIsDropdownOpen(false);
                 }}
                 style={{

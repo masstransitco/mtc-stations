@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
-import { TrendingUp, Loader2 } from "lucide-react";
+import { TrendingUp } from "lucide-react";
+import TrendingSkeleton from "@/components/trending-skeleton";
 
 interface CarparkData {
   park_id: string;
@@ -65,34 +66,7 @@ export default function TrendingCarparks({ onCarparkClick, getMarkerColor, showH
   }, []);
 
   if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 20px',
-        gap: '12px'
-      }}>
-        <Loader2
-          size={32}
-          color={isDarkMode ? '#9ca3af' : '#6b7280'}
-          style={{ animation: 'spin 1s linear infinite' }}
-        />
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-        <span style={{
-          fontSize: '14px',
-          color: isDarkMode ? '#9ca3af' : '#6b7280'
-        }}>
-          Loading trending carparks...
-        </span>
-      </div>
-    );
+    return <TrendingSkeleton rows={5} showHeader={showHeader} type="indoor" />;
   }
 
   return (
