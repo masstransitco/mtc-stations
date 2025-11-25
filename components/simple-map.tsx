@@ -527,8 +527,15 @@ function MapContent({
     }
   }, [searchLocation, map]);
 
-  // Note: Camera animation for selected carpark is now handled by carparkSelectionManager
-  // The manager handles batched Redux updates + camera animation in selectCarpark()
+  // Auto-pan to selected carpark when set
+  useEffect(() => {
+    if (selectedCarpark && map) {
+      map.panTo({
+        lat: selectedCarpark.latitude,
+        lng: selectedCarpark.longitude
+      });
+    }
+  }, [selectedCarpark, map]);
 
   return (
     <>
