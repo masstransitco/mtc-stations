@@ -14,6 +14,25 @@ export default function MeteredCarparkDetails({ carpark: initialCarpark, getMark
   const { isDarkMode } = useTheme();
   const [carpark, setCarpark] = useState<MeteredCarpark>(initialCarpark);
 
+  // Theme-aware color function for vacancy text (darker colors in light mode for readability)
+  const getVacancyColor = (vacancy: number): string => {
+    if (isDarkMode) {
+      // Dark mode: lighter grays are readable
+      if (vacancy >= 4) return "#d1d5db"; // gray-300
+      if (vacancy === 3) return "#9ca3af"; // gray-400
+      if (vacancy === 2) return "#6b7280"; // gray-500
+      if (vacancy === 1) return "#4b5563"; // gray-600
+      return "#374151"; // gray-700
+    } else {
+      // Light mode: darker grays needed for white background
+      if (vacancy >= 4) return "#374151"; // gray-700
+      if (vacancy === 3) return "#4b5563"; // gray-600
+      if (vacancy === 2) return "#6b7280"; // gray-500
+      if (vacancy === 1) return "#9ca3af"; // gray-400
+      return "#d1d5db"; // gray-300
+    }
+  };
+
   // Fetch fresh vacancy data on mount
   useEffect(() => {
     const fetchFreshData = async () => {
@@ -148,7 +167,7 @@ export default function MeteredCarparkDetails({ carpark: initialCarpark, getMark
             fontSize: '40px',
             fontWeight: 700,
             lineHeight: 1,
-            color: getMarkerColor(carpark.vacant_spaces)
+            color: getVacancyColor(carpark.vacant_spaces)
           }}>
             {carpark.vacant_spaces}
           </div>
