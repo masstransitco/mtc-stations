@@ -218,15 +218,16 @@ export async function GET(request: NextRequest) {
       console.log('Core vacancy views refreshed successfully');
     }
 
-    // Refresh trending caches (separate call, won't block if fails)
-    console.log('Refreshing trending caches...');
-    const { error: trendingError } = await supabase.rpc('refresh_trending_caches');
+    // Refresh regular carparks trending cache only (with position tracking)
+    // Note: Only refresh trending for regular carparks here to keep vacancy/ranking in sync
+    console.log('Refreshing regular carparks trending cache...');
+    const { error: trendingError } = await supabase.rpc('refresh_trending_carparks_with_tracking');
 
     if (trendingError) {
-      console.warn('Trending cache refresh failed:', trendingError);
+      console.warn('Trending carparks cache refresh failed:', trendingError);
       // Don't fail the entire job if trending refresh fails
     } else {
-      console.log('Trending caches refreshed successfully');
+      console.log('Trending carparks cache refreshed successfully');
     }
 
     const duration = Date.now() - startTime;

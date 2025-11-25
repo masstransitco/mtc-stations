@@ -165,15 +165,16 @@ export async function GET(request: NextRequest) {
       console.log('[Metered Occupancy Cron] Core occupancy view refreshed successfully');
     }
 
-    // Refresh trending caches (separate call, won't block if fails)
-    console.log('[Metered Occupancy Cron] Refreshing trending caches...');
-    const { error: trendingError } = await supabase.rpc('refresh_trending_caches');
+    // Refresh metered carparks trending cache only (with position tracking)
+    // Note: Only refresh trending for metered carparks here to keep vacancy/ranking in sync
+    console.log('[Metered Occupancy Cron] Refreshing metered carparks trending cache...');
+    const { error: trendingError } = await supabase.rpc('refresh_trending_metered_carparks_with_tracking');
 
     if (trendingError) {
-      console.warn('[Metered Occupancy Cron] Trending cache refresh failed:', trendingError);
+      console.warn('[Metered Occupancy Cron] Trending metered carparks cache refresh failed:', trendingError);
       // Don't fail the entire job if trending refresh fails
     } else {
-      console.log('[Metered Occupancy Cron] Trending caches refreshed successfully');
+      console.log('[Metered Occupancy Cron] Trending metered carparks cache refreshed successfully');
     }
 
     // Calculate vacancy rate
