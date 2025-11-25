@@ -12,7 +12,7 @@ import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
 import NearbyCarparksList from "@/components/nearby-carparks-list";
 import IndoorCarparkDetails from "@/components/indoor-carpark-details";
-import TrendingCarparks from "@/components/trending-carparks";
+import TrendingSelector from "@/components/trending-selector";
 import MeteredCarparkDetails from "@/components/metered-carpark-details";
 import ConnectedCarparkDetails from "@/components/connected-carpark-details";
 import DispatchCarparkDetails from "@/components/dispatch-carpark-details";
@@ -1009,6 +1009,11 @@ export default function SimpleMap() {
     handleSelectCarpark(carpark, 'indoor');
   };
 
+  // Handle clicking on a trending metered carpark
+  const handleTrendingMeteredCarparkClick = (carpark: MeteredCarpark) => {
+    handleSelectCarpark(carpark, 'metered');
+  };
+
   const { theme, setTheme } = useTheme();
 
   return (
@@ -1130,9 +1135,11 @@ export default function SimpleMap() {
                 />
               </div>
 
-              <TrendingCarparks
-                onCarparkClick={handleTrendingCarparkClick}
+              <TrendingSelector
+                onIndoorCarparkClick={handleTrendingCarparkClick}
+                onMeteredCarparkClick={handleTrendingMeteredCarparkClick}
                 getMarkerColor={getMarkerColor}
+                getMeteredMarkerColor={getMeteredMarkerColor}
               />
             </>
           )}

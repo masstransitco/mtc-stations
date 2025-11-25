@@ -22,6 +22,7 @@ export function AdminMenu() {
   const menuItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/admin/carparks', label: 'Carparks', icon: '🅿️' },
+    { path: '/admin/metered-carparks', label: 'Metered Carparks', icon: '🅿️' },
   ];
 
   return (
