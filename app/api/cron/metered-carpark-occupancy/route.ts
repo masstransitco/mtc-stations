@@ -177,6 +177,17 @@ export async function GET(request: NextRequest) {
       console.log('[Metered Occupancy Cron] Trending metered carparks cache refreshed successfully');
     }
 
+    // Capture exhaustive ranking snapshot for historical analysis
+    console.log('[Metered Occupancy Cron] Capturing ranking snapshot...');
+    const { data: snapshotId, error: snapshotError } = await supabase.rpc('capture_metered_carpark_ranking_snapshot');
+
+    if (snapshotError) {
+      console.warn('[Metered Occupancy Cron] Ranking snapshot capture failed:', snapshotError);
+      // Don't fail the entire job if snapshot capture fails
+    } else {
+      console.log('[Metered Occupancy Cron] Ranking snapshot captured:', snapshotId);
+    }
+
     // Calculate vacancy rate
     const vacancyRate = validCount > 0 ? Math.round((vacantCount / validCount) * 100) : 0;
 
