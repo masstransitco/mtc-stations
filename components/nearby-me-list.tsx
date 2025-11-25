@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { Navigation2, MapPin, Loader2, Building2 } from "lucide-react";
 
@@ -44,7 +44,7 @@ interface NearbyMeListProps {
   getMeteredMarkerColor: (vacancy: number) => string;
 }
 
-// Haversine formula to calculate distance between two points
+// Haversine formula to calculate distance between two points (returns km)
 function calculateDistance(
   lat1: number,
   lon1: number,
@@ -64,6 +64,10 @@ function calculateDistance(
   return R * c;
 }
 
+// Thresholds to prevent excessive refetching
+const DISTANCE_THRESHOLD_METERS = 50;
+const MIN_FETCH_INTERVAL_MS = 30000; // 30 seconds
+
 export default function NearbyMeList({
   userLocation,
   onConnectedCarparkClick,
@@ -73,6 +77,33 @@ export default function NearbyMeList({
   const { isDarkMode } = useTheme();
   const [nearbyCarparks, setNearbyCarparks] = useState<NearbyCarpark[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Refs to track last fetch state for throttling
+  const lastFetchedLocationRef = useRef<LocationData | null>(null);
+  const lastFetchTimeRef = useRef<number>(0);
+
+  // Check if we should refetch based on distance and time thresholds
+  const shouldRefetch = useCallback((newLocation: LocationData): boolean => {
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastFetchTimeRef.current;
+
+    // Always fetch on first load
+    if (!lastFetchedLocationRef.current) return true;
+
+    // Enforce minimum interval (30 seconds)
+    if (timeSinceLastFetch < MIN_FETCH_INTERVAL_MS) return false;
+
+    // Check distance threshold (50 meters)
+    const distanceKm = calculateDistance(
+      lastFetchedLocationRef.current.latitude,
+      lastFetchedLocationRef.current.longitude,
+      newLocation.latitude,
+      newLocation.longitude
+    );
+    const distanceMeters = distanceKm * 1000;
+
+    return distanceMeters >= DISTANCE_THRESHOLD_METERS;
+  }, []);
 
   // Theme-aware color function for metered list text
   const getListVacancyColor = (vacancy: number): string => {
@@ -93,6 +124,9 @@ export default function NearbyMeList({
 
   const fetchNearbyCarparks = useCallback(async () => {
     if (!userLocation) return;
+
+    // Check if we should refetch based on distance/time thresholds
+    if (!shouldRefetch(userLocation)) return;
 
     setLoading(true);
     try {
@@ -142,12 +176,16 @@ export default function NearbyMeList({
         .slice(0, 10);
 
       setNearbyCarparks(sorted);
+
+      // Update refs after successful fetch
+      lastFetchedLocationRef.current = userLocation;
+      lastFetchTimeRef.current = Date.now();
     } catch (error) {
       console.error("Error fetching nearby carparks:", error);
     } finally {
       setLoading(false);
     }
-  }, [userLocation]);
+  }, [userLocation, shouldRefetch]);
 
   useEffect(() => {
     fetchNearbyCarparks();
