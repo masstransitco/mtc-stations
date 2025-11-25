@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Query parameters
+    const carparkId = searchParams.get('carpark_id');
     const district = searchParams.get('district');
     const minVacancy = searchParams.get('minVacancy');
     const limit = searchParams.get('limit');
@@ -22,6 +23,10 @@ export async function GET(request: NextRequest) {
       .select('*');
 
     // Apply filters
+    if (carparkId) {
+      query = query.eq('carpark_id', carparkId);
+    }
+
     if (district) {
       query = query.eq('district', district);
     }
@@ -51,9 +56,15 @@ export async function GET(request: NextRequest) {
       last_updated: carpark.last_updated ? `${carpark.last_updated}Z` : null
     }));
 
+    // Use no-store cache for specific carpark lookups (real-time)
+    // Use normal caching for list views
+    const cacheControl = carparkId
+      ? 'no-store'
+      : 'public, s-maxage=60, stale-while-revalidate=120';
+
     return NextResponse.json(dataWithTimezone, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
+        'Cache-Control': cacheControl
       }
     });
   } catch (error) {

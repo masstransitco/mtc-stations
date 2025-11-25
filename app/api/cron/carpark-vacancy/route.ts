@@ -207,16 +207,26 @@ export async function GET(request: NextRequest) {
     // Insert into database
     const result = await insertVacancyRecords(records);
 
-    // Refresh the materialized views to update real-time data
-    console.log('Refreshing materialized views...');
+    // Refresh core vacancy materialized views
+    console.log('Refreshing core vacancy views...');
     const supabase = getSupabaseClient();
     const { error: refreshError } = await supabase.rpc('refresh_latest_parking_vacancy');
 
     if (refreshError) {
-      console.error('Error refreshing materialized views:', refreshError);
-      // Don't fail the entire job if refresh fails
+      console.error('Error refreshing vacancy views:', refreshError);
     } else {
-      console.log('Materialized views refreshed successfully');
+      console.log('Core vacancy views refreshed successfully');
+    }
+
+    // Refresh trending caches (separate call, won't block if fails)
+    console.log('Refreshing trending caches...');
+    const { error: trendingError } = await supabase.rpc('refresh_trending_caches');
+
+    if (trendingError) {
+      console.warn('Trending cache refresh failed:', trendingError);
+      // Don't fail the entire job if trending refresh fails
+    } else {
+      console.log('Trending caches refreshed successfully');
     }
 
     const duration = Date.now() - startTime;

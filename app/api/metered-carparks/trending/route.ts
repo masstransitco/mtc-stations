@@ -13,10 +13,10 @@ export async function GET() {
   try {
     // Get cached activity rankings with position changes
     const { data: rankings, error: rankError } = await supabase
-      .rpc("get_trending_carparks_with_changes");
+      .rpc("get_trending_metered_carparks_with_changes");
 
     if (rankError) {
-      console.error("Error fetching trending rankings:", rankError);
+      console.error("Error fetching trending metered rankings:", rankError);
       return NextResponse.json({ error: rankError.message }, { status: 500 });
     }
 
@@ -24,23 +24,22 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    // Get live vacancy data for these park_ids
-    const parkIds = rankings.map((r: { park_id: string }) => r.park_id);
+    // Get live vacancy data for these carpark_ids
+    const carparkIds = rankings.map((r: { carpark_id: string }) => r.carpark_id);
     const { data: liveData, error: liveError } = await supabase
-      .from("latest_vacancy_with_location")
+      .from("latest_metered_carpark_occupancy")
       .select("*")
-      .in("park_id", parkIds)
-      .eq("vehicle_type", "privateCar");
+      .in("carpark_id", carparkIds);
 
     if (liveError) {
-      console.error("Error fetching live vacancy data:", liveError);
+      console.error("Error fetching live metered vacancy data:", liveError);
       return NextResponse.json({ error: liveError.message }, { status: 500 });
     }
 
     // Merge rankings with live vacancy data, preserving ranking order
     const result = rankings
-      .map((rank: { park_id: string; activity_score: number; rank_change: number | null }) => {
-        const live = liveData?.find(l => l.park_id === rank.park_id);
+      .map((rank: { carpark_id: string; activity_score: number; rank_change: number | null }) => {
+        const live = liveData?.find(l => l.carpark_id === rank.carpark_id);
         return live ? {
           ...live,
           activity_score: rank.activity_score,
@@ -56,7 +55,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Error fetching trending carparks:", error);
+    console.error("Error fetching trending metered carparks:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

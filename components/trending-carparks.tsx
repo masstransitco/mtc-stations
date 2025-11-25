@@ -19,14 +19,29 @@ interface CarparkData {
   lastupdate: string;
   is_stale: boolean;
   activity_score?: number;
+  rank_change?: number | null;
 }
+
+// Position change indicator icons
+const RankUpIcon = ({ color = "#22c55e" }: { color?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill={color}>
+    <path d="m296-345-56-56 240-240 240 240-56 56-184-183-184 183Z"/>
+  </svg>
+);
+
+const RankDownIcon = ({ color = "#ef4444" }: { color?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" height="14px" viewBox="0 -960 960 960" width="14px" fill={color}>
+    <path d="M480-345 240-585l56-56 184 183 184-183 56 56-240 240Z"/>
+  </svg>
+);
 
 interface TrendingCarparksProps {
   onCarparkClick: (carpark: CarparkData) => void;
   getMarkerColor: (vacancy: number) => string;
+  showHeader?: boolean;
 }
 
-export default function TrendingCarparks({ onCarparkClick, getMarkerColor }: TrendingCarparksProps) {
+export default function TrendingCarparks({ onCarparkClick, getMarkerColor, showHeader = true }: TrendingCarparksProps) {
   const { isDarkMode } = useTheme();
   const [carparks, setCarparks] = useState<CarparkData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,33 +97,37 @@ export default function TrendingCarparks({ onCarparkClick, getMarkerColor }: Tre
 
   return (
     <div>
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        marginBottom: '16px'
-      }}>
-        <TrendingUp size={18} color={isDarkMode ? '#60a5fa' : '#3b82f6'} />
-        <h4 style={{
-          margin: 0,
-          fontSize: '16px',
-          fontWeight: 600,
-          color: isDarkMode ? '#f3f4f6' : '#111827'
-        }}>
-          Trending Carparks
-        </h4>
-      </div>
+      {showHeader && (
+        <>
+          {/* Header */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px'
+          }}>
+            <TrendingUp size={18} color={isDarkMode ? '#60a5fa' : '#3b82f6'} />
+            <h4 style={{
+              margin: 0,
+              fontSize: '16px',
+              fontWeight: 600,
+              color: isDarkMode ? '#f3f4f6' : '#111827'
+            }}>
+              Trending Carparks
+            </h4>
+          </div>
 
-      {/* Subtitle */}
-      <p style={{
-        margin: '0 0 16px 0',
-        fontSize: '13px',
-        color: isDarkMode ? '#9ca3af' : '#6b7280',
-        lineHeight: 1.5
-      }}>
-        Most active carparks in the past 6 hours
-      </p>
+          {/* Subtitle */}
+          <p style={{
+            margin: '0 0 16px 0',
+            fontSize: '13px',
+            color: isDarkMode ? '#9ca3af' : '#6b7280',
+            lineHeight: 1.5
+          }}>
+            Most active carparks in the past 6 hours
+          </p>
+        </>
+      )}
 
       {/* Carpark List - Minimal Compact Design */}
       <div style={{
@@ -140,15 +159,28 @@ export default function TrendingCarparks({ onCarparkClick, getMarkerColor }: Tre
               e.currentTarget.style.borderColor = isDarkMode ? '#374151' : '#e5e7eb';
             }}
           >
-            {/* Rank Number */}
+            {/* Rank Number with Position Change Indicator */}
             <div style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: isDarkMode ? '#6b7280' : '#9ca3af',
-              minWidth: '20px',
-              textAlign: 'center'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px',
+              minWidth: '32px'
             }}>
-              {index + 1}
+              <span style={{
+                fontSize: '13px',
+                fontWeight: 600,
+                color: isDarkMode ? '#6b7280' : '#9ca3af',
+                minWidth: '16px',
+                textAlign: 'center'
+              }}>
+                {index + 1}
+              </span>
+              {carpark.rank_change !== null && carpark.rank_change !== undefined && carpark.rank_change > 0 && (
+                <RankUpIcon color={isDarkMode ? '#4ade80' : '#22c55e'} />
+              )}
+              {carpark.rank_change !== null && carpark.rank_change !== undefined && carpark.rank_change < 0 && (
+                <RankDownIcon color={isDarkMode ? '#f87171' : '#ef4444'} />
+              )}
             </div>
 
             {/* Main Content */}

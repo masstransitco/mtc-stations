@@ -155,15 +155,25 @@ export async function GET(request: NextRequest) {
 
     console.log(`[Metered Occupancy Cron] Updated tracking flags for ${updatedCount} spaces`);
 
-    // Refresh the materialized view to update real-time data
-    console.log('[Metered Occupancy Cron] Refreshing materialized view...');
+    // Refresh core metered occupancy materialized view
+    console.log('[Metered Occupancy Cron] Refreshing core occupancy view...');
     const { error: refreshError } = await supabase.rpc('refresh_latest_metered_carpark_occupancy');
 
     if (refreshError) {
-      console.error('[Metered Occupancy Cron] Error refreshing materialized view:', refreshError);
-      // Don't fail the entire job if refresh fails
+      console.error('[Metered Occupancy Cron] Error refreshing occupancy view:', refreshError);
     } else {
-      console.log('[Metered Occupancy Cron] Materialized view refreshed successfully');
+      console.log('[Metered Occupancy Cron] Core occupancy view refreshed successfully');
+    }
+
+    // Refresh trending caches (separate call, won't block if fails)
+    console.log('[Metered Occupancy Cron] Refreshing trending caches...');
+    const { error: trendingError } = await supabase.rpc('refresh_trending_caches');
+
+    if (trendingError) {
+      console.warn('[Metered Occupancy Cron] Trending cache refresh failed:', trendingError);
+      // Don't fail the entire job if trending refresh fails
+    } else {
+      console.log('[Metered Occupancy Cron] Trending caches refreshed successfully');
     }
 
     // Calculate vacancy rate

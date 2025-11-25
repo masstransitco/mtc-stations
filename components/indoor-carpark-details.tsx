@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import VacancyTrendChart from "@/components/vacancy-trend-chart";
 
@@ -24,8 +25,32 @@ interface IndoorCarparkDetailsProps {
   getMarkerColor: (vacancy: number) => string;
 }
 
-export default function IndoorCarparkDetails({ carpark, getMarkerColor }: IndoorCarparkDetailsProps) {
+export default function IndoorCarparkDetails({ carpark: initialCarpark, getMarkerColor }: IndoorCarparkDetailsProps) {
   const { isDarkMode } = useTheme();
+  const [carpark, setCarpark] = useState<CarparkData>(initialCarpark);
+
+  // Fetch fresh vacancy data on mount
+  useEffect(() => {
+    const fetchFreshData = async () => {
+      try {
+        const response = await fetch(
+          `/api/carparks?park_id=${encodeURIComponent(initialCarpark.park_id)}`,
+          { cache: 'no-store' }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          const freshCarpark = data.find((c: CarparkData) => c.park_id === initialCarpark.park_id);
+          if (freshCarpark) {
+            setCarpark(freshCarpark);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching fresh carpark data:', error);
+      }
+    };
+
+    fetchFreshData();
+  }, [initialCarpark.park_id]);
 
   return (
     <div style={{

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import type { MeteredCarpark } from "@/types/metered-carpark";
 import MeteredVacancyTrendChart from "@/components/metered-vacancy-trend-chart";
@@ -9,8 +10,32 @@ interface MeteredCarparkDetailsProps {
   getMarkerColor: (vacancy: number) => string;
 }
 
-export default function MeteredCarparkDetails({ carpark, getMarkerColor }: MeteredCarparkDetailsProps) {
+export default function MeteredCarparkDetails({ carpark: initialCarpark, getMarkerColor }: MeteredCarparkDetailsProps) {
   const { isDarkMode } = useTheme();
+  const [carpark, setCarpark] = useState<MeteredCarpark>(initialCarpark);
+
+  // Fetch fresh vacancy data on mount
+  useEffect(() => {
+    const fetchFreshData = async () => {
+      try {
+        const response = await fetch(
+          `/api/metered-carparks?carpark_id=${encodeURIComponent(initialCarpark.carpark_id)}`,
+          { cache: 'no-store' }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          const freshCarpark = data.find((c: MeteredCarpark) => c.carpark_id === initialCarpark.carpark_id);
+          if (freshCarpark) {
+            setCarpark(freshCarpark);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching fresh metered carpark data:', error);
+      }
+    };
+
+    fetchFreshData();
+  }, [initialCarpark.carpark_id]);
 
   // Calculate occupancy percentage
   const occupancyRate = carpark.tracked_spaces > 0
