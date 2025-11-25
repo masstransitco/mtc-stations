@@ -1014,6 +1014,11 @@ export default function SimpleMap() {
     handleSelectCarpark(carpark, 'metered');
   };
 
+  // Handle clicking on a nearby connected carpark
+  const handleNearbyConnectedCarparkClick = (carpark: ConnectedCarpark) => {
+    handleSelectCarpark(carpark, 'connected');
+  };
+
   const { theme, setTheme } = useTheme();
 
   return (
@@ -1138,8 +1143,12 @@ export default function SimpleMap() {
               <TrendingSelector
                 onIndoorCarparkClick={handleTrendingCarparkClick}
                 onMeteredCarparkClick={handleTrendingMeteredCarparkClick}
+                onConnectedCarparkClick={handleNearbyConnectedCarparkClick}
                 getMarkerColor={getMarkerColor}
                 getMeteredMarkerColor={getMeteredMarkerColor}
+                onNearbyMeClick={handleMyLocation}
+                userLocation={currentLocation}
+                isTracking={isTracking}
               />
             </>
           )}

@@ -26,7 +26,7 @@ export type CarparkType = 'indoor' | 'metered' | 'connected' | 'dispatch';
 /**
  * Trending tab type for the home view
  */
-export type TrendingTab = 'indoor' | 'metered';
+export type TrendingTab = 'indoor' | 'metered' | 'nearby';
 
 /**
  * Union type for all carpark types
