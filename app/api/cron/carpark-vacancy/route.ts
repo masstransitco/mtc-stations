@@ -1,39 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabaseClient } from '@/lib/supabase';
-import type { VacancyApiResponse, CarparkVacancy, VacancyRecord, VehicleType, ParkingVacancySnapshot } from '@/types/parking-vacancy';
+import { withCronAuth } from '@/lib/cron-auth';
+import {
+  createLogger,
+  checkDataQuality,
+  PARKING_VACANCY_THRESHOLDS,
+} from '@/lib/logger';
+import type {
+  VacancyApiResponse,
+  VacancyRecord,
+  VehicleType,
+  ParkingVacancySnapshot,
+} from '@/types/parking-vacancy';
 
 // Extend Vercel function timeout to 60 seconds (default is 10s)
-// This ensures trending cache refresh completes after data ingestion
 export const maxDuration = 60;
 
 const HK_GOV_API_URL = 'https://api.data.gov.hk/v1/carpark-info-vacancy';
-
-/**
- * Verify the cron secret to ensure only authorized requests
- * Supports both Vercel's automatic cron authentication and manual x-cron-secret header
- */
-function verifyCronSecret(request: NextRequest): boolean {
-  // Check for Vercel's automatic cron secret (sent in Authorization header)
-  const authHeader = request.headers.get('authorization');
-  if (authHeader) {
-    const token = authHeader.replace('Bearer ', '');
-    const expectedSecret = process.env.CRON_SECRET;
-    if (expectedSecret && token === expectedSecret) {
-      return true;
-    }
-  }
-
-  // Also support manual x-cron-secret header for testing
-  const cronSecret = request.headers.get('x-cron-secret');
-  const expectedSecret = process.env.CRON_SECRET;
-
-  if (!expectedSecret) {
-    console.error('CRON_SECRET not configured');
-    return false;
-  }
-
-  return cronSecret === expectedSecret;
-}
+const SERVICE_NAME = 'carpark-vacancy';
 
 /**
  * Fetch parking vacancy data from Hong Kong Government API
@@ -41,11 +25,9 @@ function verifyCronSecret(request: NextRequest): boolean {
 async function fetchVacancyData(): Promise<VacancyApiResponse> {
   const url = `${HK_GOV_API_URL}?data=vacancy&lang=en_US`;
 
-  console.log('Fetching vacancy data from:', url);
-
   const response = await fetch(url, {
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
   });
 
@@ -78,23 +60,33 @@ interface DataQualityStats {
 /**
  * Transform API response into database records and calculate quality stats
  */
-function transformVacancyData(data: VacancyApiResponse): { records: ParkingVacancySnapshot[]; stats: DataQualityStats } {
+function transformVacancyData(data: VacancyApiResponse): {
+  records: ParkingVacancySnapshot[];
+  stats: DataQualityStats;
+} {
   const records: ParkingVacancySnapshot[] = [];
   const ingestedAt = new Date().toISOString();
 
   // Track stats
   const parkIdsWithValidData = new Set<string>();
   const typeStats: { [key: string]: { total: number; offline: number; valid: number } } = {
-    'A': { total: 0, offline: 0, valid: 0 },
-    'B': { total: 0, offline: 0, valid: 0 },
-    'C': { total: 0, offline: 0, valid: 0 },
+    A: { total: 0, offline: 0, valid: 0 },
+    B: { total: 0, offline: 0, valid: 0 },
+    C: { total: 0, offline: 0, valid: 0 },
   };
 
   for (const carpark of data.results) {
     const parkId = carpark.park_Id;
 
     // Process each vehicle type
-    const vehicleTypes: VehicleType[] = ['privateCar', 'LGV', 'HGV', 'CV', 'coach', 'motorCycle'];
+    const vehicleTypes: VehicleType[] = [
+      'privateCar',
+      'LGV',
+      'HGV',
+      'CV',
+      'coach',
+      'motorCycle',
+    ];
 
     for (const vehicleType of vehicleTypes) {
       const vacancyRecords = carpark[vehicleType] as VacancyRecord[] | undefined;
@@ -135,15 +127,18 @@ function transformVacancyData(data: VacancyApiResponse): { records: ParkingVacan
     }
   }
 
-  const validRecords = records.filter(r => r.vacancy >= 0).length;
-  const offlineRecords = records.filter(r => r.vacancy === -1).length;
+  const validRecords = records.filter((r) => r.vacancy >= 0).length;
+  const offlineRecords = records.filter((r) => r.vacancy === -1).length;
 
   const stats: DataQualityStats = {
     total_records: records.length,
     valid_records: validRecords,
     offline_records: offlineRecords,
-    offline_percent: records.length > 0 ? Math.round((offlineRecords / records.length) * 100 * 100) / 100 : 0,
-    unique_carparks: new Set(records.map(r => r.park_id)).size,
+    offline_percent:
+      records.length > 0
+        ? Math.round((offlineRecords / records.length) * 100 * 100) / 100
+        : 0,
+    unique_carparks: new Set(records.map((r) => r.park_id)).size,
     carparks_with_valid_data: parkIdsWithValidData.size,
     by_vacancy_type: typeStats,
   };
@@ -154,7 +149,9 @@ function transformVacancyData(data: VacancyApiResponse): { records: ParkingVacan
 /**
  * Insert vacancy records into Supabase
  */
-async function insertVacancyRecords(records: ParkingVacancySnapshot[]): Promise<{ success: number; failed: number }> {
+async function insertVacancyRecords(
+  records: ParkingVacancySnapshot[]
+): Promise<{ success: number; failed: number }> {
   const supabase = getServerSupabaseClient('service');
 
   // Insert in batches to avoid payload size limits
@@ -165,12 +162,9 @@ async function insertVacancyRecords(records: ParkingVacancySnapshot[]): Promise<
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const batch = records.slice(i, i + BATCH_SIZE);
 
-    const { data, error } = await supabase
-      .from('parking_vacancy_snapshots')
-      .insert(batch);
+    const { error } = await supabase.from('parking_vacancy_snapshots').insert(batch);
 
     if (error) {
-      console.error(`Batch ${i / BATCH_SIZE + 1} failed:`, error);
       failed += batch.length;
     } else {
       success += batch.length;
@@ -184,60 +178,92 @@ async function insertVacancyRecords(records: ParkingVacancySnapshot[]): Promise<
  * GET handler for the cron job
  * Fetches parking vacancy data from HK Gov API and stores in Supabase
  */
-export async function GET(request: NextRequest) {
-  const startTime = Date.now();
+export const GET = withCronAuth(async (request: NextRequest) => {
+  const logger = createLogger({ service: SERVICE_NAME });
+  const supabase = getServerSupabaseClient('service');
 
   try {
-    // Verify cron secret
-    if (!verifyCronSecret(request)) {
-      console.error('Unauthorized cron request - invalid secret');
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    console.log('Starting parking vacancy ingestion...');
+    logger.info('Starting parking vacancy ingestion');
 
     // Fetch data from HK Gov API
     const apiData = await fetchVacancyData();
-    console.log(`Fetched data for ${apiData.results.length} car parks`);
+    logger.info('Fetched data from HK Gov API', {
+      carparks: apiData.results.length,
+    });
 
     // Transform to database records and calculate quality stats
     const { records, stats } = transformVacancyData(apiData);
-    console.log(`Transformed to ${records.length} vacancy records`);
-    console.log('Data quality:', stats);
+    logger.info('Transformed vacancy data', {
+      records: records.length,
+      validRecords: stats.valid_records,
+      offlineRecords: stats.offline_records,
+      offlinePercent: stats.offline_percent,
+    });
 
     // Insert into database
     const result = await insertVacancyRecords(records);
+    logger.info('Inserted records', {
+      inserted: result.success,
+      failed: result.failed,
+    });
+
+    // Check data quality against thresholds
+    const qualityCheck = checkDataQuality(
+      {
+        totalRecords: stats.total_records,
+        validRecords: stats.valid_records,
+        offlineRecords: stats.offline_records,
+        insertedRecords: result.success,
+        failedRecords: result.failed,
+      },
+      PARKING_VACANCY_THRESHOLDS
+    );
+
+    if (!qualityCheck.ok) {
+      for (const warning of qualityCheck.warnings) {
+        logger.warn('Data quality warning', { warning });
+      }
+    }
 
     // Refresh core vacancy materialized views
-    console.log('Refreshing core vacancy views...');
-    const supabase = getServerSupabaseClient('service');
+    logger.info('Refreshing core vacancy views');
     const { error: refreshError } = await supabase.rpc('refresh_latest_parking_vacancy');
 
     if (refreshError) {
-      console.error('Error refreshing vacancy views:', refreshError);
-    } else {
-      console.log('Core vacancy views refreshed successfully');
+      logger.error('Failed to refresh vacancy views', { error: refreshError.message });
     }
 
-    // Refresh regular carparks trending cache only (with position tracking)
-    // Note: Only refresh trending for regular carparks here to keep vacancy/ranking in sync
-    console.log('Refreshing regular carparks trending cache...');
-    const { error: trendingError } = await supabase.rpc('refresh_trending_carparks_with_tracking');
+    // Refresh trending carparks cache
+    logger.info('Refreshing trending carparks cache');
+    const { error: trendingError } = await supabase.rpc(
+      'refresh_trending_carparks_with_tracking'
+    );
 
     if (trendingError) {
-      console.warn('Trending carparks cache refresh failed:', trendingError);
-      // Don't fail the entire job if trending refresh fails
-    } else {
-      console.log('Trending carparks cache refreshed successfully');
+      logger.warn('Trending cache refresh failed', { error: trendingError.message });
     }
 
-    const duration = Date.now() - startTime;
+    // Log ingestion to database
+    await supabase.rpc('log_ingestion', {
+      p_trace_id: logger.getTraceId(),
+      p_service: SERVICE_NAME,
+      p_success: true,
+      p_duration_ms: logger.getElapsedMs(),
+      p_total_records: stats.total_records,
+      p_valid_records: stats.valid_records,
+      p_offline_records: stats.offline_records,
+      p_inserted_records: result.success,
+      p_failed_records: result.failed,
+      p_warnings: qualityCheck.warnings.length > 0 ? qualityCheck.warnings : null,
+      p_metadata: {
+        carparks: apiData.results.length,
+        by_vacancy_type: stats.by_vacancy_type,
+      },
+    });
 
     const response = {
       success: true,
+      traceId: logger.getTraceId(),
       carparks: apiData.results.length,
       records: records.length,
       inserted: result.success,
@@ -249,27 +275,37 @@ export async function GET(request: NextRequest) {
         unique_carparks: stats.unique_carparks,
         carparks_with_valid_data: stats.carparks_with_valid_data,
         by_vacancy_type: stats.by_vacancy_type,
+        warnings: qualityCheck.warnings,
       },
-      duration_ms: duration,
+      duration_ms: logger.getElapsedMs(),
       timestamp: new Date().toISOString(),
     };
 
-    console.log('Ingestion complete:', response);
+    logger.info('Ingestion complete', response);
 
     return NextResponse.json(response);
-
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error('Ingestion failed:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Ingestion failed', { error: errorMessage });
+
+    // Log failed ingestion
+    await supabase.rpc('log_ingestion', {
+      p_trace_id: logger.getTraceId(),
+      p_service: SERVICE_NAME,
+      p_success: false,
+      p_error_message: errorMessage,
+      p_duration_ms: logger.getElapsedMs(),
+    });
 
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        duration_ms: duration,
+        traceId: logger.getTraceId(),
+        error: errorMessage,
+        duration_ms: logger.getElapsedMs(),
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
     );
   }
-}
+});

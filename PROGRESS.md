@@ -43,11 +43,22 @@
 - **Migration**: `supabase/migrations/20251126_carpark_analytics_rpc.sql`
 - **Verified**: TypeScript check passes
 
-### Pending Tasks (Priority Order)
+#### 4. Data Quality/Validation ✅
+- **Date**: 2025-11-26
+- **Status**: Complete
+- **Changes**:
+  - Created `lib/logger.ts` - structured JSON logging with trace IDs
+  - Created `lib/cron-auth.ts` - shared cron authentication middleware
+  - Created `ingestion_logs` table for tracking ingestion history
+  - Added `log_ingestion()` RPC function for persisting metrics
+  - Added `ingestion_summary` view for 24-hour dashboard
+  - Added data quality thresholds with warnings
+  - Updated `carpark-vacancy` cron route as template for others
+- **Migrations**: `supabase/migrations/20251126_ingestion_logs.sql`
+- **New utilities**: `lib/logger.ts`, `lib/cron-auth.ts`
+- **Note**: Other cron routes can follow same pattern
 
-#### 4. Data Quality/Validation - MEDIUM
-- **Status**: Not started
-- **Goal**: Add validation on ingest, schema constraints, structured logging
+### Pending Tasks (Priority Order)
 
 #### 5. Migration Consolidation - MEDIUM
 - **Status**: Not started
@@ -103,4 +114,5 @@
 | 2025-11-26 | Supabase unification | Designed approach, reviewed implementation | Success - caught 5 files using deprecated alias |
 | 2025-11-26 | Database indexes | Analyzed schema, recommended indexes | Success - added 4 partial indexes for query optimization |
 | 2025-11-26 | API route reorganization | N/A | Success - unified /carpark and /carparks patterns |
+| 2025-11-26 | Data quality/validation | N/A | Success - added logging infra, ingestion tracking, quality thresholds |
 
