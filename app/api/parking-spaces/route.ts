@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0; // Disable all caching
+export const maxDuration = 30; // Extend timeout for materialized view queries
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

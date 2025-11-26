@@ -1,34 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Extend Vercel function timeout to 60 seconds (default is 10s)
+export const maxDuration = 60;
 
 const OCCUPANCY_CSV_URL = 'https://data.nmospiot.gov.hk/api/pvds/Download/occupancystatus';
 
-/**
- * Verify the cron secret to ensure only authorized requests
- * Supports both Vercel's automatic cron authentication and manual x-cron-secret header
- */
-function verifyCronSecret(request: NextRequest): boolean {
-  // Check for Vercel's automatic cron secret (sent in Authorization header)
-  const authHeader = request.headers.get('authorization');
-  if (authHeader) {
-    const token = authHeader.replace('Bearer ', '');
-    const expectedSecret = process.env.CRON_SECRET;
-    if (expectedSecret && token === expectedSecret) {
-      return true;
-    }
-  }
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-  // Also support manual x-cron-secret header for testing
-  const cronSecret = request.headers.get('x-cron-secret');
-  const expectedSecret = process.env.CRON_SECRET;
-
-  if (!expectedSecret) {
-    console.error('CRON_SECRET not configured');
-    return false;
-  }
-
-  return cronSecret === expectedSecret;
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Missing Supabase environment variables');
 }
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface OccupancyRecord {
   feature_id: number;
@@ -148,11 +133,12 @@ function calculateStats(records: OccupancyRecord[]): OccupancyStats {
 /**
  * Insert occupancy records in batches
  */
-async function insertOccupancyRecords(records: OccupancyRecord[]): Promise<void> {
-  const supabase = getSupabaseClient();
-  const BATCH_SIZE = 100; // Smaller batches since we only have 145 spaces
+async function insertOccupancyRecords(records: OccupancyRecord[]): Promise<{ success: number; failed: number }> {
+  const BATCH_SIZE = 100;
+  let success = 0;
+  let failed = 0;
 
-  console.log(`Inserting ${records.length} records in batches of ${BATCH_SIZE}...`);
+  console.log(`[Parking Space Cron] Inserting ${records.length} records in batches of ${BATCH_SIZE}...`);
 
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const batch = records.slice(i, i + BATCH_SIZE);
@@ -162,12 +148,14 @@ async function insertOccupancyRecords(records: OccupancyRecord[]): Promise<void>
       .insert(batch);
 
     if (error) {
-      console.error(`Error inserting batch ${i / BATCH_SIZE + 1}:`, error);
-      throw error;
+      console.error(`[Parking Space Cron] Error inserting batch ${i / BATCH_SIZE + 1}:`, error);
+      failed += batch.length;
+    } else {
+      success += batch.length;
     }
-
-    console.log(`Inserted batch ${i / BATCH_SIZE + 1}/${Math.ceil(records.length / BATCH_SIZE)}`);
   }
+
+  return { success, failed };
 }
 
 /**
@@ -179,40 +167,54 @@ export async function GET(request: NextRequest) {
 
   try {
     // Verify cron secret
-    if (!verifyCronSecret(request)) {
-      console.error('Unauthorized cron request');
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('🚗 Starting parking space occupancy ingestion...');
+    console.log('[Parking Space Cron] Starting ingestion...');
 
     // Fetch CSV data
     const records = await fetchOccupancyCSV();
-    console.log(`📊 Fetched ${records.length} occupancy records`);
+    console.log(`[Parking Space Cron] Fetched ${records.length} occupancy records`);
 
     // Calculate statistics
     const stats = calculateStats(records);
-    console.log('📈 Statistics:', stats);
+    console.log('[Parking Space Cron] Statistics:', stats);
 
     // Insert into database
-    await insertOccupancyRecords(records);
+    const insertResult = await insertOccupancyRecords(records);
+    console.log(`[Parking Space Cron] Inserted: ${insertResult.success}, Failed: ${insertResult.failed}`);
+
+    // Refresh materialized views for fast API queries
+    console.log('[Parking Space Cron] Refreshing materialized views...');
+    const { error: refreshError } = await supabase.rpc('refresh_latest_space_occupancy');
+
+    if (refreshError) {
+      console.warn('[Parking Space Cron] Materialized view refresh failed:', refreshError);
+      // Don't fail the entire job if view refresh fails
+    } else {
+      console.log('[Parking Space Cron] Materialized views refreshed successfully');
+    }
 
     const duration = Date.now() - startTime;
-    console.log(`✅ Ingestion completed in ${duration}ms`);
 
-    return NextResponse.json({
+    const response = {
       success: true,
       timestamp: new Date().toISOString(),
       duration_ms: duration,
+      inserted: insertResult.success,
+      failed: insertResult.failed,
       stats,
-    });
+    };
+
+    console.log('[Parking Space Cron] Complete:', response);
+
+    return NextResponse.json(response);
 
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error('❌ Ingestion failed:', error);
+    console.error('[Parking Space Cron] Error:', error);
 
     return NextResponse.json(
       {
