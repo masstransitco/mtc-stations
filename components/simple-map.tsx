@@ -1,7 +1,7 @@
 "use client";
 
 import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { Navigation, Sun, Moon, Compass } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
@@ -27,7 +27,46 @@ import {
   createConnectedCarparkMarker,
   createDispatchCarparkMarker,
   createParkingSpaceMarker,
+  type MeteredSpaceDetail,
 } from "@/lib/marker-factories";
+
+// Vehicle type colors for metered space markers
+const VEHICLE_TYPE_COLORS: Record<string, string> = {
+  'A': '#3b82f6',  // Blue - Private Car
+  'G': '#f59e0b',  // Amber - Goods Vehicle
+  'C': '#8b5cf6',  // Purple - Coach/Bus
+};
+
+// React component for metered space marker
+function MeteredSpaceMarkerContent({ space }: { space: MeteredSpaceDetail }) {
+  const vehicleColor = VEHICLE_TYPE_COLORS[space.vehicle_type] || VEHICLE_TYPE_COLORS['A'];
+  const fillColor = space.is_vacant === true
+    ? '#22c55e'   // Green - vacant
+    : space.is_vacant === false
+      ? '#ef4444' // Red - occupied
+      : '#9ca3af'; // Gray - unknown
+
+  return (
+    <div style={{
+      width: '16px',
+      height: '16px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      pointerEvents: 'none'
+    }}>
+      <div style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        backgroundColor: fillColor,
+        border: `3px solid ${vehicleColor}`,
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.3)',
+        boxSizing: 'border-box'
+      }} />
+    </div>
+  );
+}
 import type { CarparkWithVacancy, CarparkWithDistance } from "@/types/indoor-carpark";
 import type { ParkingSpace } from "@/types/parking-space";
 import type { MeteredCarpark } from "@/types/metered-carpark";
@@ -189,7 +228,8 @@ function MapContent({
   showDispatchCarparks,
   showIndoorCarparks,
   setIsMapAtUserLocation,
-  setCurrentZoom
+  setCurrentZoom,
+  meteredSpaceMarkers
 }: {
   carparks: CarparkWithVacancy[];
   currentLocation: any;
@@ -216,6 +256,7 @@ function MapContent({
   showIndoorCarparks: boolean;
   setIsMapAtUserLocation: (value: boolean) => void;
   setCurrentZoom: (zoom: number) => void;
+  meteredSpaceMarkers: MeteredSpaceDetail[];
 }) {
   // Access Redux state and actions within MapContent
   const {
@@ -710,6 +751,20 @@ function MapContent({
         </AdvancedMarker>
       )}
 
+      {/* Individual Metered Space Markers */}
+      {meteredSpaceMarkers.map((space) => (
+        <AdvancedMarker
+          key={space.parking_space_id}
+          position={{
+            lat: space.latitude,
+            lng: space.longitude
+          }}
+          zIndex={100}
+        >
+          <MeteredSpaceMarkerContent space={space} />
+        </AdvancedMarker>
+      ))}
+
     </>
   );
 }
@@ -758,6 +813,9 @@ export default function SimpleMap() {
   // Metered carparks state
   const [meteredCarparks, setMeteredCarparks] = useState<MeteredCarpark[]>([]);
   const [showMeteredCarparks, setShowMeteredCarparks] = useState(true);
+
+  // Individual metered space markers (shown when "Show Spaces" is toggled)
+  const [meteredSpaceMarkers, setMeteredSpaceMarkers] = useState<MeteredSpaceDetail[]>([]);
 
   // Connected carparks state (EV charging)
   const [connectedCarparks, setConnectedCarparks] = useState<ConnectedCarpark[]>([]);
@@ -901,6 +959,22 @@ export default function SimpleMap() {
         console.error("Error loading connected carparks:", err);
         setConnectedCarparks([]);
       });
+  }, []);
+
+  // Clear metered space markers when carpark is deselected
+  useEffect(() => {
+    if (!selectedCarpark || selectedCarparkType !== 'metered') {
+      setMeteredSpaceMarkers([]);
+    }
+  }, [selectedCarpark, selectedCarparkType]);
+
+  // Callbacks for showing/hiding metered space markers (memoized to prevent infinite loops)
+  const handleShowMeteredSpaces = useCallback((spaces: MeteredSpaceDetail[]) => {
+    setMeteredSpaceMarkers(spaces);
+  }, []);
+
+  const handleHideMeteredSpaces = useCallback(() => {
+    setMeteredSpaceMarkers([]);
   }, []);
 
   const getMarkerColor = (vacancy: number) => {
@@ -1155,6 +1229,7 @@ export default function SimpleMap() {
             showIndoorCarparks={showIndoorCarparks}
             setIsMapAtUserLocation={setIsMapAtUserLocation}
             setCurrentZoom={setCurrentZoom}
+            meteredSpaceMarkers={meteredSpaceMarkers}
           />
         </Map>
 
@@ -1229,6 +1304,8 @@ export default function SimpleMap() {
             <MeteredCarparkDetails
               carpark={selectedCarpark as MeteredCarpark}
               getMarkerColor={getMeteredMarkerColor}
+              onShowSpaces={handleShowMeteredSpaces}
+              onHideSpaces={handleHideMeteredSpaces}
             />
           )}
 

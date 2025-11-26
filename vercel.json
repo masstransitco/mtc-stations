@@ -17,6 +17,10 @@
       "schedule": "1-59/5 * * * *"
     },
     {
+      "path": "/api/cron/metered-space-occupancy",
+      "schedule": "2-59/5 * * * *"
+    },
+    {
       "path": "/api/cron/cleanup-metered-snapshots",
       "schedule": "0 3 * * 0"
     }

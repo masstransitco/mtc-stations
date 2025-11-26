@@ -476,6 +476,59 @@ export function createDispatchCarparkMarker(
   return container;
 }
 
+// Vehicle type color scheme (matching badge colors in metered-carpark-details)
+const VEHICLE_TYPE_COLORS: Record<string, string> = {
+  'A': '#3b82f6',  // Blue - Private Car
+  'G': '#f59e0b',  // Amber - Goods Vehicle
+  'C': '#8b5cf6',  // Purple - Coach/Bus
+};
+
+// Metered Space Marker - Ring style with vehicle type color border and vacancy fill
+export interface MeteredSpaceDetail {
+  parking_space_id: string;
+  latitude: number;
+  longitude: number;
+  vehicle_type: string;
+  is_vacant: boolean | null;
+  has_real_time_tracking: boolean;
+}
+
+export function createMeteredSpaceMarker(space: MeteredSpaceDetail): HTMLElement {
+  const container = document.createElement('div');
+  const size = 16;
+
+  // Vehicle type determines ring color
+  const vehicleColor = VEHICLE_TYPE_COLORS[space.vehicle_type] || VEHICLE_TYPE_COLORS['A'];
+
+  // Vacancy determines fill color
+  const fillColor = space.is_vacant === true
+    ? '#22c55e'   // Green - vacant
+    : space.is_vacant === false
+      ? '#ef4444' // Red - occupied
+      : '#9ca3af'; // Gray - unknown/no tracking
+
+  container.style.width = `${size}px`;
+  container.style.height = `${size}px`;
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.justifyContent = 'center';
+  container.style.pointerEvents = 'none'; // No interaction
+
+  // Main circle with colored ring and fill
+  const circle = document.createElement('div');
+  circle.style.width = '100%';
+  circle.style.height = '100%';
+  circle.style.borderRadius = '50%';
+  circle.style.backgroundColor = fillColor;
+  circle.style.border = `3px solid ${vehicleColor}`;
+  circle.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.3)';
+  circle.style.boxSizing = 'border-box';
+
+  container.appendChild(circle);
+
+  return container;
+}
+
 // Parking Space Marker
 export function createParkingSpaceMarker(
   space: ParkingSpace,
