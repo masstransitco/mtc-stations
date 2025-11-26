@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { Navigation2, MapPin, Loader2, Building2 } from "lucide-react";
+import type { MeteredCarpark } from "@/types/metered-carpark";
+import type { ConnectedCarpark } from "@/types/connected-carpark";
 
 // Parking meter icon matching the map marker
 const ParkingMeterIcon = ({ size = 14, color = "currentColor" }: { size?: number; color?: string }) => (
@@ -25,8 +27,6 @@ const ParkingMeterIcon = ({ size = 14, color = "currentColor" }: { size?: number
     <path d="M9 9a3 3 0 1 1 6 0"/>
   </svg>
 );
-import type { MeteredCarpark } from "@/types/metered-carpark";
-import type { ConnectedCarpark } from "@/types/connected-carpark";
 
 interface LocationData {
   latitude: number;
@@ -105,21 +105,14 @@ export default function NearbyMeList({
     return distanceMeters >= DISTANCE_THRESHOLD_METERS;
   }, []);
 
-  // Theme-aware color function for metered list text
-  const getListVacancyColor = (vacancy: number): string => {
-    if (isDarkMode) {
-      if (vacancy >= 4) return "#d1d5db";
-      if (vacancy === 3) return "#9ca3af";
-      if (vacancy === 2) return "#6b7280";
-      if (vacancy === 1) return "#4b5563";
-      return "#374151";
-    } else {
-      if (vacancy >= 4) return "#374151";
-      if (vacancy === 3) return "#4b5563";
-      if (vacancy === 2) return "#6b7280";
-      if (vacancy === 1) return "#9ca3af";
-      return "#d1d5db";
-    }
+  // Vacancy color function (adopted from legacy NearbyCarparksList)
+  const getVacancyColor = (vacancy: number): string => {
+    if (vacancy > 50) return "#0ea5e9";
+    if (vacancy > 20) return "#3b82f6";
+    if (vacancy > 10) return "#6366f1";
+    if (vacancy > 5) return "#8b5cf6";
+    if (vacancy > 0) return "#a855f7";
+    return "#e11d48";
   };
 
   const fetchNearbyCarparks = useCallback(async () => {
@@ -244,133 +237,177 @@ export default function NearbyMeList({
     }
   };
 
+  // Format distance for display
+  const formatDistance = (distanceKm: number): string => {
+    if (distanceKm < 1) {
+      return `${(distanceKm * 1000).toFixed(0)}m`;
+    }
+    return `${distanceKm.toFixed(2)} km`;
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-      {nearbyCarparks.map((item, index) => {
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "12px",
+      }}
+    >
+      {nearbyCarparks.map((item) => {
         const isMetered = item.type === 'metered';
-        const name = isMetered ? (item.data as MeteredCarpark).name : (item.data as ConnectedCarpark).name;
-        const key = isMetered ? (item.data as MeteredCarpark).carpark_id : (item.data as ConnectedCarpark).park_id;
+        const meteredData = isMetered ? (item.data as MeteredCarpark) : null;
+        const connectedData = !isMetered ? (item.data as ConnectedCarpark) : null;
+
+        const name = isMetered ? meteredData!.name : connectedData!.name;
+        const key = isMetered ? meteredData!.carpark_id : connectedData!.park_id;
+        const address = isMetered ? meteredData!.district : connectedData!.address;
+        const vacancy = isMetered ? meteredData!.vacant_spaces : null; // ConnectedCarpark doesn't have real-time vacancy
 
         return (
           <div
             key={key}
             onClick={() => handleClick(item)}
             style={{
-              padding: "10px 12px",
-              minHeight: "52px",
-              boxSizing: "border-box",
-              backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
+              padding: "16px",
+              backgroundColor: isDarkMode ? "#111827" : "#f9fafb",
               border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
-              borderRadius: "8px",
+              borderRadius: "12px",
               cursor: "pointer",
-              transition: "all 0.15s ease",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
+              transition: "all 0.2s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = isDarkMode ? "#374151" : "#f9fafb";
-              e.currentTarget.style.borderColor = isDarkMode ? "#4b5563" : "#d1d5db";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = isDarkMode
+                ? "0 4px 12px rgba(0, 0, 0, 0.3)"
+                : "0 4px 12px rgba(0, 0, 0, 0.1)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = isDarkMode ? "#1f2937" : "#ffffff";
-              e.currentTarget.style.borderColor = isDarkMode ? "#374151" : "#e5e7eb";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            {/* Rank Number */}
+            {/* Header */}
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "2px",
-                minWidth: "32px",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "8px",
               }}
             >
-              <span
-                style={{
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: isDarkMode ? "#6b7280" : "#9ca3af",
-                  minWidth: "16px",
-                  textAlign: "center",
-                }}
-              >
-                {index + 1}
-              </span>
-              {/* Type Icon */}
-              {isMetered ? (
-                <ParkingMeterIcon size={14} color={isDarkMode ? "#9ca3af" : "#6b7280"} />
-              ) : (
-                <Building2 size={14} color={isDarkMode ? "#9ca3af" : "#6b7280"} />
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {/* Type Icon */}
+                  {isMetered ? (
+                    <ParkingMeterIcon size={16} color={isDarkMode ? "#9ca3af" : "#6b7280"} />
+                  ) : (
+                    <Building2 size={16} color={isDarkMode ? "#9ca3af" : "#6b7280"} />
+                  )}
+                  <h4
+                    style={{
+                      margin: 0,
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      color: isDarkMode ? "#f3f4f6" : "#111827",
+                    }}
+                  >
+                    {name}
+                  </h4>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "12px",
+                    color: isDarkMode ? "#9ca3af" : "#6b7280",
+                  }}
+                >
+                  <Navigation2 size={14} />
+                  <span>{formatDistance(item.distance)} away</span>
+                </div>
+              </div>
+              {/* Vacancy display - only for metered carparks */}
+              {isMetered && vacancy !== null && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-end",
+                    gap: "4px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "24px",
+                      fontWeight: 700,
+                      color: getVacancyColor(vacancy),
+                    }}
+                  >
+                    {vacancy}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: isDarkMode ? "#9ca3af" : "#6b7280",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    / {meteredData!.tracked_spaces}
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Main Content - Name only */}
-            <div
-              style={{
-                flex: 1,
-                minWidth: 0,
-                fontSize: "13px",
-                fontWeight: 600,
-                color: isDarkMode ? "#f3f4f6" : "#111827",
-                lineHeight: 1.3,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {name}
-            </div>
+            {/* Address */}
+            {address && (
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: isDarkMode ? "#9ca3af" : "#6b7280",
+                  marginBottom: "8px",
+                  lineHeight: 1.4,
+                }}
+              >
+                {address}
+              </div>
+            )}
 
-            {/* Distance */}
+            {/* Tags */}
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                fontSize: "12px",
-                color: isDarkMode ? "#9ca3af" : "#6b7280",
-                flexShrink: 0,
+                gap: "8px",
+                flexWrap: "wrap",
               }}
             >
-              <Navigation2 size={12} />
-              <span>
-                {item.distance < 1
-                  ? `${(item.distance * 1000).toFixed(0)}m`
-                  : `${item.distance.toFixed(1)}km`}
-              </span>
-            </div>
-
-            {/* Vacancy Info (for metered only) */}
-            {isMetered && (
-              <div
+              {/* Type Badge */}
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: "2px",
-                  flexShrink: 0,
+                  padding: "3px 8px",
+                  borderRadius: "4px",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                  backgroundColor: isMetered
+                    ? isDarkMode ? "#1e3a8a" : "#dbeafe"
+                    : isDarkMode ? "#064e3b" : "#d1fae5",
+                  color: isMetered
+                    ? isDarkMode ? "#bfdbfe" : "#1e3a8a"
+                    : isDarkMode ? "#6ee7b7" : "#047857",
                 }}
               >
-                <span
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: getListVacancyColor((item.data as MeteredCarpark).vacant_spaces),
-                    lineHeight: 1,
-                  }}
-                >
-                  {(item.data as MeteredCarpark).vacant_spaces}
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: isDarkMode ? "#6b7280" : "#9ca3af",
-                  }}
-                >
-                  /{(item.data as MeteredCarpark).tracked_spaces}
-                </span>
-              </div>
-            )}
+                {isMetered ? "Metered" : "Indoor"}
+              </span>
+
+            </div>
           </div>
         );
       })}
