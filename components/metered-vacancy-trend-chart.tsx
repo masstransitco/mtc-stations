@@ -25,6 +25,7 @@ interface MeteredVacancyTrendChartProps {
   carparkId: string;
   hours?: number;
   vehicleTypes?: string[];
+  onLatestData?: (latestPoint: VehicleTypeHistoryPoint | null) => void;
 }
 
 // Vehicle type color scheme (matching badge colors)
@@ -43,7 +44,8 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
 export default function MeteredVacancyTrendChart({
   carparkId,
   hours = 6,
-  vehicleTypes = ['A', 'C', 'G']
+  vehicleTypes = ['A', 'C', 'G'],
+  onLatestData
 }: MeteredVacancyTrendChartProps) {
   const [data, setData] = useState<VehicleTypeHistoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,6 +87,13 @@ export default function MeteredVacancyTrendChart({
         const result: VehicleTypeHistoryResponse = await response.json();
         setData(result.history);
         setLoading(false);
+
+        // Pass latest data point to parent for real-time vacancy display
+        if (onLatestData && result.history.length > 0) {
+          onLatestData(result.history[result.history.length - 1]);
+        } else if (onLatestData) {
+          onLatestData(null);
+        }
       } catch (err) {
         console.error('Error fetching metered vacancy history:', err);
         setError(true);
