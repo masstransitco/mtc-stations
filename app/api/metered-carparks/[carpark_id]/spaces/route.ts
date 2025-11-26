@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
@@ -84,11 +87,7 @@ export async function GET(
       vehicle_type_label: VEHICLE_TYPE_LABELS[row.vehicle_type] || row.vehicle_type,
     }));
 
-    return NextResponse.json(breakdown.sort((a, b) => b.total_spaces - a.total_spaces), {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
-      }
-    });
+    return NextResponse.json(breakdown.sort((a, b) => b.total_spaces - a.total_spaces));
   } catch (error) {
     console.error('[Metered Carpark Spaces API] Error:', error);
     return NextResponse.json(
