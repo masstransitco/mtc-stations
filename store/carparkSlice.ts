@@ -26,7 +26,19 @@ export type CarparkType = 'indoor' | 'metered' | 'connected' | 'dispatch';
 /**
  * Trending tab type for the home view
  */
-export type TrendingTab = 'indoor' | 'metered' | 'nearby';
+export type TrendingTab = 'indoor' | 'metered' | 'nearby' | 'recents';
+
+/**
+ * Recent search entry for address history
+ */
+export interface RecentSearch {
+  place_id: string;      // Google's unique ID (for deduplication)
+  name: string;          // Place name
+  address: string;       // formatted_address
+  lat: number;
+  lng: number;
+  timestamp: number;     // For sorting by most recent
+}
 
 /**
  * Union type for all carpark types
@@ -96,6 +108,9 @@ export interface CarparkSelectionState {
 
   // Trending tab selection (persists across navigation)
   trendingTab: TrendingTab;
+
+  // Recent address searches (max 5, persisted)
+  recentSearches: RecentSearch[];
 }
 
 /**
@@ -127,6 +142,7 @@ const initialState: CarparkSelectionState = {
   lastCameraPosition: null,
   isAnimating: false,
   trendingTab: 'indoor',
+  recentSearches: [],
 };
 
 /**
@@ -319,6 +335,35 @@ const carparkSlice = createSlice({
     },
 
     /**
+     * Add a recent search (prepends to array, dedupes by place_id, limits to 5)
+     */
+    addRecentSearch: (state, action: PayloadAction<RecentSearch>) => {
+      const newSearch = action.payload;
+      // Remove any existing entry with the same place_id
+      const filtered = state.recentSearches.filter(
+        (search) => search.place_id !== newSearch.place_id
+      );
+      // Prepend new search and limit to 5
+      state.recentSearches = [newSearch, ...filtered].slice(0, 5);
+    },
+
+    /**
+     * Remove a recent search by place_id
+     */
+    removeRecentSearch: (state, action: PayloadAction<string>) => {
+      state.recentSearches = state.recentSearches.filter(
+        (search) => search.place_id !== action.payload
+      );
+    },
+
+    /**
+     * Clear all recent searches
+     */
+    clearRecentSearches: (state) => {
+      state.recentSearches = [];
+    },
+
+    /**
      * Reset entire carpark selection state
      */
     resetCarparkSelection: (state) => {
@@ -347,6 +392,9 @@ export const {
   clearCameraPosition,
   setIsAnimating,
   setTrendingTab,
+  addRecentSearch,
+  removeRecentSearch,
+  clearRecentSearches,
   resetCarparkSelection,
 } = carparkSlice.actions;
 
@@ -373,6 +421,7 @@ export const selectFilterOptions = (state: RootState) => state.carparkSelection.
 export const selectLastCameraPosition = (state: RootState) => state.carparkSelection.lastCameraPosition;
 export const selectIsAnimating = (state: RootState) => state.carparkSelection.isAnimating;
 export const selectTrendingTab = (state: RootState) => state.carparkSelection.trendingTab;
+export const selectRecentSearches = (state: RootState) => state.carparkSelection.recentSearches;
 
 /**
  * Memoized selectors

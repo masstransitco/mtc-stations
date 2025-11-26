@@ -19,13 +19,17 @@ import {
   selectBottomSheetTitle,
   selectShowBackButton,
   selectSelectedCarparkCoords,
+  selectRecentSearches,
   setBottomSheetView,
   setBottomSheetOpen,
   setBottomSheetHeight,
   setSearchLocation,
   setNearbyCarparks,
   setFilterOptions,
+  addRecentSearch,
+  removeRecentSearch,
 } from "@/store/carparkSlice";
+import type { RecentSearch } from "@/store/carparkSlice";
 import type { CarparkUnion, CarparkType, BottomSheetView } from "@/store/carparkSlice";
 
 // Reference to the CarparkSelectionManager instance
@@ -81,6 +85,7 @@ export function useCarparkActions() {
     nearbyCarparks,
     filterOptions,
     isAnimating,
+    recentSearches,
   } = useAppSelector(
     state => ({
       step: selectCarparkStep(state),
@@ -94,6 +99,7 @@ export function useCarparkActions() {
       nearbyCarparks: selectNearbyCarparks(state),
       filterOptions: selectFilterOptions(state),
       isAnimating: selectIsAnimating(state),
+      recentSearches: selectRecentSearches(state),
     }),
     shallowEqual
   );
@@ -247,6 +253,26 @@ export function useCarparkActions() {
   );
 
   /**
+   * Handler to add a recent search
+   */
+  const handleAddRecentSearch = useCallback(
+    (search: RecentSearch) => {
+      dispatch(addRecentSearch(search));
+    },
+    [dispatch]
+  );
+
+  /**
+   * Handler to remove a recent search
+   */
+  const handleRemoveRecentSearch = useCallback(
+    (placeId: string) => {
+      dispatch(removeRecentSearch(placeId));
+    },
+    [dispatch]
+  );
+
+  /**
    * Handler to reset entire carpark selection state
    */
   const handleReset = useCallback(async () => {
@@ -267,6 +293,7 @@ export function useCarparkActions() {
     nearbyCarparks,
     filterOptions,
     isAnimating,
+    recentSearches,
 
     // Derived state
     bottomSheetTitle,
@@ -286,6 +313,8 @@ export function useCarparkActions() {
     handleSetSearchLocation,
     handleSetNearbyCarparks,
     handleSetFilterOptions,
+    handleAddRecentSearch,
+    handleRemoveRecentSearch,
     handleReset,
   };
 }

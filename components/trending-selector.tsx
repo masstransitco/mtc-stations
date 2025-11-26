@@ -2,14 +2,43 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/components/theme-provider";
-import { TrendingUp, ChevronDown, MapPin } from "lucide-react";
+import { TrendingUp, ChevronDown } from "lucide-react";
 import TrendingCarparks from "@/components/trending-carparks";
 import TrendingMeteredCarparks from "@/components/trending-metered-carparks";
 import NearbyMeList from "@/components/nearby-me-list";
+import RecentLocationsList from "@/components/recent-locations-list";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { selectTrendingTab, setTrendingTab, type TrendingTab } from "@/store/carparkSlice";
+import { selectTrendingTab, setTrendingTab, type TrendingTab, type RecentSearch } from "@/store/carparkSlice";
 import type { MeteredCarpark } from "@/types/metered-carpark";
 import type { ConnectedCarpark } from "@/types/connected-carpark";
+
+// Nearby Me icon (crosshair style)
+const NearbyMeIcon = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height={size}
+    viewBox="0 -960 960 960"
+    width={size}
+    fill={color}
+    style={{ display: "block" }}
+  >
+    <path d="M480-400q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm-40-240v-200h80v200h-80Zm0 520v-200h80v200h-80Zm200-320v-80h200v80H640Zm-520 0v-80h200v80H120Z"/>
+  </svg>
+);
+
+// Recents icon (location marker with inner dot)
+const RecentsIcon = ({ size = 16, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height={size}
+    viewBox="0 -960 960 960"
+    width={size}
+    fill={color}
+    style={{ display: "block" }}
+  >
+    <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-180q45-45 80-93 30-41 55-90t25-97q0-66-47-113t-113-47q-66 0-113 47t-47 113q0 48 25 97t55 90q35 48 80 93Zm0-220q-25 0-42.5-17.5T420-540q0-25 17.5-42.5T480-600q25 0 42.5 17.5T540-540q0 25-17.5 42.5T480-480Z"/>
+  </svg>
+);
 
 interface CarparkData {
   park_id: string;
@@ -40,6 +69,7 @@ interface TrendingSelectorProps {
   getMarkerColor: (vacancy: number) => string;
   getMeteredMarkerColor: (vacancy: number) => string;
   onNearbyMeClick: () => void;
+  onRecentLocationClick: (location: RecentSearch) => void;
   userLocation: LocationData | null;
   isTracking: boolean;
 }
@@ -56,6 +86,7 @@ export default function TrendingSelector({
   getMarkerColor,
   getMeteredMarkerColor,
   onNearbyMeClick,
+  onRecentLocationClick,
   userLocation,
   isTracking,
 }: TrendingSelectorProps) {
@@ -67,6 +98,8 @@ export default function TrendingSelector({
 
   const selectedOption = TRENDING_OPTIONS.find((o) => o.value === selectedType);
   const isNearbySelected = selectedType === "nearby";
+  const isRecentsSelected = selectedType === "recents";
+  const isTrendingSelected = selectedType === "indoor" || selectedType === "metered";
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -103,7 +136,7 @@ export default function TrendingSelector({
         {/* Trending Tab */}
         <button
           onClick={() => {
-            if (isNearbySelected) {
+            if (!isTrendingSelected) {
               dispatch(setTrendingTab("indoor"));
             } else {
               setIsDropdownOpen(!isDropdownOpen);
@@ -117,23 +150,23 @@ export default function TrendingSelector({
             padding: "6px 10px",
             fontSize: "14px",
             fontWeight: 600,
-            color: isNearbySelected
-              ? isDarkMode ? "#9ca3af" : "#6b7280"
-              : isDarkMode ? "#f3f4f6" : "#111827",
-            background: isNearbySelected
-              ? "transparent"
-              : isDarkMode ? "#1f2937" : "#f3f4f6",
-            border: isNearbySelected
-              ? isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb"
-              : isDarkMode ? "1px solid #374151" : "1px solid #d1d5db",
+            color: isTrendingSelected
+              ? isDarkMode ? "#f3f4f6" : "#111827"
+              : isDarkMode ? "#9ca3af" : "#6b7280",
+            background: isTrendingSelected
+              ? isDarkMode ? "#1f2937" : "#f3f4f6"
+              : "transparent",
+            border: isTrendingSelected
+              ? isDarkMode ? "1px solid #374151" : "1px solid #d1d5db"
+              : isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
             borderRadius: "8px",
             cursor: "pointer",
             transition: "all 0.15s ease",
           }}
         >
-          <TrendingUp size={16} color={isNearbySelected ? (isDarkMode ? "#6b7280" : "#9ca3af") : (isDarkMode ? "#60a5fa" : "#3b82f6")} />
-          {!isNearbySelected && selectedOption?.label}
-          {!isNearbySelected && (
+          <TrendingUp size={16} color={isTrendingSelected ? (isDarkMode ? "#60a5fa" : "#3b82f6") : (isDarkMode ? "#6b7280" : "#9ca3af")} />
+          {isTrendingSelected && selectedOption?.label}
+          {isTrendingSelected && (
             <ChevronDown
               size={14}
               color={isDarkMode ? "#9ca3af" : "#6b7280"}
@@ -143,7 +176,7 @@ export default function TrendingSelector({
               }}
             />
           )}
-          {isNearbySelected && "Trending"}
+          {!isTrendingSelected && "Trending"}
         </button>
 
         {/* Nearby Me Tab */}
@@ -171,8 +204,37 @@ export default function TrendingSelector({
             transition: "all 0.15s ease",
           }}
         >
-          <MapPin size={16} color={isNearbySelected ? (isDarkMode ? "#60a5fa" : "#3b82f6") : (isDarkMode ? "#6b7280" : "#9ca3af")} />
+          <NearbyMeIcon size={16} color={isNearbySelected ? (isDarkMode ? "#60a5fa" : "#3b82f6") : (isDarkMode ? "#6b7280" : "#9ca3af")} />
           Nearby Me
+        </button>
+
+        {/* Recents Tab */}
+        <button
+          onClick={() => dispatch(setTrendingTab("recents"))}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            margin: 0,
+            padding: "6px 10px",
+            fontSize: "14px",
+            fontWeight: 600,
+            color: isRecentsSelected
+              ? isDarkMode ? "#f3f4f6" : "#111827"
+              : isDarkMode ? "#9ca3af" : "#6b7280",
+            background: isRecentsSelected
+              ? isDarkMode ? "#1f2937" : "#f3f4f6"
+              : "transparent",
+            border: isRecentsSelected
+              ? isDarkMode ? "1px solid #374151" : "1px solid #d1d5db"
+              : isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
+            borderRadius: "8px",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+          }}
+        >
+          <RecentsIcon size={16} color={isRecentsSelected ? (isDarkMode ? "#60a5fa" : "#3b82f6") : (isDarkMode ? "#6b7280" : "#9ca3af")} />
+          Recents
         </button>
 
         {/* Dropdown Menu */}
@@ -259,7 +321,9 @@ export default function TrendingSelector({
           ? "Most active carparks in the past 6 hours"
           : selectedType === "metered"
           ? "Most active on-street parking in the past 6 hours"
-          : "Nearest carparks to your location"}
+          : selectedType === "nearby"
+          ? "Nearest carparks to your location"
+          : "Your recently searched locations"}
       </p>
 
       {/* Content - Render selected list */}
@@ -283,6 +347,11 @@ export default function TrendingSelector({
           onConnectedCarparkClick={onConnectedCarparkClick}
           onMeteredCarparkClick={onMeteredCarparkClick}
           getMeteredMarkerColor={getMeteredMarkerColor}
+        />
+      )}
+      {selectedType === "recents" && (
+        <RecentLocationsList
+          onLocationClick={onRecentLocationClick}
         />
       )}
     </div>

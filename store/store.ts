@@ -30,6 +30,7 @@ const carparkSelectionPersistConfig = {
     "nearbyCarparks",
     "filterOptions",
     "lastCameraPosition",
+    "recentSearches",
   ],
 };
 

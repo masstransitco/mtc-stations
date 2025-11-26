@@ -735,6 +735,7 @@ export default function SimpleMap() {
     handleSetBottomSheetHeight,
     handleSetSearchLocation,
     handleSetNearbyCarparks,
+    handleAddRecentSearch,
   } = useCarparkActions();
 
   // Local state for data fetching and UI
@@ -983,6 +984,18 @@ export default function SimpleMap() {
     const lat = place.geometry.location.lat();
     const lng = place.geometry.location.lng();
     const address = place.formatted_address || place.name || "";
+    const name = place.name || address;
+    const placeId = place.place_id || `${lat}-${lng}`;
+
+    // Add to recent searches
+    handleAddRecentSearch({
+      place_id: placeId,
+      name,
+      address,
+      lat,
+      lng,
+      timestamp: Date.now(),
+    });
 
     handleSetSearchLocation({ lat, lng, address });
     setLoadingNearby(true);
@@ -1024,6 +1037,26 @@ export default function SimpleMap() {
   // Handle clicking on a nearby connected carpark
   const handleNearbyConnectedCarparkClick = (carpark: ConnectedCarpark) => {
     handleSelectCarpark(carpark, 'connected');
+  };
+
+  // Handle clicking on a recent location
+  const handleRecentLocationClick = async (location: { lat: number; lng: number; address: string; name: string; place_id: string }) => {
+    const { lat, lng, address } = location;
+
+    handleSetSearchLocation({ lat, lng, address });
+    setLoadingNearby(true);
+
+    try {
+      const response = await fetch(
+        `/api/carparks/nearby?lat=${lat}&lng=${lng}&radius=2&limit=20`
+      );
+      const data = await response.json();
+      handleSetNearbyCarparks(data);
+    } catch (error) {
+      console.error("Error fetching nearby carparks:", error);
+    } finally {
+      setLoadingNearby(false);
+    }
   };
 
   const { theme, setTheme } = useTheme();
@@ -1154,6 +1187,7 @@ export default function SimpleMap() {
                 getMarkerColor={getMarkerColor}
                 getMeteredMarkerColor={getMeteredMarkerColor}
                 onNearbyMeClick={handleMyLocation}
+                onRecentLocationClick={handleRecentLocationClick}
                 userLocation={currentLocation}
                 isTracking={isTracking}
               />
