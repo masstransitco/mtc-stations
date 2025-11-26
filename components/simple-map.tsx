@@ -6,7 +6,6 @@ import { Navigation, Sun, Moon, Compass } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import { useDeviceHeading } from "@/hooks/use-device-heading";
-import { useHeadingAnimator } from "@/hooks/use-heading-animator";
 import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
 import { PedestrianNetworkOverlayPMTiles } from "@/components/pedestrian-network-overlay-pmtiles";
 import AddressSearch from "@/components/address-search";
@@ -271,9 +270,6 @@ function MapContent({
   } = useCarparkActions();
   const map = useMap();
   const prevHeightRef = useRef(100);
-
-  // Smooth heading animator for fluid map rotation
-  const { setHeadingSmooth } = useHeadingAnimator(map, { durationMs: 140 });
 
   // Store map instance in ref for parent component
   useEffect(() => {
@@ -564,16 +560,27 @@ function MapContent({
     }
   }, [isTracking, isCameraLocked, currentLocation, map]);
 
+  // Ref to track last applied map heading to avoid redundant updates
+  const lastAppliedHeadingRef = useRef<number | null>(null);
+
   // Auto-rotate map heading ONLY when heading is locked
-  // Uses animated interpolation for smooth visual rotation
+  // Uses requestAnimationFrame for smooth visual updates synced with browser refresh
   useEffect(() => {
-    if (!isHeadingLocked || heading === null) {
+    if (!isHeadingLocked || heading === null || !map) {
+      lastAppliedHeadingRef.current = null;
       return;
     }
 
-    // Use smooth animated heading instead of instant snap
-    setHeadingSmooth(heading);
-  }, [isHeadingLocked, heading, setHeadingSmooth]);
+    // Skip if heading hasn't changed significantly (already smoothed by hook)
+    const lastApplied = lastAppliedHeadingRef.current;
+    if (lastApplied !== null && Math.abs(heading - lastApplied) < 0.5) {
+      return;
+    }
+
+    // Apply heading update
+    lastAppliedHeadingRef.current = heading;
+    map.setHeading(heading);
+  }, [isHeadingLocked, heading, map]);
 
   // Auto-pan to search location when set
   useEffect(() => {
