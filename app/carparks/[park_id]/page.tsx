@@ -63,7 +63,7 @@ export default function CarparkPage() {
     const fetchCarpark = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/carpark/${params.id}`);
+        const response = await fetch(`/api/carparks/${params.park_id}/analytics`);
         if (!response.ok) {
           throw new Error('Failed to fetch carpark data');
         }
@@ -78,10 +78,10 @@ export default function CarparkPage() {
       }
     };
 
-    if (params.id) {
+    if (params.park_id) {
       fetchCarpark();
     }
-  }, [params.id]);
+  }, [params.park_id]);
 
   if (loading) {
     return (

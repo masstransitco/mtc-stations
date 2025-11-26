@@ -19,19 +19,31 @@
 - **Files modified**: See git diff for full list
 - **Verified**: TypeScript check passes
 
+#### 2. Database Performance (Indexes) ✅
+- **Date**: 2025-11-26
+- **Status**: Complete
+- **Changes**:
+  - Added 4 new partial indexes for frequently queried patterns
+  - `idx_parking_vacancy_trending_privatecar` - optimizes trending view refresh
+  - `idx_parking_vacancy_history_valid` - optimizes history API queries
+  - `idx_metered_occupancy_valid_recent` - optimizes metered history RPC
+  - `idx_metered_occupancy_ingested_valid` - optimizes time-windowed metered queries
+- **Migration**: `supabase/migrations/20251126_add_performance_indexes.sql`
+- **Applied**: All indexes verified in production database
+
+#### 3. API Route Reorganization ✅
+- **Date**: 2025-11-26
+- **Status**: Complete
+- **Changes**:
+  - Fixed naming inconsistency: `/api/carpark/[id]` → `/api/carparks/[park_id]/analytics`
+  - Moved page: `/carpark/[id]` → `/carparks/[park_id]`
+  - Created RPC function `get_carpark_analytics()` to replace raw pg client
+  - All routes now use shared Supabase client pattern
+  - Deleted deprecated `/api/carpark/` and `/carpark/` directories
+- **Migration**: `supabase/migrations/20251126_carpark_analytics_rpc.sql`
+- **Verified**: TypeScript check passes
+
 ### Pending Tasks (Priority Order)
-
-#### 2. Database Performance (Indexes) - HIGH
-- **Status**: Not started
-- **Goal**: Add indexes on frequently queried columns
-- **Targets**: `ingested_at`, `park_id`, `carpark_id` on snapshot tables
-- **Estimated effort**: Small
-
-#### 3. API Route Reorganization - HIGH
-- **Status**: Not started
-- **Goal**: Group routes by domain with shared middleware
-- **Issue**: Mix of `/carpark/[id]` and `/carparks/` patterns
-- **Estimated effort**: Medium
 
 #### 4. Data Quality/Validation - MEDIUM
 - **Status**: Not started
@@ -89,4 +101,6 @@
 | Date | Task | Codex Role | Outcome |
 |------|------|------------|---------|
 | 2025-11-26 | Supabase unification | Designed approach, reviewed implementation | Success - caught 5 files using deprecated alias |
+| 2025-11-26 | Database indexes | Analyzed schema, recommended indexes | Success - added 4 partial indexes for query optimization |
+| 2025-11-26 | API route reorganization | N/A | Success - unified /carpark and /carparks patterns |
 
