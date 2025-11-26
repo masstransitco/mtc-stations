@@ -141,7 +141,7 @@ const initialState: CarparkSelectionState = {
 
   lastCameraPosition: null,
   isAnimating: false,
-  trendingTab: 'indoor',
+  trendingTab: 'metered',
   recentSearches: [],
 };
 

@@ -75,8 +75,8 @@ interface TrendingSelectorProps {
 }
 
 const TRENDING_OPTIONS: { value: TrendingTab; label: string }[] = [
-  { value: "indoor", label: "Trending Carparks" },
-  { value: "metered", label: "Trending Metered Carparks" },
+  { value: "metered", label: "metered parking" },
+  { value: "indoor", label: "indoor parking" },
 ];
 
 export default function TrendingSelector({
@@ -131,15 +131,12 @@ export default function TrendingSelector({
           marginBottom: "16px",
           position: "relative",
         }}
-        ref={dropdownRef}
       >
         {/* Trending Tab */}
         <button
           onClick={() => {
             if (!isTrendingSelected) {
-              dispatch(setTrendingTab("indoor"));
-            } else {
-              setIsDropdownOpen(!isDropdownOpen);
+              dispatch(setTrendingTab("metered"));
             }
           }}
           style={{
@@ -165,18 +162,7 @@ export default function TrendingSelector({
           }}
         >
           <TrendingUp size={16} color={isTrendingSelected ? (isDarkMode ? "#60a5fa" : "#3b82f6") : (isDarkMode ? "#6b7280" : "#9ca3af")} />
-          {isTrendingSelected && selectedOption?.label}
-          {isTrendingSelected && (
-            <ChevronDown
-              size={14}
-              color={isDarkMode ? "#9ca3af" : "#6b7280"}
-              style={{
-                transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.2s ease",
-              }}
-            />
-          )}
-          {!isTrendingSelected && "Trending"}
+          Trending
         </button>
 
         {/* Nearby Me Tab */}
@@ -205,7 +191,7 @@ export default function TrendingSelector({
           }}
         >
           <NearbyMeIcon size={16} color={isNearbySelected ? (isDarkMode ? "#60a5fa" : "#3b82f6") : (isDarkMode ? "#6b7280" : "#9ca3af")} />
-          Nearby Me
+          Nearby
         </button>
 
         {/* Recents Tab */}
@@ -237,94 +223,126 @@ export default function TrendingSelector({
           Recents
         </button>
 
-        {/* Dropdown Menu */}
-        {isDropdownOpen && (
-          <div
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: "26px",
-              marginTop: "4px",
-              backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
-              border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
-              borderRadius: "8px",
-              boxShadow: isDarkMode
-                ? "0 4px 12px rgba(0, 0, 0, 0.4)"
-                : "0 4px 12px rgba(0, 0, 0, 0.1)",
-              zIndex: 10,
-              overflow: "hidden",
-              minWidth: "200px",
-            }}
-          >
-            {TRENDING_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => {
-                  dispatch(setTrendingTab(option.value));
-                  setIsDropdownOpen(false);
-                }}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  padding: "10px 14px",
-                  fontSize: "14px",
-                  fontWeight: selectedType === option.value ? 600 : 400,
-                  color:
-                    selectedType === option.value
-                      ? isDarkMode
-                        ? "#60a5fa"
-                        : "#3b82f6"
-                      : isDarkMode
-                      ? "#f3f4f6"
-                      : "#111827",
-                  backgroundColor:
-                    selectedType === option.value
-                      ? isDarkMode
-                        ? "#374151"
-                        : "#f3f4f6"
-                      : "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "background-color 0.15s ease",
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedType !== option.value) {
-                    e.currentTarget.style.backgroundColor = isDarkMode
-                      ? "#374151"
-                      : "#f9fafb";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedType !== option.value) {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Subtitle */}
-      <p
+      <div
+        ref={dropdownRef}
         style={{
           margin: "0 0 16px 0",
           fontSize: "13px",
           color: isDarkMode ? "#9ca3af" : "#6b7280",
           lineHeight: 1.5,
+          position: "relative",
         }}
       >
-        {selectedType === "indoor"
-          ? "Most active carparks in the past 6 hours"
-          : selectedType === "metered"
-          ? "Most active on-street parking in the past 6 hours"
-          : selectedType === "nearby"
-          ? "Nearest carparks to your location"
-          : "Your recently searched locations"}
-      </p>
+        {isTrendingSelected ? (
+          <>
+            Most active{" "}
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "2px",
+                padding: 0,
+                margin: 0,
+                fontSize: "13px",
+                fontWeight: 500,
+                color: isDarkMode ? "#60a5fa" : "#3b82f6",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                textDecoration: "underline",
+                textUnderlineOffset: "2px",
+              }}
+            >
+              {selectedOption?.label}
+              <ChevronDown
+                size={12}
+                style={{
+                  transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                }}
+              />
+            </button>
+            {" "}in the past 6 hours
+            {/* Inline Dropdown Menu */}
+            {isDropdownOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: "60px",
+                  marginTop: "4px",
+                  backgroundColor: isDarkMode ? "#1f2937" : "#ffffff",
+                  border: isDarkMode ? "1px solid #374151" : "1px solid #e5e7eb",
+                  borderRadius: "6px",
+                  boxShadow: isDarkMode
+                    ? "0 4px 12px rgba(0, 0, 0, 0.4)"
+                    : "0 4px 12px rgba(0, 0, 0, 0.1)",
+                  zIndex: 10,
+                  overflow: "hidden",
+                  minWidth: "140px",
+                }}
+              >
+                {TRENDING_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      dispatch(setTrendingTab(option.value));
+                      setIsDropdownOpen(false);
+                    }}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "8px 12px",
+                      fontSize: "13px",
+                      fontWeight: selectedType === option.value ? 600 : 400,
+                      color:
+                        selectedType === option.value
+                          ? isDarkMode
+                            ? "#60a5fa"
+                            : "#3b82f6"
+                          : isDarkMode
+                          ? "#f3f4f6"
+                          : "#111827",
+                      backgroundColor:
+                        selectedType === option.value
+                          ? isDarkMode
+                            ? "#374151"
+                            : "#f3f4f6"
+                          : "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "background-color 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedType !== option.value) {
+                        e.currentTarget.style.backgroundColor = isDarkMode
+                          ? "#374151"
+                          : "#f9fafb";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedType !== option.value) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : selectedType === "nearby" ? (
+          "Nearest carparks to your location"
+        ) : (
+          "Your recently searched locations"
+        )}
+      </div>
 
       {/* Content - Render selected list */}
       {selectedType === "indoor" && (
