@@ -57,7 +57,7 @@ export const MAP_CONTROLS: ControlConfig[] = [
       </svg>
     ),
     title: 'Toggle Metered Carparks',
-    minZoom: 16,
+    minZoom: 10,
     defaultState: true,
   },
   {

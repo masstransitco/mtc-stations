@@ -292,6 +292,74 @@ export function createMeteredCarparkMarker(
   return container;
 }
 
+// Metered Carpark Cluster Marker - Minimal circle with aggregated vacant count
+export interface MeteredClusterMarkerProps {
+  pointCount: number;
+  vacantSpaces: number;
+  onClick: () => void;
+}
+
+export function createMeteredClusterMarker({
+  pointCount,
+  vacantSpaces,
+  onClick,
+}: MeteredClusterMarkerProps): HTMLElement {
+  const container = document.createElement('div');
+
+  // Size scales slightly with point count (28-40px)
+  const size = Math.min(40, Math.max(28, 24 + Math.sqrt(pointCount) * 3));
+
+  container.style.width = `${size}px`;
+  container.style.height = `${size}px`;
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.justifyContent = 'center';
+  container.style.cursor = 'pointer';
+  container.style.transition = 'transform 150ms ease-out';
+
+  // Main circle - neutral gray styling to match metered carpark markers
+  const circle = document.createElement('div');
+  circle.style.width = '100%';
+  circle.style.height = '100%';
+  circle.style.borderRadius = '50%';
+  circle.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+  circle.style.border = '1.5px solid #d1d5db'; // gray-300
+  circle.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.15)';
+  circle.style.display = 'flex';
+  circle.style.alignItems = 'center';
+  circle.style.justifyContent = 'center';
+  circle.style.transition = 'all 150ms ease-out';
+  circle.style.boxSizing = 'border-box';
+
+  // Vacant count (number only, no label)
+  const countText = document.createElement('span');
+  countText.textContent = `${vacantSpaces}`;
+  countText.style.fontSize = `${Math.max(11, size / 3)}px`;
+  countText.style.fontWeight = '600';
+  countText.style.color = '#374151'; // gray-700
+  countText.style.lineHeight = '1';
+  countText.style.userSelect = 'none';
+  countText.style.pointerEvents = 'none';
+
+  circle.appendChild(countText);
+  container.appendChild(circle);
+
+  // Hover effect
+  container.addEventListener('mouseenter', () => {
+    container.style.transform = 'scale(1.08)';
+    circle.style.border = '2px solid #9ca3af'; // gray-400
+  });
+
+  container.addEventListener('mouseleave', () => {
+    container.style.transform = 'scale(1)';
+    circle.style.border = '1.5px solid #d1d5db';
+  });
+
+  container.addEventListener('click', onClick);
+
+  return container;
+}
+
 // Connected Carpark Marker (MTC Station) - Primary hierarchy, call-to-action design
 export function createConnectedCarparkMarker(
   carpark: ConnectedCarpark,

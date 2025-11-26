@@ -21,6 +21,7 @@ import LoadingSpinner from "@/components/loading-spinner";
 import { MapControls } from "@/components/map-controls";
 import { ThemeSelector } from "@/components/map-controls/theme-selector";
 import { useOptimizedMarkers } from "@/hooks/use-optimized-markers";
+import { useMeteredClusters } from "@/hooks/use-metered-clusters";
 import {
   createIndoorCarparkMarker,
   createMeteredCarparkMarker,
@@ -67,6 +68,7 @@ function MeteredSpaceMarkerContent({ space }: { space: MeteredSpaceDetail }) {
     </div>
   );
 }
+
 import type { CarparkWithVacancy, CarparkWithDistance } from "@/types/indoor-carpark";
 import type { ParkingSpace } from "@/types/parking-space";
 import type { MeteredCarpark } from "@/types/metered-carpark";
@@ -482,6 +484,15 @@ function MapContent({
     { enabled: showParkingSpaces, minZoom: 16 }
   );
 
+  // Metered carpark clusters (markers managed internally by hook)
+  // maxZoom 15.9 ensures clusters hide just before individual markers appear at zoom 16
+  useMeteredClusters(meteredCarparks, {
+    enabled: showMeteredCarparks,
+    minZoom: 10,
+    maxZoom: 15.9,
+    radius: 60,
+  });
+
   // Handle bottom sheet height changes with map padding and pan compensation
   useEffect(() => {
     if (!map) return;
@@ -764,6 +775,8 @@ function MapContent({
           <MeteredSpaceMarkerContent space={space} />
         </AdvancedMarker>
       ))}
+
+      {/* Note: Metered carpark cluster markers (zoom 10-15) are managed by useMeteredClusters hook */}
 
     </>
   );
