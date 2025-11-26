@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/supabase';
 import type { VacancyApiResponse, CarparkVacancy, VacancyRecord, VehicleType, ParkingVacancySnapshot } from '@/types/parking-vacancy';
 
+// Extend Vercel function timeout to 60 seconds (default is 10s)
+// This ensures trending cache refresh completes after data ingestion
+export const maxDuration = 60;
+
 const HK_GOV_API_URL = 'https://api.data.gov.hk/v1/carpark-info-vacancy';
 
 /**

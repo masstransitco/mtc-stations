@@ -13,6 +13,10 @@
       "schedule": "*/5 * * * *"
     },
     {
+      "path": "/api/cron/trending-refresh",
+      "schedule": "1-59/5 * * * *"
+    },
+    {
       "path": "/api/cron/cleanup-metered-snapshots",
       "schedule": "0 3 * * 0"
     }
