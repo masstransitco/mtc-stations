@@ -10,7 +10,6 @@ import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
 import { PedestrianNetworkOverlayPMTiles } from "@/components/pedestrian-network-overlay-pmtiles";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
-import NearbyCarparksList from "@/components/nearby-carparks-list";
 import IndoorCarparkDetails from "@/components/indoor-carpark-details";
 import TrendingSelector from "@/components/trending-selector";
 import MeteredCarparkDetails from "@/components/metered-carpark-details";
@@ -561,11 +560,26 @@ function MapContent({
     }
   }, [isTracking, isCameraLocked, currentLocation, map]);
 
+  // Ref to track last applied map heading to avoid redundant updates
+  const lastAppliedHeadingRef = useRef<number | null>(null);
+
   // Auto-rotate map heading ONLY when heading is locked
+  // Uses requestAnimationFrame for smooth visual updates synced with browser refresh
   useEffect(() => {
-    if (isHeadingLocked && heading !== null && map) {
-      map.setHeading(heading);
+    if (!isHeadingLocked || heading === null || !map) {
+      lastAppliedHeadingRef.current = null;
+      return;
     }
+
+    // Skip if heading hasn't changed significantly (already smoothed by hook)
+    const lastApplied = lastAppliedHeadingRef.current;
+    if (lastApplied !== null && Math.abs(heading - lastApplied) < 0.5) {
+      return;
+    }
+
+    // Apply heading update
+    lastAppliedHeadingRef.current = heading;
+    map.setHeading(heading);
   }, [isHeadingLocked, heading, map]);
 
   // Auto-pan to search location when set
@@ -637,6 +651,7 @@ function MapContent({
                 width: '120px',
                 height: '120px',
                 transform: `translate(-50%, -50%) rotate(${isHeadingLocked ? 0 : heading}deg)`,
+                transition: 'transform 100ms ease-out',
                 zIndex: 2,
                 pointerEvents: 'none',
               }}>
@@ -1279,28 +1294,6 @@ export default function SimpleMap() {
                 userLocation={currentLocation}
                 isTracking={isTracking}
               />
-            </>
-          )}
-
-          {/* Nearby View - Search Results */}
-          {bottomSheetView === 'nearby' && (
-            <>
-              <div style={{ marginBottom: '20px' }}>
-                <AddressSearch
-                  onPlaceSelected={handlePlaceSelected}
-                  onClear={handleClearSearch}
-                />
-              </div>
-
-              {nearbyCarparks.length > 0 && (
-                <div style={{ marginTop: '20px' }}>
-                  <NearbyCarparksList
-                    carparks={nearbyCarparks}
-                    onCarparkClick={handleNearbyCarparkClick}
-                    loading={loadingNearby}
-                  />
-                </div>
-              )}
             </>
           )}
 

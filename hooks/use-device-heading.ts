@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 // Extend DeviceOrientationEvent to include webkit properties
 interface DeviceOrientationEventWithWebkit extends DeviceOrientationEvent {
@@ -9,15 +9,54 @@ interface DeviceOrientationEventWithWebkit extends DeviceOrientationEvent {
 
 interface UseDeviceHeadingOptions {
   enabled?: boolean;
+  /** Smoothing factor (0-1). Higher = more smoothing, slower response. Default: 0.3 */
+  smoothingFactor?: number;
+  /** Minimum heading change in degrees to trigger an update. Default: 1.5 */
+  minDelta?: number;
+  /** Target updates per second. Default: 20 (every 50ms) */
+  targetFps?: number;
+}
+
+// Calculate shortest angular distance between two angles
+function angleDelta(from: number, to: number): number {
+  let delta = to - from;
+  // Normalize to -180 to 180
+  while (delta > 180) delta -= 360;
+  while (delta < -180) delta += 360;
+  return delta;
+}
+
+// Exponential moving average for smooth heading
+function smoothHeading(current: number, target: number, factor: number): number {
+  const delta = angleDelta(current, target);
+  let result = current + delta * factor;
+  // Normalize to 0-360
+  while (result < 0) result += 360;
+  while (result >= 360) result -= 360;
+  return result;
 }
 
 export function useDeviceHeading(options: UseDeviceHeadingOptions = {}) {
-  const { enabled = false } = options;
+  const {
+    enabled = false,
+    smoothingFactor = 0.3,
+    minDelta = 1.5,
+    targetFps = 20
+  } = options;
 
   const [heading, setHeading] = useState<number | null>(null);
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const listenerAttachedRef = useRef(false);
+
+  // Refs for smoothing logic
+  const rawHeadingRef = useRef<number | null>(null);
+  const smoothedHeadingRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
+  const animationFrameRef = useRef<number | null>(null);
+  const lastEmittedHeadingRef = useRef<number | null>(null);
+
+  const minUpdateInterval = 1000 / targetFps;
 
   // Request permission for iOS 13+ devices
   const requestPermission = async (): Promise<boolean> => {
@@ -43,23 +82,58 @@ export function useDeviceHeading(options: UseDeviceHeadingOptions = {}) {
     }
   };
 
-  // Handle device orientation event
-  const handleOrientation = (event: DeviceOrientationEvent) => {
+  // Handle device orientation event - just capture raw value
+  const handleOrientation = useCallback((event: DeviceOrientationEvent) => {
     const webkitEvent = event as DeviceOrientationEventWithWebkit;
+    let newHeading: number | null = null;
+
     if (webkitEvent.webkitCompassHeading !== undefined) {
       // iOS provides webkitCompassHeading (0-360, 0 = North)
-      setHeading(webkitEvent.webkitCompassHeading);
+      newHeading = webkitEvent.webkitCompassHeading;
     } else if (event.alpha !== null) {
       // Android/other devices use alpha
-      // Alpha is 0-360 where 0/360 = North, but we need to convert it
-      // because alpha is relative to the device's orientation
       // For compass heading: heading = 360 - alpha
-      const compassHeading = event.alpha !== null ? 360 - event.alpha : null;
-      if (compassHeading !== null) {
-        setHeading(compassHeading);
-      }
+      newHeading = 360 - event.alpha;
     }
-  };
+
+    if (newHeading !== null) {
+      rawHeadingRef.current = newHeading;
+    }
+  }, []);
+
+  // Animation loop for smooth heading updates
+  const updateLoop = useCallback(() => {
+    const now = performance.now();
+    const elapsed = now - lastUpdateTimeRef.current;
+
+    if (elapsed >= minUpdateInterval && rawHeadingRef.current !== null) {
+      const raw = rawHeadingRef.current;
+
+      // Initialize smoothed heading if needed
+      if (smoothedHeadingRef.current === null) {
+        smoothedHeadingRef.current = raw;
+        lastEmittedHeadingRef.current = raw;
+        setHeading(raw);
+      } else {
+        // Apply exponential smoothing
+        const smoothed = smoothHeading(smoothedHeadingRef.current, raw, smoothingFactor);
+        smoothedHeadingRef.current = smoothed;
+
+        // Only emit if change exceeds minimum delta
+        const lastEmitted = lastEmittedHeadingRef.current ?? smoothed;
+        const delta = Math.abs(angleDelta(lastEmitted, smoothed));
+
+        if (delta >= minDelta) {
+          lastEmittedHeadingRef.current = smoothed;
+          setHeading(Math.round(smoothed * 10) / 10); // Round to 1 decimal
+        }
+      }
+
+      lastUpdateTimeRef.current = now;
+    }
+
+    animationFrameRef.current = requestAnimationFrame(updateLoop);
+  }, [smoothingFactor, minDelta, minUpdateInterval]);
 
   // Start tracking heading
   const startTracking = async () => {
@@ -74,6 +148,10 @@ export function useDeviceHeading(options: UseDeviceHeadingOptions = {}) {
     window.addEventListener('deviceorientation', handleOrientation, true);
     listenerAttachedRef.current = true;
     setError(null);
+
+    // Start the animation loop for smooth updates
+    lastUpdateTimeRef.current = performance.now();
+    animationFrameRef.current = requestAnimationFrame(updateLoop);
   };
 
   // Stop tracking heading
@@ -82,6 +160,17 @@ export function useDeviceHeading(options: UseDeviceHeadingOptions = {}) {
 
     window.removeEventListener('deviceorientation', handleOrientation, true);
     listenerAttachedRef.current = false;
+
+    // Stop animation loop
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    // Reset refs
+    rawHeadingRef.current = null;
+    smoothedHeadingRef.current = null;
+    lastEmittedHeadingRef.current = null;
     setHeading(null);
   };
 
@@ -96,7 +185,7 @@ export function useDeviceHeading(options: UseDeviceHeadingOptions = {}) {
     return () => {
       stopTracking();
     };
-  }, [enabled]);
+  }, [enabled, updateLoop, handleOrientation]);
 
   return {
     heading,
