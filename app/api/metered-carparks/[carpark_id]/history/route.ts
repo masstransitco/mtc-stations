@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { getServerSupabaseClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const supabase = getServerSupabaseClient('anon');
 
 interface VehicleTypeHistoryPoint {
   timestamp: number;
@@ -30,8 +29,6 @@ export async function GET(
     const vehicleTypes = vehicleTypesParam
       ? vehicleTypesParam.split(",").filter(t => ["A", "C", "G"].includes(t.toUpperCase())).map(t => t.toUpperCase())
       : null;
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Handle by_type mode - returns separate lines per vehicle type
     if (byType) {

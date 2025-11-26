@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = getServerSupabaseClient('service');
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,8 +11,6 @@ export async function GET(request: NextRequest) {
     const startTime = searchParams.get('start') || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const endTime = searchParams.get('end') || new Date().toISOString();
     const limit = parseInt(searchParams.get('limit') || '100');
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data, error } = await supabase.rpc('get_ranking_snapshot_list', {
       p_start_time: startTime,

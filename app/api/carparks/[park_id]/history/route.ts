@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { getServerSupabaseClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const supabase = getServerSupabaseClient('anon');
 
 export async function GET(
   request: NextRequest,
@@ -16,8 +15,6 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const vehicleType = searchParams.get("vehicle_type") || "privateCar";
     const hours = parseInt(searchParams.get("hours") || "6");
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Fetch vacancy history for the past N hours
     const { data, error } = await supabase

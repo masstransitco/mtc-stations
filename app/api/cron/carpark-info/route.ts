@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase';
+import { getServerSupabaseClient } from '@/lib/supabase';
 import type { CarparkInfo } from '@/types/parking-vacancy';
 
 const HK_GOV_API_URL = 'https://api.data.gov.hk/v1/carpark-info-vacancy';
@@ -99,7 +99,7 @@ function transformCarparkInfo(data: { results: CarparkInfo[] }): CarparkInfoReco
  * Uses ON CONFLICT to update existing records
  */
 async function upsertCarparkInfo(records: CarparkInfoRecord[]): Promise<{ success: number; failed: number }> {
-  const supabase = getSupabaseClient();
+  const supabase = getServerSupabaseClient('service');
 
   let success = 0;
   let failed = 0;

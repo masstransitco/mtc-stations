@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = getServerSupabaseClient('service');
 
 export async function GET(
   request: NextRequest,
@@ -14,8 +13,6 @@ export async function GET(
     const { carpark_id } = await params;
     const { searchParams } = new URL(request.url);
     const hours = parseInt(searchParams.get('hours') || '24');
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data, error } = await supabase.rpc('get_carpark_ranking_history', {
       p_carpark_id: decodeURIComponent(carpark_id),

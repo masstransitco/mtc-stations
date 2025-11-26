@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = getServerSupabaseClient('service');
 
 export async function GET(
   request: NextRequest,
@@ -15,8 +14,6 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
-
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data, error } = await supabase.rpc('get_ranking_snapshot', {
       p_snapshot_id: snapshot_id,

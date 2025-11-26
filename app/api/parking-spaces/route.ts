@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { getServerSupabaseClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0; // Disable all caching
 export const maxDuration = 30; // Extend timeout for materialized view queries
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = getServerSupabaseClient('anon');
 
 /**
  * GET /api/parking-spaces

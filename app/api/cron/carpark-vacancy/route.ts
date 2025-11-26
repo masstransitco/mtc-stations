@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase';
+import { getServerSupabaseClient } from '@/lib/supabase';
 import type { VacancyApiResponse, CarparkVacancy, VacancyRecord, VehicleType, ParkingVacancySnapshot } from '@/types/parking-vacancy';
 
 // Extend Vercel function timeout to 60 seconds (default is 10s)
@@ -155,7 +155,7 @@ function transformVacancyData(data: VacancyApiResponse): { records: ParkingVacan
  * Insert vacancy records into Supabase
  */
 async function insertVacancyRecords(records: ParkingVacancySnapshot[]): Promise<{ success: number; failed: number }> {
-  const supabase = getSupabaseClient();
+  const supabase = getServerSupabaseClient('service');
 
   // Insert in batches to avoid payload size limits
   const BATCH_SIZE = 500;
@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
 
     // Refresh core vacancy materialized views
     console.log('Refreshing core vacancy views...');
-    const supabase = getSupabaseClient();
+    const supabase = getServerSupabaseClient('service');
     const { error: refreshError } = await supabase.rpc('refresh_latest_parking_vacancy');
 
     if (refreshError) {

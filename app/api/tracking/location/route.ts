@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase';
+import { getServerSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     const ipAddress = getClientIP(request);
     const userAgent = request.headers.get('user-agent');
-    const supabase = getSupabaseClient();
+    const supabase = getServerSupabaseClient('service');
 
     // Insert location log
     const { data, error } = await supabase

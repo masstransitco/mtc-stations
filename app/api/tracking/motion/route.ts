@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/supabase';
+import { getServerSupabaseClient } from '@/lib/supabase';
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = getSupabaseClient();
+    const supabase = getServerSupabaseClient('service');
 
     // Calculate distance from previous position if provided
     let distanceFromPrevious = null;
