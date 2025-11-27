@@ -9,10 +9,9 @@ import { useKeyboardScrollRestore } from "@/hooks/use-keyboard-scroll-restore";
 interface AddressSearchProps {
   onPlaceSelected: (place: google.maps.places.PlaceResult) => void;
   onClear?: () => void;
-  onFocus?: () => void;
 }
 
-export default function AddressSearch({ onPlaceSelected, onClear, onFocus }: AddressSearchProps) {
+export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearchProps) {
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -175,7 +174,6 @@ export default function AddressSearch({ onPlaceSelected, onClear, onFocus }: Add
           placeholder="Search for an address..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onFocus={onFocus}
           className="address-search-input"
           style={{
             flex: 1,
