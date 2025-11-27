@@ -126,9 +126,10 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
     };
   }, [isDragging, dragStartY, dragCurrentY, position]);
 
-  // Continuously measure and report actual DOM height
+  // Measure and report actual DOM height during drag
+  // Only runs RAF loop while actively dragging to avoid continuous reads
   useEffect(() => {
-    if (!sheetRef.current || !onHeightChange) return;
+    if (!sheetRef.current || !onHeightChange || !isDragging) return;
 
     const element = sheetRef.current;
     let animationFrameId: number | null = null;
@@ -138,8 +139,8 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
       const visibleHeight = Math.max(0, window.innerHeight - rect.top);
       onHeightChange(visibleHeight);
 
-      // Continue measuring during drag or animations
-      if (isDragging || position !== undefined) {
+      // Continue measuring only while dragging
+      if (isDragging) {
         animationFrameId = requestAnimationFrame(measureHeight);
       }
     };
@@ -152,7 +153,7 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [position, isDragging, onHeightChange]);
+  }, [isDragging, onHeightChange]);
 
   // Also report height changes when position state changes
   useEffect(() => {

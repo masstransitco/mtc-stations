@@ -4,7 +4,8 @@ import { useRef, useCallback, useEffect, RefObject } from "react";
 
 interface UseKeyboardScrollRestoreOptions {
   sheetContentRef?: RefObject<HTMLElement>;
-  threshold?: number;
+  /** Threshold as percentage of baseline height (default 0.15 = 15%) */
+  thresholdRatio?: number;
 }
 
 /**
@@ -17,9 +18,10 @@ interface UseKeyboardScrollRestoreOptions {
  * - Restores scroll positions when keyboard is dismissed
  * - Uses requestAnimationFrame to coalesce resize events and avoid race conditions
  * - Handles manual keyboard dismiss (swipe down, tap outside)
+ * - Handles orientation changes by detecting width changes
  */
 export function useKeyboardScrollRestore(options: UseKeyboardScrollRestoreOptions = {}) {
-  const { sheetContentRef, threshold = 100 } = options;
+  const { sheetContentRef, thresholdRatio = 0.15 } = options;
 
   // Scroll position refs
   const lastWindowScrollX = useRef(0);
@@ -28,12 +30,16 @@ export function useKeyboardScrollRestore(options: UseKeyboardScrollRestoreOption
 
   // Viewport tracking refs
   const baselineHeight = useRef<number | undefined>(undefined);
-  const prevHeight = useRef<number | undefined>(undefined);
+  const baselineWidth = useRef<number | undefined>(undefined);
   const keyboardOpen = useRef(false);
+  const inputFocused = useRef(false);
 
   // RAF refs for coalescing
   const restoreRaf = useRef<number | undefined>(undefined);
   const resizeRaf = useRef<number | undefined>(undefined);
+
+  // Timeout ref for blur handler
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Schedule scroll restoration with RAF to avoid multiple calls
   const scheduleRestore = useCallback(() => {
@@ -74,13 +80,30 @@ export function useKeyboardScrollRestore(options: UseKeyboardScrollRestoreOption
     resizeRaf.current = requestAnimationFrame(() => {
       const vv = window.visualViewport;
       const currentHeight = vv?.height ?? window.innerHeight;
+      const currentWidth = vv?.width ?? window.innerWidth;
 
       // Initialize baseline if not set
       if (baselineHeight.current === undefined) {
         baselineHeight.current = currentHeight;
+        baselineWidth.current = currentWidth;
+      }
+
+      // Detect orientation change: width changed significantly
+      // Reset baseline and keyboard state on orientation change
+      if (baselineWidth.current !== undefined) {
+        const widthChange = Math.abs(currentWidth - baselineWidth.current);
+        if (widthChange > 50) {
+          // Orientation changed - reset everything
+          baselineHeight.current = currentHeight;
+          baselineWidth.current = currentWidth;
+          keyboardOpen.current = false;
+          return;
+        }
       }
 
       const baseline = baselineHeight.current;
+      // Use relative threshold based on baseline height
+      const threshold = baseline * thresholdRatio;
 
       // Detect keyboard closing: was open and height is now near baseline
       const isClosing = keyboardOpen.current && currentHeight >= baseline - threshold;
@@ -96,19 +119,18 @@ export function useKeyboardScrollRestore(options: UseKeyboardScrollRestoreOption
         keyboardOpen.current = false;
         scheduleRestore();
       }
-
-      prevHeight.current = currentHeight;
     });
-  }, [scheduleRestore, threshold]);
+  }, [scheduleRestore, thresholdRatio]);
 
   // Setup resize listeners
   useEffect(() => {
     const vv = window.visualViewport;
     const initialHeight = vv?.height ?? window.innerHeight;
+    const initialWidth = vv?.width ?? window.innerWidth;
 
-    // Initialize with current viewport height to avoid first-resize bug
+    // Initialize with current viewport dimensions to avoid first-resize bug
     baselineHeight.current = initialHeight;
-    prevHeight.current = initialHeight;
+    baselineWidth.current = initialWidth;
 
     // Listen to visualViewport resize (preferred, more accurate)
     if (vv) {
@@ -131,17 +153,31 @@ export function useKeyboardScrollRestore(options: UseKeyboardScrollRestoreOption
       if (restoreRaf.current) {
         cancelAnimationFrame(restoreRaf.current);
       }
+      // Cleanup blur timeout
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
     };
   }, [handleResize]);
 
   // onFocus handler - capture scroll positions and update baseline
   const onFocus = useCallback(() => {
+    // Clear any pending blur timeout (user moved to another input)
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = undefined;
+    }
+
+    inputFocused.current = true;
+
     const vv = window.visualViewport;
     const currentHeight = vv?.height ?? window.innerHeight;
+    const currentWidth = vv?.width ?? window.innerWidth;
 
-    // Update baseline to current height (fresh baseline pre-keyboard)
+    // Update baseline to current dimensions (fresh baseline pre-keyboard)
     // This handles orientation changes and avoids stale baseline values
     baselineHeight.current = currentHeight;
+    baselineWidth.current = currentWidth;
 
     // Capture current scroll positions
     lastWindowScrollX.current = window.scrollX;
@@ -151,12 +187,32 @@ export function useKeyboardScrollRestore(options: UseKeyboardScrollRestoreOption
 
   // onBlur handler - schedule restore with delay to catch manual dismiss
   const onBlur = useCallback(() => {
+    inputFocused.current = false;
+
+    // Clear any existing blur timeout
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+    }
+
     // Use a short timeout to handle cases where blur fires before the final
     // viewport resize event (e.g., manual keyboard dismiss)
-    setTimeout(() => {
-      scheduleRestore();
-    }, 150);
-  }, [scheduleRestore]);
+    blurTimeoutRef.current = setTimeout(() => {
+      blurTimeoutRef.current = undefined;
+
+      // Only restore if keyboard was open and is now closed
+      // Check current viewport height against baseline to verify keyboard is actually closed
+      const vv = window.visualViewport;
+      const currentHeight = vv?.height ?? window.innerHeight;
+      const baseline = baselineHeight.current ?? currentHeight;
+      const threshold = baseline * thresholdRatio;
+
+      // Only restore if viewport height is back near baseline (keyboard closed)
+      if (currentHeight >= baseline - threshold) {
+        keyboardOpen.current = false;
+        scheduleRestore();
+      }
+    }, 200);
+  }, [scheduleRestore, thresholdRatio]);
 
   return { onFocus, onBlur };
 }
