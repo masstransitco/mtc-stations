@@ -1026,6 +1026,14 @@ export default function SimpleMap() {
   // Ref to store map instance for location button
   const mapRef = useRef<google.maps.Map | null>(null);
 
+  // Ref to store bottom sheet setPosition function
+  const setBottomSheetPositionRef = useRef<((pos: number) => void) | null>(null);
+
+  // Handle address search focus - collapse sheet to 40vh
+  const handleAddressSearchFocus = useCallback(() => {
+    setBottomSheetPositionRef.current?.(1); // 1 = collapsed (40vh)
+  }, []);
+
   // Handle "My Location" button click
   const handleMyLocation = () => {
     if (!isTracking) {
@@ -1272,6 +1280,7 @@ export default function SimpleMap() {
           showBackButton={showBackButton}
           onBack={handleBack}
           onHeightChange={handleSetBottomSheetHeight}
+          onPositionChange={(setPos) => { setBottomSheetPositionRef.current = setPos; }}
         >
           {/* Home View - Search + Trending */}
           {bottomSheetView === 'home' && (
@@ -1280,6 +1289,7 @@ export default function SimpleMap() {
                 <AddressSearch
                   onPlaceSelected={handlePlaceSelected}
                   onClear={handleClearSearch}
+                  onFocus={handleAddressSearchFocus}
                 />
               </div>
 

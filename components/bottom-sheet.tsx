@@ -12,10 +12,16 @@ interface BottomSheetProps {
   showBackButton?: boolean;
   onBack?: () => void;
   onHeightChange?: (height: number) => void;
+  onPositionChange?: (setPos: (pos: number) => void) => void;
 }
 
-export default function BottomSheet({ isOpen, onClose, children, title, showBackButton = false, onBack, onHeightChange }: BottomSheetProps) {
+export default function BottomSheet({ isOpen, onClose, children, title, showBackButton = false, onBack, onHeightChange, onPositionChange }: BottomSheetProps) {
   const [position, setPosition] = useState(2); // 0 = expanded, 1 = collapsed, 2 = minimized - start minimized
+
+  // Expose setPosition to parent via callback
+  useEffect(() => {
+    onPositionChange?.(setPosition);
+  }, [onPositionChange]);
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
