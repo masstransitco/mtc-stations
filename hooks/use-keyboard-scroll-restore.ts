@@ -42,11 +42,12 @@ export function useKeyboardScrollRestore() {
     if (!isIOSRef.current) return;
 
     // Force scroll to top after a small delay to allow browser to settle
+    // 150ms delay matches reference implementation timing
     setTimeout(() => {
       window.scrollTo(0, 0);
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
-    }, 100);
+    }, 150);
   };
 
   return { restoreScroll };

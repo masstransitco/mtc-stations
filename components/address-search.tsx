@@ -174,6 +174,10 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
           placeholder="Search for an address..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onBlur={() => {
+            // Restore scroll position when keyboard is dismissed on iOS
+            restoreScroll();
+          }}
           className="address-search-input"
           style={{
             flex: 1,

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { ChevronLeft } from "lucide-react";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -22,8 +23,11 @@ export default function BottomSheet({ isOpen, onClose, children, title, showBack
   const sheetRef = useRef<HTMLDivElement>(null);
   const { isDarkMode } = useTheme();
 
-  // Height states: 0 = 70vh (expanded), 1 = 40vh (collapsed), 2 = 100px (minimized)
-  const heights = ["70vh", "40vh", "100px"];
+  // Lock body scroll to prevent iOS keyboard scroll issues
+  useBodyScrollLock(true);
+
+  // Height states: 0 = 75vh (expanded), 1 = 40vh (collapsed), 2 = 100px (minimized)
+  const heights = ["75vh", "40vh", "100px"];
 
   // Expand when isOpen becomes true
   useEffect(() => {
@@ -154,7 +158,7 @@ export default function BottomSheet({ isOpen, onClose, children, title, showBack
     let pixelHeight = 100; // Default minimized height
 
     if (position === 0) {
-      pixelHeight = viewportHeight * 0.7; // 70vh
+      pixelHeight = viewportHeight * 0.75; // 75vh
     } else if (position === 1) {
       pixelHeight = viewportHeight * 0.4; // 40vh
     } else if (position === 2) {
