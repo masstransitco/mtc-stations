@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, RefObject } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Search, X } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
@@ -9,18 +9,17 @@ import { useKeyboardScrollRestore } from "@/hooks/use-keyboard-scroll-restore";
 interface AddressSearchProps {
   onPlaceSelected: (place: google.maps.places.PlaceResult) => void;
   onClear?: () => void;
-  sheetContentRef?: RefObject<HTMLElement>;
 }
 
-export default function AddressSearch({ onPlaceSelected, onClear, sheetContentRef }: AddressSearchProps) {
+export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearchProps) {
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const places = useMapsLibrary("places");
   const { isDarkMode } = useTheme();
 
-  // Use the keyboard scroll restore hook
-  const { onFocus, onBlur } = useKeyboardScrollRestore({ sheetContentRef });
+  // Use the keyboard scroll restore hook - handles iOS viewport issues automatically
+  const { restoreScroll } = useKeyboardScrollRestore();
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -40,6 +39,8 @@ export default function AddressSearch({ onPlaceSelected, onClear, sheetContentRe
       if (place.geometry?.location) {
         onPlaceSelected(place);
         setInputValue(place.formatted_address || place.name || "");
+        // Restore scroll after place selection (keyboard will dismiss)
+        restoreScroll();
       }
     });
 
@@ -48,7 +49,7 @@ export default function AddressSearch({ onPlaceSelected, onClear, sheetContentRe
         google.maps.event.removeListener(listener);
       }
     };
-  }, [places, onPlaceSelected]);
+  }, [places, onPlaceSelected, restoreScroll]);
 
   // Inject custom styles for autocomplete dropdown
   useEffect(() => {
@@ -173,8 +174,6 @@ export default function AddressSearch({ onPlaceSelected, onClear, sheetContentRe
           placeholder="Search for an address..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onFocus={onFocus}
-          onBlur={onBlur}
           className="address-search-input"
           style={{
             flex: 1,
