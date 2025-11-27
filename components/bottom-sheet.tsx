@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useState, useRef, useEffect, ReactNode, RefObject } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { ChevronLeft } from "lucide-react";
 
@@ -13,9 +13,10 @@ interface BottomSheetProps {
   showBackButton?: boolean;
   onBack?: () => void;
   onHeightChange?: (height: number) => void;
+  contentRef?: RefObject<HTMLDivElement>;
 }
 
-export default function BottomSheet({ isOpen, onClose, children, title, onExpand, showBackButton = false, onBack, onHeightChange }: BottomSheetProps) {
+export default function BottomSheet({ isOpen, onClose, children, title, onExpand, showBackButton = false, onBack, onHeightChange, contentRef }: BottomSheetProps) {
   const [position, setPosition] = useState(2); // 0 = expanded, 1 = collapsed, 2 = minimized - start minimized
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
@@ -285,6 +286,7 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
 
         {/* Content */}
         <div
+          ref={contentRef}
           onClick={expandSheet}
           style={{
             flex: 1,

@@ -1,23 +1,26 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, RefObject } from "react";
 import { useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Search, X } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useKeyboardScrollRestore } from "@/hooks/use-keyboard-scroll-restore";
 
 interface AddressSearchProps {
   onPlaceSelected: (place: google.maps.places.PlaceResult) => void;
   onClear?: () => void;
+  sheetContentRef?: RefObject<HTMLElement>;
 }
 
-export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearchProps) {
+export default function AddressSearch({ onPlaceSelected, onClear, sheetContentRef }: AddressSearchProps) {
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const places = useMapsLibrary("places");
   const { isDarkMode } = useTheme();
-  const previousViewportHeightRef = useRef<number>(0);
-  const isIOSRef = useRef<boolean>(false);
+
+  // Use the keyboard scroll restore hook
+  const { onFocus, onBlur } = useKeyboardScrollRestore({ sheetContentRef });
 
   useEffect(() => {
     if (!places || !inputRef.current) return;
@@ -132,34 +135,6 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
     onClear?.();
   };
 
-  // iOS-specific scroll restoration (based on mtc-app-src implementation)
-  useEffect(() => {
-    // Detect iOS
-    isIOSRef.current = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    if (!isIOSRef.current || !window.visualViewport) return;
-
-    const handleResize = () => {
-      const currentHeight = window.visualViewport!.height;
-
-      // When viewport height increases (keyboard dismissed), restore scroll
-      if (currentHeight > previousViewportHeightRef.current) {
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-      }
-
-      // Update previous height for next comparison
-      previousViewportHeightRef.current = currentHeight;
-    };
-
-    window.visualViewport.addEventListener('resize', handleResize);
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   return (
     <div
       style={{
@@ -198,6 +173,8 @@ export default function AddressSearch({ onPlaceSelected, onClear }: AddressSearc
           placeholder="Search for an address..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onFocus={onFocus}
+          onBlur={onBlur}
           className="address-search-input"
           style={{
             flex: 1,

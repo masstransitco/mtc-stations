@@ -1026,6 +1026,9 @@ export default function SimpleMap() {
   // Ref to store map instance for location button
   const mapRef = useRef<google.maps.Map | null>(null);
 
+  // Ref for bottom sheet content (for keyboard scroll restoration)
+  const bottomSheetContentRef = useRef<HTMLDivElement>(null);
+
   // Handle "My Location" button click
   const handleMyLocation = () => {
     if (!isTracking) {
@@ -1272,6 +1275,7 @@ export default function SimpleMap() {
           showBackButton={showBackButton}
           onBack={handleBack}
           onHeightChange={handleSetBottomSheetHeight}
+          contentRef={bottomSheetContentRef}
         >
           {/* Home View - Search + Trending */}
           {bottomSheetView === 'home' && (
@@ -1280,6 +1284,7 @@ export default function SimpleMap() {
                 <AddressSearch
                   onPlaceSelected={handlePlaceSelected}
                   onClear={handleClearSearch}
+                  sheetContentRef={bottomSheetContentRef}
                 />
               </div>
 

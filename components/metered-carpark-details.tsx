@@ -221,7 +221,10 @@ export default function MeteredCarparkDetails({
           {/* Show Spaces Toggle Button - only show when callbacks provided */}
           {onShowSpaces && onHideSpaces && (
             <button
-              onClick={() => setShowSpaces(!showSpaces)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSpaces(!showSpaces);
+              }}
               disabled={spacesLoading}
               style={{
                 padding: '4px 10px',
