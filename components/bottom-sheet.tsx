@@ -9,13 +9,12 @@ interface BottomSheetProps {
   onClose: () => void;
   children: ReactNode;
   title?: string;
-  onExpand?: () => void;
   showBackButton?: boolean;
   onBack?: () => void;
   onHeightChange?: (height: number) => void;
 }
 
-export default function BottomSheet({ isOpen, onClose, children, title, onExpand, showBackButton = false, onBack, onHeightChange }: BottomSheetProps) {
+export default function BottomSheet({ isOpen, onClose, children, title, showBackButton = false, onBack, onHeightChange }: BottomSheetProps) {
   const [position, setPosition] = useState(2); // 0 = expanded, 1 = collapsed, 2 = minimized - start minimized
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
@@ -25,14 +24,6 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
 
   // Height states: 0 = 70vh (expanded), 1 = 40vh (collapsed), 2 = 100px (minimized)
   const heights = ["70vh", "40vh", "100px"];
-
-  // Function to expand the sheet
-  const expandSheet = () => {
-    if (position !== 0) {
-      setPosition(0); // Expand to full
-      onExpand?.(); // Call optional callback
-    }
-  };
 
   // Expand when isOpen becomes true
   useEffect(() => {
@@ -286,12 +277,10 @@ export default function BottomSheet({ isOpen, onClose, children, title, onExpand
 
         {/* Content */}
         <div
-          onClick={expandSheet}
           style={{
             flex: 1,
             overflow: "auto",
             padding: "0 20px 20px 20px",
-            cursor: position !== 0 ? 'pointer' : 'default',
           }}
         >
           {children}
