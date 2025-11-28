@@ -11,6 +11,7 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import carparkSelectionReducer from "./carparkSlice";
+import userReducer from "./userSlice";
 
 /**
  * Carpark selection persist config for maintaining selection state across sessions
@@ -35,10 +36,24 @@ const carparkSelectionPersistConfig = {
 };
 
 /**
- * Root reducer configuration - carpark selection only
+ * User persist config - only persist non-sensitive UI state
+ * Auth state is managed by Supabase session cookies
+ */
+const userPersistConfig = {
+  key: "user",
+  storage,
+  whitelist: [
+    // Only persist UI preferences, not auth state
+    // Auth state is restored from Supabase session on page load
+  ],
+};
+
+/**
+ * Root reducer configuration
  */
 const rootReducer = combineReducers({
   carparkSelection: persistReducer(carparkSelectionPersistConfig, carparkSelectionReducer),
+  user: userReducer, // User auth state managed by Supabase, not persisted to localStorage
 });
 
 /**
@@ -50,6 +65,8 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        // Ignore these paths for serialization check (Supabase objects)
+        ignoredPaths: ["user.session"],
       },
     }),
 });

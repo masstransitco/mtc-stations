@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ReduxProvider } from '@/components/redux-provider';
+import { FirebaseAuthProvider } from '@/components/auth';
 
 export const metadata: Metadata = {
   title: 'MTC Parking Stations',
@@ -29,16 +30,18 @@ export default function RootLayout({
       }}>
         <ReduxProvider>
           <ThemeProvider>
-            <main style={{
-              flex: 1,
-              minHeight: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              position: 'relative',
-            }}>
-              {children}
-            </main>
+            <FirebaseAuthProvider>
+              <main style={{
+                flex: 1,
+                minHeight: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                position: 'relative',
+              }}>
+                {children}
+              </main>
+            </FirebaseAuthProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>
