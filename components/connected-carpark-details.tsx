@@ -5,11 +5,22 @@ import type { ConnectedCarpark } from "@/types/connected-carpark";
 import { MapPin, Navigation } from "lucide-react";
 import Image from "next/image";
 
+// Minimum zoom level for indoor layer visibility
+const MIN_INDOOR_ZOOM = 16;
+
 interface ConnectedCarparkDetailsProps {
   carpark: ConnectedCarpark;
+  showIndoorLayer?: boolean;
+  onToggleIndoor?: (show: boolean, lat: number, lng: number) => void;
+  currentZoom?: number;
 }
 
-export default function ConnectedCarparkDetails({ carpark }: ConnectedCarparkDetailsProps) {
+export default function ConnectedCarparkDetails({
+  carpark,
+  showIndoorLayer = false,
+  onToggleIndoor,
+  currentZoom = 11
+}: ConnectedCarparkDetailsProps) {
   const { isDarkMode } = useTheme();
 
   return (
@@ -48,19 +59,50 @@ export default function ConnectedCarparkDetails({ carpark }: ConnectedCarparkDet
         }}>
           {carpark.name}
         </h3>
-        <span style={{
-          padding: '4px 10px',
-          borderRadius: '6px',
-          fontSize: '11px',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          flexShrink: 0,
-          backgroundColor: isDarkMode ? '#1e40af' : '#dbeafe',
-          color: isDarkMode ? '#93c5fd' : '#1e40af'
-        }}>
-          MTC Station
-        </span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+          {/* Show Indoor Toggle Button - only show for carparks with indoor map data */}
+          {onToggleIndoor && carpark.has_indoor_map && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleIndoor(!showIndoorLayer, carpark.latitude, carpark.longitude);
+              }}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                backgroundColor: showIndoorLayer
+                  ? (isDarkMode ? '#4c1d95' : '#ede9fe')
+                  : (isDarkMode ? '#374151' : '#f3f4f6'),
+                color: showIndoorLayer
+                  ? '#8b5cf6'
+                  : (isDarkMode ? '#9ca3af' : '#6b7280'),
+                border: showIndoorLayer
+                  ? '1px solid #8b5cf6'
+                  : (isDarkMode ? '1px solid #4b5563' : '1px solid #d1d5db')
+              }}
+            >
+              {showIndoorLayer ? 'Hide Indoor' : 'Show Indoor'}
+            </button>
+          )}
+          <span style={{
+            padding: '4px 10px',
+            borderRadius: '6px',
+            fontSize: '11px',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            backgroundColor: isDarkMode ? '#1e40af' : '#dbeafe',
+            color: isDarkMode ? '#93c5fd' : '#1e40af'
+          }}>
+            MTC Station
+          </span>
+        </div>
       </div>
 
       {/* Address */}

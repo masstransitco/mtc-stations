@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("connected_carparks")
-      .select("park_id, name, address, district, latitude, longitude")
+      .select("park_id, name, address, district, latitude, longitude, has_indoor_map, indoor_floors")
       .order("name");
 
     if (error) {
@@ -30,6 +30,8 @@ export async function GET() {
       district: record.district || "",
       latitude: parseFloat(record.latitude),
       longitude: parseFloat(record.longitude),
+      has_indoor_map: record.has_indoor_map || false,
+      indoor_floors: record.indoor_floors || null,
     }));
 
     return NextResponse.json(carparks, {

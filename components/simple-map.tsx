@@ -2,11 +2,12 @@
 
 import { APIProvider, Map, AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import { Navigation, Sun, Moon, Compass } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLocationTracking } from "@/hooks/use-location-tracking";
 import { useDeviceHeading } from "@/hooks/use-device-heading";
 import { BuildingOverlayPMTiles } from "@/components/building-overlay-pmtiles";
+import { IndoorOverlayPMTiles } from "@/components/indoor-overlay-pmtiles";
 import { PedestrianNetworkOverlayPMTiles } from "@/components/pedestrian-network-overlay-pmtiles";
 import AddressSearch from "@/components/address-search";
 import BottomSheet from "@/components/bottom-sheet";
@@ -18,7 +19,9 @@ import DispatchCarparkDetails from "@/components/dispatch-carpark-details";
 import Image from "next/image";
 import LoadingSpinner from "@/components/loading-spinner";
 import { MapControls } from "@/components/map-controls";
-import { ThemeSelector } from "@/components/map-controls/theme-selector";
+import { MenuButton } from "@/components/menu-button";
+import { AppMenu } from "@/components/app-menu";
+import { IndoorLevelPicker } from "@/components/indoor-level-picker";
 import { useOptimizedMarkers } from "@/hooks/use-optimized-markers";
 import { useMeteredClusters } from "@/hooks/use-metered-clusters";
 import {
@@ -29,6 +32,9 @@ import {
   createParkingSpaceMarker,
   type MeteredSpaceDetail,
 } from "@/lib/marker-factories";
+
+// Minimum zoom level for indoor layer visibility (matches indoor-overlay-pmtiles.tsx)
+const MIN_INDOOR_ZOOM = 16;
 
 // Vehicle type colors for metered space markers
 const VEHICLE_TYPE_COLORS: Record<string, string> = {
@@ -216,6 +222,8 @@ function MapContent({
   getMeteredMarkerColor,
   isDarkMode,
   show3DBuildings,
+  showIndoorLayer,
+  indoorLevelOrdinal,
   showPedestrianNetwork,
   parkingSpaces,
   showParkingSpaces,
@@ -243,6 +251,8 @@ function MapContent({
   getMeteredMarkerColor: (vacancy: number) => string;
   isDarkMode: boolean;
   show3DBuildings: boolean;
+  showIndoorLayer: boolean;
+  indoorLevelOrdinal: number | null;
   showPedestrianNetwork: boolean;
   parkingSpaces: ParkingSpace[];
   showParkingSpaces: boolean;
@@ -608,6 +618,13 @@ function MapContent({
       {/* 3D Building Overlay - PMTiles version */}
       <BuildingOverlayPMTiles visible={show3DBuildings} opacity={0.6} />
 
+      {/* Indoor venue overlay (connected subset) */}
+      <IndoorOverlayPMTiles
+        visible={showIndoorLayer}
+        opacity={0.8}
+        activeLevelOrdinal={indoorLevelOrdinal}
+      />
+
       {/* 3D Pedestrian Network Overlay - PMTiles version */}
       <PedestrianNetworkOverlayPMTiles visible={showPedestrianNetwork} opacity={0.9} />
 
@@ -826,6 +843,8 @@ export default function SimpleMap() {
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
   const [show3DBuildings, setShow3DBuildings] = useState(false);
+  const [showIndoorLayer, setShowIndoorLayer] = useState(false);
+  const [indoorLevelOrdinal, setIndoorLevelOrdinal] = useState<number | null>(null);
   const [showPedestrianNetwork, setShowPedestrianNetwork] = useState(false);
   const [loadingNearby, setLoadingNearby] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(11);
@@ -860,6 +879,9 @@ export default function SimpleMap() {
     }
   ]);
   const [showDispatchCarparks, setShowDispatchCarparks] = useState(true);
+
+  // App menu state
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { isDarkMode } = useTheme();
 
@@ -996,6 +1018,13 @@ export default function SimpleMap() {
     }
   }, [selectedCarpark, selectedCarparkType]);
 
+  // Auto-hide indoor layer when zoom goes below minimum
+  useEffect(() => {
+    if (showIndoorLayer && currentZoom < MIN_INDOOR_ZOOM) {
+      setShowIndoorLayer(false);
+    }
+  }, [currentZoom, showIndoorLayer]);
+
   // Callbacks for showing/hiding metered space markers (memoized to prevent infinite loops)
   const handleShowMeteredSpaces = useCallback((spaces: MeteredSpaceDetail[]) => {
     setMeteredSpaceMarkers(spaces);
@@ -1003,6 +1032,16 @@ export default function SimpleMap() {
 
   const handleHideMeteredSpaces = useCallback(() => {
     setMeteredSpaceMarkers([]);
+  }, []);
+
+  // Callback for toggling indoor layer from metered carpark details
+  const handleToggleIndoor = useCallback((show: boolean, lat: number, lng: number) => {
+    setShowIndoorLayer(show);
+    if (show && mapRef.current) {
+      // Pan to the carpark location and zoom to 18 when showing indoor
+      mapRef.current.panTo({ lat, lng });
+      mapRef.current.setZoom(18);
+    }
   }, []);
 
   const getMarkerColor = (vacancy: number) => {
@@ -1161,7 +1200,7 @@ export default function SimpleMap() {
     }
   };
 
-  const { theme, setTheme } = useTheme();
+  // Theme is now managed through AppMenu
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -1177,8 +1216,17 @@ export default function SimpleMap() {
         </div>
       )}
 
-      {/* Theme Selector */}
-      <ThemeSelector isDarkMode={isDarkMode} onThemeChange={setTheme} />
+      {/* Menu Button */}
+      <MenuButton
+        onToggleMenu={() => setIsMenuOpen(true)}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* App Menu */}
+      <AppMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
       {/* Map Controls (Indoor, Metered, Buildings, Pedestrian, Location) */}
       <MapControls
@@ -1191,6 +1239,9 @@ export default function SimpleMap() {
           switch(id) {
             case 'indoor':
               setShowIndoorCarparks(enabled);
+              break;
+            case 'indoor-layer':
+              setShowIndoorLayer(enabled);
               break;
             case 'metered':
               setShowMeteredCarparks(enabled);
@@ -1231,6 +1282,16 @@ export default function SimpleMap() {
             deviceHeading={heading}
             requestPermission={requestPermission}
           />
+          {/* Indoor Level Picker - shows when indoor layer is enabled and a connected carpark with floors is selected */}
+          {showIndoorLayer && selectedCarparkType === 'connected' && (selectedCarpark as ConnectedCarpark)?.indoor_floors && (
+            <IndoorLevelPicker
+              visible={true}
+              isDarkMode={isDarkMode}
+              selectedOrdinal={indoorLevelOrdinal}
+              onLevelChange={setIndoorLevelOrdinal}
+              floors={(selectedCarpark as ConnectedCarpark).indoor_floors!}
+            />
+          )}
           <MapContent
             carparks={carparks}
             currentLocation={currentLocation}
@@ -1243,6 +1304,8 @@ export default function SimpleMap() {
             getMeteredMarkerColor={getMeteredMarkerColor}
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
+            showIndoorLayer={showIndoorLayer}
+            indoorLevelOrdinal={indoorLevelOrdinal}
             showPedestrianNetwork={showPedestrianNetwork}
             parkingSpaces={parkingSpaces}
             showParkingSpaces={showParkingSpaces}
@@ -1319,6 +1382,8 @@ export default function SimpleMap() {
           {bottomSheetView === 'connected-carpark' && selectedCarpark && selectedCarparkType === 'connected' && (
             <ConnectedCarparkDetails
               carpark={selectedCarpark as ConnectedCarpark}
+              showIndoorLayer={showIndoorLayer}
+              onToggleIndoor={handleToggleIndoor}
             />
           )}
 
