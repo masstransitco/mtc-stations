@@ -94,7 +94,7 @@ export const MAP_CONTROLS: ControlConfig[] = [
     title: 'Toggle 3D Buildings',
     minZoom: 16,
     exclusiveWith: ['pedestrian'],
-    defaultState: false,
+    defaultState: true,
   },
   {
     id: 'pedestrian',

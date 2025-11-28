@@ -423,9 +423,14 @@ interface BuildingOverlayProps {
 }
 ```
 
-### Building Filtering
+### Building Filtering (SHOW/HIDE EXTERIOR)
 
 The `activeBuildingId` prop enables filtering to display only a specific building. This is used by the **SHOW/HIDE EXTERIOR** feature for connected carparks.
+
+**Behavior**:
+- 3D Buildings layer is **always ON by default** (rendered at zoom >= 16)
+- **SHOW EXTERIOR**: Hides all buildings except the selected carpark's building
+- **HIDE EXTERIOR**: Shows all buildings again (normal state)
 
 ```typescript
 // When a connected carpark is selected with exterior layer enabled:
@@ -440,16 +445,44 @@ The `activeBuildingId` prop enables filtering to display only a specific buildin
 />
 ```
 
-**Filtering Logic** (in `handleTileReady`):
+**Implementation** (Visibility Toggle - Updated Nov 2024):
+
+Instead of clearing and reloading tiles when the filter changes, we now use a simpler **visibility toggle** approach:
+
+1. Each building mesh stores its `buildingStructureId` in `userData`:
 ```typescript
-// Filter by active building ID if specified
-if (activeBuildingIdRef.current) {
-  buildings = buildings.filter(b => b.buildingStructureId === activeBuildingIdRef.current);
-  if (buildings.length === 0) {
-    return; // Skip tiles with no matching buildings
-  }
+// In createBuildingMesh()
+buildingGroup.userData.buildingStructureId = buildingStructureId || null;
+```
+
+2. When `activeBuildingId` changes, traverse scene and toggle visibility:
+```typescript
+const updateBuildingVisibility = (filterBuildingId: string | null) => {
+  sceneRef.current.traverse((obj) => {
+    if (obj.userData?.buildingStructureId !== undefined) {
+      if (filterBuildingId === null) {
+        obj.visible = true;  // Show all buildings
+      } else {
+        obj.visible = obj.userData.buildingStructureId === filterBuildingId;
+      }
+    }
+  });
+};
+```
+
+3. New buildings created while filter is active are immediately hidden/shown:
+```typescript
+// In createBuildingMesh()
+if (activeBuildingIdRef.current !== null) {
+  buildingGroup.visible = buildingStructureId === activeBuildingIdRef.current;
 }
 ```
+
+**Benefits of Visibility Toggle**:
+- Instant switching (no tile reloading)
+- No race conditions with zoom transitions
+- No cache invalidation needed
+- Simpler, more reliable behavior
 
 ### TileManager Settings
 
@@ -795,10 +828,26 @@ const tileManager = new TileManager({
   pmtiles: pmtilesRef.current,
   worker: workerRef.current,
   onTileReady: handleTileReady,
-  onTileHide: handleTileHide,      // Visibility toggle
-  onTileShow: handleTileShow,      // Visibility toggle
+  onTileHide: handleTileHide,      // Called when tile demoted to warm cache
+  onTileShow: handleTileShow,      // Called when tile promoted from warm cache
+  onTileRemove: handleTileRemove,  // Called when tile evicted (removes from scene)
   onZoomTransitionComplete: handleZoomTransitionComplete,
 });
+```
+
+**Memory Management** (Updated Nov 2024):
+
+The `onTileRemove` callback ensures tiles are properly removed from the Three.js scene when evicted. This is called in three scenarios:
+1. Warm cache overflow (oldest warm tile evicted)
+2. Zoom transition completion (old zoom tiles disposed)
+3. `clearAll()` called (includes zoom transition tiles)
+
+```typescript
+const handleTileRemove = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+  if (sceneRef.current) {
+    sceneRef.current.remove(tileGroup);
+  }
+}, []);
 ```
 
 ### Pending: Apply to Other Overlays

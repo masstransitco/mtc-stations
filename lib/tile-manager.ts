@@ -24,6 +24,7 @@ export interface TileManagerConfig {
   onTileReady: (tileKey: string, response: WorkerResponse) => void;
   onTileHide?: (tileKey: string, tileGroup: THREE.Group) => void;  // Called when tile demoted to warm
   onTileShow?: (tileKey: string, tileGroup: THREE.Group) => void;  // Called when tile promoted from warm
+  onTileRemove?: (tileKey: string, tileGroup: THREE.Group) => void;  // Called when tile should be removed from scene
   onZoomTransitionComplete?: () => void;  // Called when zoom transition finishes
   requestType?: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE' | 'DECODE_INDOOR_TILE'; // Type of tiles to decode
 }
@@ -394,12 +395,18 @@ export class TileManager {
   }
 
   /**
-   * Clear all tiles (hot and warm cache)
+   * Clear all tiles (hot cache, warm cache, and zoom transition tiles)
    */
   clearAll(): THREE.Group[] {
+    // Include zoom transition tiles that are still in scene
+    const zoomTransitionTiles = this.zoomTransition
+      ? Array.from(this.zoomTransition.oldZoomTiles.values())
+      : [];
+
     const allTiles = [
       ...Array.from(this.tileCache.values()),
       ...Array.from(this.warmCache.values()),
+      ...zoomTransitionTiles,
     ];
 
     this.tileCache.clear();
@@ -539,7 +546,8 @@ export class TileManager {
         const evictedTile = this.warmCache.get(oldestKey);
         this.warmCache.delete(oldestKey);
         if (evictedTile) {
-          // Actually dispose this tile - it's being evicted from warm
+          // Remove from scene and dispose this tile - it's being evicted from warm
+          this.config.onTileRemove?.(oldestKey, evictedTile);
           this.disposeTileGroup(evictedTile);
           this.stats.tilesEvicted++;
         }
@@ -701,7 +709,7 @@ export class TileManager {
   }
 
   /**
-   * Complete zoom transition - fade out old tiles
+   * Complete zoom transition - remove old tiles from scene and dispose
    */
   completeZoomTransition(): void {
     if (!this.zoomTransition) return;
@@ -711,8 +719,9 @@ export class TileManager {
 
     console.log(`🔄 Completing zoom transition (${Math.round(duration)}ms) - disposing ${oldTiles.size} old tiles`);
 
-    // Dispose old zoom tiles
+    // Remove from scene and dispose old zoom tiles
     oldTiles.forEach((tile, key) => {
+      this.config.onTileRemove?.(key, tile);  // Remove from scene
       this.disposeTileGroup(tile);
       this.stats.tilesEvicted++;
     });

@@ -857,7 +857,7 @@ export default function SimpleMap() {
   const [carparks, setCarparks] = useState<CarparkWithVacancy[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
-  const [show3DBuildings, setShow3DBuildings] = useState(false);
+  const [show3DBuildings, setShow3DBuildings] = useState(true);
   const [showIndoorLayer, setShowIndoorLayer] = useState(false);
   const [showExteriorLayer, setShowExteriorLayer] = useState(false);
   const [indoorLevelOrdinal, setIndoorLevelOrdinal] = useState<number | null>(null);

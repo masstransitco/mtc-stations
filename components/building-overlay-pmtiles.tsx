@@ -57,22 +57,54 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     }
   }, [visible]);
 
-  // Update ref and reload tiles when activeBuildingId changes
+  // Update building visibility when activeBuildingId changes (no tile reloading)
   useEffect(() => {
     const prevId = activeBuildingIdRef.current;
     activeBuildingIdRef.current = activeBuildingId;
 
-    // If filtering changed, reload tiles to apply new filter
     if (prevId !== activeBuildingId) {
       console.log(`🏢 BuildingOverlayPMTiles activeBuildingId changed: ${prevId} -> ${activeBuildingId}`);
-      // Clear viewport state and reload tiles to apply new filter
-      if (isInitialized && tileManagerRef.current && visible) {
-        tileManagerRef.current.clearViewportState();
-        clearAllTiles();
-        loadBuildingsForViewport();
+
+      // Toggle visibility of buildings based on filter
+      if (sceneRef.current) {
+        updateBuildingVisibility(activeBuildingId);
+        if (overlayRef.current) {
+          overlayRef.current.requestRedraw();
+        }
       }
     }
   }, [activeBuildingId]);
+
+  /**
+   * Update visibility of all buildings based on activeBuildingId filter
+   * If activeBuildingId is null, show all buildings
+   * If activeBuildingId is set, show only that building
+   */
+  const updateBuildingVisibility = (filterBuildingId: string | null) => {
+    if (!sceneRef.current) return;
+
+    let hiddenCount = 0;
+    let shownCount = 0;
+
+    sceneRef.current.traverse((obj) => {
+      // Check if this is a building group (has buildingStructureId in userData)
+      if (obj.userData?.buildingStructureId !== undefined) {
+        if (filterBuildingId === null) {
+          // Show all buildings
+          obj.visible = true;
+          shownCount++;
+        } else {
+          // Show only the matching building
+          const matches = obj.userData.buildingStructureId === filterBuildingId;
+          obj.visible = matches;
+          if (matches) shownCount++;
+          else hiddenCount++;
+        }
+      }
+    });
+
+    console.log(`🏢 Building visibility updated: ${shownCount} shown, ${hiddenCount} hidden (filter: ${filterBuildingId || 'none'})`);
+  };
 
   /**
    * Handle tile hide callback (demoted to warm cache)
@@ -91,6 +123,16 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
       overlayRef.current.requestRedraw();
     }
     console.log(`👁️ Shown tile ${tileKey} (promoted from warm cache)`);
+  }, []);
+
+  /**
+   * Handle tile remove callback (remove from scene when evicted)
+   */
+  const handleTileRemove = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+    if (sceneRef.current) {
+      sceneRef.current.remove(tileGroup);
+    }
+    console.log(`🗑️ Removed tile ${tileKey} from scene`);
   }, []);
 
   /**
@@ -234,6 +276,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
           onTileReady: handleTileReady,
           onTileHide: handleTileHide,
           onTileShow: handleTileShow,
+          onTileRemove: handleTileRemove,
           onZoomTransitionComplete: handleZoomTransitionComplete,
         });
         tileManagerRef.current = tileManager;
@@ -677,7 +720,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     anchor: LatLngAltitudeLiteral,
     materialPalette: MaterialPalette
   ): THREE.Object3D | null => {
-    const { coordinates, height, color, centerLat, centerLng } = building;
+    const { coordinates, height, color, centerLat, centerLng, buildingStructureId } = building;
 
     // Convert all polygon coordinates to anchor-relative 3D positions
     const absolutePoints: THREE.Vector3[] = [];
@@ -740,8 +783,16 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     const buildingGroup = new THREE.Group();
     buildingGroup.add(mesh);
 
+    // Store buildingStructureId for visibility filtering
+    buildingGroup.userData.buildingStructureId = buildingStructureId || null;
+
     // Position the group at the building's centroid (in anchor-relative coordinates)
     buildingGroup.position.set(centerX, centerY, 0);
+
+    // Apply current visibility filter if active
+    if (activeBuildingIdRef.current !== null) {
+      buildingGroup.visible = buildingStructureId === activeBuildingIdRef.current;
+    }
 
     return buildingGroup;
   };
