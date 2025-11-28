@@ -43,3 +43,15 @@ upload-tiles.sh
 
 # Wrangler/Cloudflare
 .wrangler/
+
+# Large data files (exceeds GitHub 100MB limit)
+pedestrian-network-3d/
+indoor-map-3d/
+metered-parking-api/
+3d-particle-example/
+*.ndjson
+*.shp
+*.dbf
+private_buildings_*.json
+basic_info_all.json
+Archive.zip
