@@ -49,6 +49,7 @@ pedestrian-network-3d/
 indoor-map-3d/
 metered-parking-api/
 3d-particle-example/
+RdNet_IRNP.gdb/
 *.ndjson
 *.shp
 *.dbf
