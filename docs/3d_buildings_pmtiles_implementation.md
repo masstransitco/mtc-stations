@@ -20,11 +20,13 @@ BuildingOverlayPMTiles (React Component)
 
 ### Key Files
 
-- **`components/building-overlay-pmtiles.tsx`**: Main component and rendering logic
+- **`components/building-overlay-pmtiles.tsx`**: Main component and rendering logic (includes building ID filtering)
 - **`lib/tile-manager.ts`**: Tile lifecycle, LRU cache, and load queue management
 - **`lib/material-palette.ts`**: Shared Three.js materials for memory efficiency
 - **`lib/geo-utils.ts`**: Geographic coordinate transformations
-- **`workers/pmtiles-worker.ts`**: Off-thread PMTiles decoding and geometry processing
+- **`workers/pmtiles-worker.ts`**: Off-thread PMTiles decoding and geometry processing (extracts `BUILDINGSTRUCTUREID`)
+- **`components/connected-carpark-details.tsx`**: UI with SHOW/HIDE EXTERIOR button
+- **`scripts/find-connected-carpark-buildings.py`**: Spatial join script for building-carpark mapping
 
 ## Coordinate System
 
@@ -373,6 +375,7 @@ class MaterialPalette {
 ### 1. Web Worker Offloading
 - PMTiles decoding runs off main thread
 - Geometry processing parallelized
+- Building IDs (`BUILDINGSTRUCTUREID`) extracted for filtering
 - Main thread only creates Three.js meshes
 
 ### 2. Viewport-Aware Pruning
@@ -414,8 +417,37 @@ NEXT_PUBLIC_PMTILES_CDN_URL=https://pmtiles-cors-proxy.mark-737.workers.dev
 
 ```typescript
 interface BuildingOverlayProps {
-  visible?: boolean;  // Show/hide buildings (default: true)
-  opacity?: number;   // Building opacity 0-1 (default: 0.8)
+  visible?: boolean;           // Show/hide buildings (default: true)
+  opacity?: number;            // Building opacity 0-1 (default: 0.8)
+  activeBuildingId?: string | null;  // Filter to show only this building (by BUILDINGSTRUCTUREID)
+}
+```
+
+### Building Filtering
+
+The `activeBuildingId` prop enables filtering to display only a specific building. This is used by the **SHOW/HIDE EXTERIOR** feature for connected carparks.
+
+```typescript
+// When a connected carpark is selected with exterior layer enabled:
+<BuildingOverlayPMTiles
+  visible={show3DBuildings || showExteriorLayer}
+  opacity={0.6}
+  activeBuildingId={
+    selectedCarparkType === 'connected' && showExteriorLayer
+      ? (selectedCarpark as ConnectedCarpark)?.building_structure_id ?? null
+      : null
+  }
+/>
+```
+
+**Filtering Logic** (in `handleTileReady`):
+```typescript
+// Filter by active building ID if specified
+if (activeBuildingIdRef.current) {
+  buildings = buildings.filter(b => b.buildingStructureId === activeBuildingIdRef.current);
+  if (buildings.length === 0) {
+    return; // Skip tiles with no matching buildings
+  }
 }
 ```
 
@@ -608,6 +640,80 @@ PMTiles Archive (Cloudflare R2)
    Google Maps Canvas
 ```
 
+## Building ID Integration with Connected Carparks
+
+### Overview
+
+Connected carparks are linked to their corresponding 3D building via `BUILDINGSTRUCTUREID`. This enables the **SHOW/HIDE EXTERIOR** feature which renders only the selected carpark's building.
+
+### Data Sources
+
+1. **Building PMTiles**: Contains `BUILDINGSTRUCTUREID` property per building polygon from HK Government Building Footprint dataset
+2. **connected_carparks table**: Contains `building_structure_id` column linking each carpark to its building
+
+### Spatial Join Results
+
+A spatial join script (`scripts/find-connected-carpark-buildings.py`) was used to match carpark coordinates to building polygons:
+
+- **131/132 carparks matched** (99.2% success rate)
+- Uses 50m buffer for nearby matches when point isn't exactly inside polygon
+- Coordinate transformation: WGS84 (EPSG:4326) → HK1980 Grid (EPSG:2326)
+
+**Unmatched carpark**: Wu Shan Road Car Park (connected_125) - standalone open car park with no building footprint
+
+### Database Schema
+
+```sql
+-- Migration: 20251128_add_building_structure_id_to_connected_carparks.sql
+ALTER TABLE connected_carparks
+ADD COLUMN IF NOT EXISTS building_structure_id TEXT;
+
+-- 131 UPDATE statements mapping park_id to BUILDINGSTRUCTUREID
+UPDATE connected_carparks SET building_structure_id = '357270' WHERE park_id = 'connected_116'; -- V City
+UPDATE connected_carparks SET building_structure_id = '168201' WHERE park_id = 'connected_108'; -- Times Square
+-- ... (129 more)
+```
+
+### Worker Data Interface
+
+```typescript
+// workers/pmtiles-worker.ts
+export interface BuildingData {
+  coordinates: Array<[number, number]>;
+  height: number;
+  color: string;
+  centerLat: number;
+  centerLng: number;
+  buildingStructureId?: string;  // For filtering
+}
+
+// Extract from MVT properties
+const buildingStructureId = properties.BUILDINGSTRUCTUREID
+  ? String(properties.BUILDINGSTRUCTUREID)
+  : undefined;
+```
+
+### UI Integration
+
+**ConnectedCarparkDetails component** shows SHOW/HIDE EXTERIOR button:
+- Only appears if `carpark.building_structure_id` exists (131/132 carparks)
+- Green color scheme (distinct from purple SHOW INDOOR button)
+- Both can be active simultaneously
+- Auto-hides when zoom < 16
+
+```typescript
+{onToggleExterior && carpark.building_structure_id && (
+  <button onClick={() => onToggleExterior(!showExteriorLayer, carpark.latitude, carpark.longitude)}>
+    {showExteriorLayer ? 'Hide Exterior' : 'Show Exterior'}
+  </button>
+)}
+```
+
+### Related Documentation
+
+- **[Building Exterior Filtering Plan](./building-exterior-filtering.md)**: Full implementation details
+- **[Buildings Info Schema](./buildings-info-schema.md)**: Building data structure and color coding
+
 ## Future Improvements
 
 ### Potential Optimizations
@@ -621,11 +727,12 @@ PMTiles Archive (Cloudflare R2)
 
 ### Potential Features
 
-1. **Building Selection**: Click to highlight/info
+1. ~~**Building Selection**: Click to highlight/info~~ ✅ **Implemented** - SHOW/HIDE EXTERIOR for connected carparks
 2. **Height Animation**: Animate extrusion on load
 3. **Time-of-Day Lighting**: Dynamic shadows based on sun position
 4. **Building Labels**: Show names/addresses at high zoom
 5. **Roof Shapes**: Pitched roofs, domes, etc.
+6. **Building Info Panel**: Show building details when exterior is toggled
 
 ## References
 

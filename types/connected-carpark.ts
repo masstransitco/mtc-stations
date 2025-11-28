@@ -14,4 +14,5 @@ export interface ConnectedCarpark {
   has_indoor_map: boolean;
   indoor_floors: IndoorFloor[] | null;
   indoor_venue_id: string | null;
+  building_structure_id: string | null;
 }

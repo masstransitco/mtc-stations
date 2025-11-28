@@ -12,6 +12,8 @@ interface ConnectedCarparkDetailsProps {
   carpark: ConnectedCarpark;
   showIndoorLayer?: boolean;
   onToggleIndoor?: (show: boolean, lat: number, lng: number) => void;
+  showExteriorLayer?: boolean;
+  onToggleExterior?: (show: boolean, lat: number, lng: number) => void;
   currentZoom?: number;
 }
 
@@ -19,6 +21,8 @@ export default function ConnectedCarparkDetails({
   carpark,
   showIndoorLayer = false,
   onToggleIndoor,
+  showExteriorLayer = false,
+  onToggleExterior,
   currentZoom = 11
 }: ConnectedCarparkDetailsProps) {
   const { isDarkMode } = useTheme();
@@ -60,6 +64,36 @@ export default function ConnectedCarparkDetails({
           {carpark.name}
         </h3>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+          {/* Show Exterior Toggle Button - only show for carparks with building data */}
+          {onToggleExterior && carpark.building_structure_id && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleExterior(!showExteriorLayer, carpark.latitude, carpark.longitude);
+              }}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                backgroundColor: showExteriorLayer
+                  ? (isDarkMode ? '#065f46' : '#d1fae5')
+                  : (isDarkMode ? '#374151' : '#f3f4f6'),
+                color: showExteriorLayer
+                  ? '#10b981'
+                  : (isDarkMode ? '#9ca3af' : '#6b7280'),
+                border: showExteriorLayer
+                  ? '1px solid #10b981'
+                  : (isDarkMode ? '1px solid #4b5563' : '1px solid #d1d5db')
+              }}
+            >
+              {showExteriorLayer ? 'Hide Exterior' : 'Show Exterior'}
+            </button>
+          )}
           {/* Show Indoor Toggle Button - only show for carparks with indoor map data */}
           {onToggleIndoor && carpark.has_indoor_map && (
             <button

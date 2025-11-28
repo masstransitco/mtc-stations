@@ -12,6 +12,7 @@ import type { BuildingData, WorkerResponse } from '@/workers/pmtiles-worker';
 interface BuildingOverlayProps {
   visible?: boolean;
   opacity?: number;
+  activeBuildingId?: string | null; // Filter to show only this building (by BUILDINGSTRUCTUREID)
 }
 
 /**
@@ -20,7 +21,7 @@ interface BuildingOverlayProps {
  * Renders 3D building extrusions on Google Maps using WebGLOverlayView and Three.js.
  * Loads building data from a PMTiles archive instead of individual GeoJSON tiles.
  */
-export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: BuildingOverlayProps) {
+export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBuildingId = null }: BuildingOverlayProps) {
   const map = useMap();
   const overlayRef = useRef<google.maps.WebGLOverlayView | null>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -42,6 +43,8 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
 
   // Use ref to track visibility so onDraw can access current value
   const visibleRef = useRef(visible);
+  // Use ref to track active building ID for filtering
+  const activeBuildingIdRef = useRef<string | null>(activeBuildingId);
 
   // Update ref when visible prop changes
   useEffect(() => {
@@ -53,6 +56,22 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
       overlayRef.current.requestRedraw();
     }
   }, [visible]);
+
+  // Update ref and reload tiles when activeBuildingId changes
+  useEffect(() => {
+    const prevId = activeBuildingIdRef.current;
+    activeBuildingIdRef.current = activeBuildingId;
+
+    // If filtering changed, reload tiles to apply new filter
+    if (prevId !== activeBuildingId) {
+      console.log(`🏢 BuildingOverlayPMTiles activeBuildingId changed: ${prevId} -> ${activeBuildingId}`);
+      // Clear and reload tiles to apply new filter
+      if (isInitialized && tileManagerRef.current && visible) {
+        clearAllTiles();
+        loadBuildingsForViewport();
+      }
+    }
+  }, [activeBuildingId]);
 
   // Initialize PMTiles archive, Web Worker, and TileManager
   useEffect(() => {
@@ -330,7 +349,16 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8 }: Buildi
     const [z, x, y] = tileKey.split('/').map(Number);
 
     // Extract buildings from response
-    const buildings = response.buildings || [];
+    let buildings = response.buildings || [];
+
+    // Filter by active building ID if specified
+    if (activeBuildingIdRef.current) {
+      buildings = buildings.filter(b => b.buildingStructureId === activeBuildingIdRef.current);
+      if (buildings.length === 0) {
+        // No matching buildings in this tile, skip creating mesh
+        return;
+      }
+    }
 
     // Create tile group
     const tileGroup = createBuildingsFromWorkerData(buildings, materialPalette);

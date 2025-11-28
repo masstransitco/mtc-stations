@@ -25,6 +25,8 @@ export interface BuildingData {
   // Centroid for positioning
   centerLat: number;
   centerLng: number;
+  // Building ID for filtering (from HK Government Building Footprint dataset)
+  buildingStructureId?: string;
 }
 
 export interface PedestrianLineData {
@@ -132,12 +134,18 @@ function processMVTFeature(
   centerLat /= coordinates.length;
   centerLng /= coordinates.length;
 
+  // Extract building structure ID for filtering
+  const buildingStructureId = properties.BUILDINGSTRUCTUREID
+    ? String(properties.BUILDINGSTRUCTUREID)
+    : undefined;
+
   return {
     coordinates,
     height,
     color,
     centerLat,
     centerLng,
+    buildingStructureId,
   };
 }
 

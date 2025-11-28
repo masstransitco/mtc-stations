@@ -223,6 +223,7 @@ function MapContent({
   isDarkMode,
   show3DBuildings,
   showIndoorLayer,
+  showExteriorLayer,
   indoorLevelOrdinal,
   showPedestrianNetwork,
   parkingSpaces,
@@ -252,6 +253,7 @@ function MapContent({
   isDarkMode: boolean;
   show3DBuildings: boolean;
   showIndoorLayer: boolean;
+  showExteriorLayer: boolean;
   indoorLevelOrdinal: number | null;
   showPedestrianNetwork: boolean;
   parkingSpaces: ParkingSpace[];
@@ -616,7 +618,15 @@ function MapContent({
   return (
     <>
       {/* 3D Building Overlay - PMTiles version */}
-      <BuildingOverlayPMTiles visible={show3DBuildings} opacity={0.6} />
+      <BuildingOverlayPMTiles
+        visible={show3DBuildings || showExteriorLayer}
+        opacity={0.6}
+        activeBuildingId={
+          selectedCarparkType === 'connected' && showExteriorLayer
+            ? (selectedCarpark as ConnectedCarpark)?.building_structure_id ?? null
+            : null
+        }
+      />
 
       {/* Indoor venue overlay (connected subset) */}
       <IndoorOverlayPMTiles
@@ -849,6 +859,7 @@ export default function SimpleMap() {
   const [mapCenter] = useState({ lat: 22.3193, lng: 114.1694 });
   const [show3DBuildings, setShow3DBuildings] = useState(false);
   const [showIndoorLayer, setShowIndoorLayer] = useState(false);
+  const [showExteriorLayer, setShowExteriorLayer] = useState(false);
   const [indoorLevelOrdinal, setIndoorLevelOrdinal] = useState<number | null>(null);
   const [showPedestrianNetwork, setShowPedestrianNetwork] = useState(false);
   const [loadingNearby, setLoadingNearby] = useState(false);
@@ -1030,6 +1041,13 @@ export default function SimpleMap() {
     }
   }, [currentZoom, showIndoorLayer]);
 
+  // Auto-hide exterior layer when zoom goes below minimum (same as buildings)
+  useEffect(() => {
+    if (showExteriorLayer && currentZoom < MIN_INDOOR_ZOOM) {
+      setShowExteriorLayer(false);
+    }
+  }, [currentZoom, showExteriorLayer]);
+
   // Callbacks for showing/hiding metered space markers (memoized to prevent infinite loops)
   const handleShowMeteredSpaces = useCallback((spaces: MeteredSpaceDetail[]) => {
     setMeteredSpaceMarkers(spaces);
@@ -1039,11 +1057,21 @@ export default function SimpleMap() {
     setMeteredSpaceMarkers([]);
   }, []);
 
-  // Callback for toggling indoor layer from metered carpark details
+  // Callback for toggling indoor layer from connected carpark details
   const handleToggleIndoor = useCallback((show: boolean, lat: number, lng: number) => {
     setShowIndoorLayer(show);
     if (show && mapRef.current) {
       // Pan to the carpark location and zoom to 18 when showing indoor
+      mapRef.current.panTo({ lat, lng });
+      mapRef.current.setZoom(18);
+    }
+  }, []);
+
+  // Callback for toggling exterior building layer from connected carpark details
+  const handleToggleExterior = useCallback((show: boolean, lat: number, lng: number) => {
+    setShowExteriorLayer(show);
+    if (show && mapRef.current) {
+      // Pan to the carpark location and zoom to 18 when showing exterior
       mapRef.current.panTo({ lat, lng });
       mapRef.current.setZoom(18);
     }
@@ -1310,6 +1338,7 @@ export default function SimpleMap() {
             isDarkMode={isDarkMode}
             show3DBuildings={show3DBuildings}
             showIndoorLayer={showIndoorLayer}
+            showExteriorLayer={showExteriorLayer}
             indoorLevelOrdinal={indoorLevelOrdinal}
             showPedestrianNetwork={showPedestrianNetwork}
             parkingSpaces={parkingSpaces}
@@ -1389,6 +1418,8 @@ export default function SimpleMap() {
               carpark={selectedCarpark as ConnectedCarpark}
               showIndoorLayer={showIndoorLayer}
               onToggleIndoor={handleToggleIndoor}
+              showExteriorLayer={showExteriorLayer}
+              onToggleExterior={handleToggleExterior}
             />
           )}
 
