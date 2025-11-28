@@ -36,6 +36,29 @@ export const MAP_CONTROLS: ControlConfig[] = [
     defaultState: false,
   },
   {
+    id: 'indoor-layer',
+    icon: ({ isActive, isDarkMode }) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={isActive ? '#3b82f6' : (isDarkMode ? '#9ca3af' : '#6b7280')}
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4" y="5" width="10" height="6" rx="1.5" />
+        <rect x="8" y="11" width="10" height="6" rx="1.5" />
+        <path d="M10 8h4M14 14h4" />
+      </svg>
+    ),
+    title: 'Toggle Indoor 3D Layer',
+    minZoom: 15,
+    defaultState: false,
+  },
+  {
     id: 'metered',
     icon: ({ isActive, isDarkMode }) => (
       <svg

@@ -9,7 +9,7 @@ import { VectorTile } from '@mapbox/vector-tile';
 import Pbf from 'pbf';
 
 export interface WorkerRequest {
-  type: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE';
+  type: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE' | 'DECODE_INDOOR_TILE';
   z: number;
   x: number;
   y: number;
@@ -44,11 +44,30 @@ export interface PedestrianLineData {
   distancePost?: string;
 }
 
+export interface IndoorPolygonData {
+  // Lat/lng coordinates of the polygon ring (already converted from tile space)
+  coordinates: Array<[number, number]>;
+  // Altitude offset (meters) applied to the mesh
+  altitude: number;
+  // Extrusion height for the polygon (meters)
+  height: number;
+  // Fill color for the polygon
+  color: string;
+  // Metadata
+  layer: string;
+  levelId?: string;
+  venueId?: string;
+  ordinal?: number;
+  name?: string;
+  shortName?: string;
+}
+
 export interface WorkerResponse {
-  type: 'TILE_DECODED' | 'PEDESTRIAN_TILE_DECODED';
+  type: 'TILE_DECODED' | 'PEDESTRIAN_TILE_DECODED' | 'INDOOR_TILE_DECODED';
   tileKey: string;
   buildings?: BuildingData[];
   pedestrianLines?: PedestrianLineData[];
+  indoorPolygons?: IndoorPolygonData[];
   error?: string;
 }
 
@@ -193,12 +212,85 @@ function processPedestrianFeature(
 }
 
 /**
+ * Convert a polygon feature (indoor layers) into coordinates + styling
+ */
+function processIndoorPolygon(
+  feature: any,
+  bounds: { minLng: number; minLat: number; maxLng: number; maxLat: number },
+  extent: number,
+  layer: string,
+  levelLookup: Map<string, { ordinal: number; shortName?: string; name?: string; venueId?: string }>
+): IndoorPolygonData | null {
+  const properties = feature.properties || {};
+  const geometry = feature.loadGeometry();
+
+  if (!geometry || geometry.length === 0) {
+    return null;
+  }
+
+  // Use the first ring for simplicity (tiles are small and mostly simple polygons)
+  const ring = geometry[0];
+  if (!ring || ring.length < 3) {
+    return null;
+  }
+
+  const lngScale = (bounds.maxLng - bounds.minLng) / extent;
+  const latScale = (bounds.maxLat - bounds.minLat) / extent;
+
+  const coordinates: Array<[number, number]> = ring.map((pt: any) => {
+    const lng = bounds.minLng + pt.x * lngScale;
+    const lat = bounds.maxLat - pt.y * latScale;
+    return [lng, lat];
+  });
+
+  const levelId: string | undefined =
+    properties.level_id ||
+    properties.levelId ||
+    properties.LevelID ||
+    properties.floor_id ||
+    properties.FloorID ||
+    undefined;
+
+  const lookup = levelId ? levelLookup.get(levelId) : undefined;
+  const ordinal = properties.ordinal ?? lookup?.ordinal ?? 0;
+
+  // Simple altitude model: 4m per level
+  const altitude = (typeof ordinal === 'number' ? ordinal : 0) * 4;
+
+  // Layer-based styling defaults
+  const color =
+    layer === 'unit' ? '#2563eb' :
+    layer === 'level' ? '#6b7280' :
+    layer === 'venue' ? '#10b981' :
+    '#94a3b8';
+
+  const height =
+    layer === 'unit' ? 3.2 :
+    layer === 'level' ? 0.6 :
+    layer === 'venue' ? 0.4 :
+    0.8;
+
+  return {
+    coordinates,
+    altitude,
+    height,
+    color,
+    layer,
+    levelId: levelId || lookup?.name,
+    venueId: properties.venue_id || lookup?.venueId || properties.venueId,
+    ordinal: typeof ordinal === 'number' ? ordinal : undefined,
+    name: properties.name?.en || properties.name || undefined,
+    shortName: properties.short_name?.en || properties.short_name || lookup?.shortName || undefined,
+  };
+}
+
+/**
  * Main message handler
  */
 self.addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
   const { type, z, x, y, buffer } = event.data;
 
-  if (type !== 'DECODE_TILE' && type !== 'DECODE_PEDESTRIAN_TILE') {
+  if (type !== 'DECODE_TILE' && type !== 'DECODE_PEDESTRIAN_TILE' && type !== 'DECODE_INDOOR_TILE') {
     return;
   }
 
@@ -294,13 +386,95 @@ self.addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
       };
       self.postMessage(response);
     }
+
+    // Handle indoor venue tiles
+    else if (type === 'DECODE_INDOOR_TILE') {
+      // Expect layers: footprint, level, unit, venue
+      const bounds = tileToBounds(x, y, z);
+      const extent = 4096;
+
+      const indoorPolygons: IndoorPolygonData[] = [];
+      const levelLookup = new Map<string, { ordinal: number; shortName?: string; name?: string; venueId?: string }>();
+
+      const levelLayer = tile.layers['level'];
+      if (levelLayer) {
+        for (let i = 0; i < levelLayer.length; i++) {
+          try {
+            const feature = levelLayer.feature(i);
+            const props = feature.properties || {};
+            const levelIdRaw =
+              props.level_id ||
+              props.levelId ||
+              props.FloorPolyID ||
+              props.FloorID ||
+              feature.id;
+            const levelId: string | undefined = levelIdRaw != null ? String(levelIdRaw) : undefined;
+            const ordinal = typeof props.ordinal === 'number' ? props.ordinal : 0;
+            const shortNameRaw = props.short_name || props.name;
+            const shortName: string | undefined =
+              typeof shortNameRaw === 'object' && shortNameRaw !== null && 'en' in shortNameRaw
+                ? String((shortNameRaw as { en: unknown }).en)
+                : (shortNameRaw != null ? String(shortNameRaw) : undefined);
+            const venueIdRaw = props.venue_id || props.venueId;
+            const venueId: string | undefined = venueIdRaw != null ? String(venueIdRaw) : undefined;
+
+            if (levelId) {
+              levelLookup.set(levelId, {
+                ordinal,
+                shortName,
+                name: props.name != null ? String(props.name) : undefined,
+                venueId,
+              });
+            }
+
+            const poly = processIndoorPolygon(feature, bounds, extent, 'level', levelLookup);
+            if (poly) {
+              indoorPolygons.push(poly);
+            }
+          } catch (error) {
+            console.warn(`Worker: Failed to process indoor level ${i} in tile ${tileKey}:`, error);
+          }
+        }
+      }
+
+      // Other layers
+      const layerNames = ['footprint', 'unit', 'venue'];
+      layerNames.forEach(layerName => {
+        const layer = tile.layers[layerName];
+        if (!layer) return;
+        for (let i = 0; i < layer.length; i++) {
+          try {
+            const feature = layer.feature(i);
+            const poly = processIndoorPolygon(feature, bounds, extent, layerName, levelLookup);
+            if (poly) {
+              indoorPolygons.push(poly);
+            }
+          } catch (error) {
+            console.warn(`Worker: Failed to process indoor ${layerName} ${i} in tile ${tileKey}:`, error);
+          }
+        }
+      });
+
+      const response: WorkerResponse = {
+        type: 'INDOOR_TILE_DECODED',
+        tileKey,
+        indoorPolygons,
+      };
+      self.postMessage(response);
+    }
   } catch (error) {
     // Send error back to main thread
     const response: WorkerResponse = {
-      type: type === 'DECODE_TILE' ? 'TILE_DECODED' : 'PEDESTRIAN_TILE_DECODED',
+      type:
+        type === 'DECODE_TILE'
+          ? 'TILE_DECODED'
+          : type === 'DECODE_PEDESTRIAN_TILE'
+            ? 'PEDESTRIAN_TILE_DECODED'
+            : 'INDOOR_TILE_DECODED',
       tileKey,
       buildings: type === 'DECODE_TILE' ? [] : undefined,
       pedestrianLines: type === 'DECODE_PEDESTRIAN_TILE' ? [] : undefined,
+      indoorPolygons: type === 'DECODE_INDOOR_TILE' ? [] : undefined,
       error: error instanceof Error ? error.message : 'Unknown error',
     };
     self.postMessage(response);

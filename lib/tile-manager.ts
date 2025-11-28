@@ -18,7 +18,7 @@ export interface TileManagerConfig {
   pmtiles: PMTiles;
   worker: Worker;
   onTileReady: (tileKey: string, response: WorkerResponse) => void;
-  requestType?: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE'; // Type of tiles to decode
+  requestType?: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE' | 'DECODE_INDOOR_TILE'; // Type of tiles to decode
 }
 
 interface TileLoadState {
@@ -201,7 +201,7 @@ export class TileManager {
   private handleWorkerMessage(event: MessageEvent<WorkerResponse>): void {
     const { type, tileKey, error } = event.data;
 
-    if (type !== 'TILE_DECODED' && type !== 'PEDESTRIAN_TILE_DECODED') {
+    if (type !== 'TILE_DECODED' && type !== 'PEDESTRIAN_TILE_DECODED' && type !== 'INDOOR_TILE_DECODED') {
       return;
     }
 
