@@ -76,6 +76,9 @@ export class TileManager {
   // Queue of tiles waiting to be loaded
   private loadQueue: TileLoadState[] = [];
 
+  // Set for O(1) queue lookup (mirrors loadQueue keys)
+  private loadQueueSet: Set<string> = new Set();
+
   // Bound worker listener so we can remove it on dispose
   private handleWorkerMessageBound: (event: MessageEvent<WorkerResponse>) => void;
 
@@ -122,13 +125,14 @@ export class TileManager {
       return;
     }
 
-    // Skip if already in queue
-    if (this.loadQueue.some(t => t.tileKey === tileKey)) {
+    // Skip if already in queue (O(1) lookup)
+    if (this.loadQueueSet.has(tileKey)) {
       return;
     }
 
-    // Add to queue
+    // Add to queue and Set
     this.loadQueue.push({ tileKey, z, x, y, priority });
+    this.loadQueueSet.add(tileKey);
 
     // Process queue
     this.processQueue();
@@ -155,9 +159,17 @@ export class TileManager {
    * Cancel tiles that are not in the required set
    */
   cancelTilesNotIn(requiredTileKeys: Set<string>): void {
-    // Remove from queue
+    // Remove from queue and update Set
     const originalQueueSize = this.loadQueue.length;
-    this.loadQueue = this.loadQueue.filter(tile => requiredTileKeys.has(tile.tileKey));
+    const removedKeys: string[] = [];
+    this.loadQueue = this.loadQueue.filter(tile => {
+      if (requiredTileKeys.has(tile.tileKey)) {
+        return true;
+      }
+      removedKeys.push(tile.tileKey);
+      return false;
+    });
+    removedKeys.forEach(key => this.loadQueueSet.delete(key));
     const removedFromQueue = originalQueueSize - this.loadQueue.length;
 
     // Mark currently loading tiles as stale if not required
@@ -167,25 +179,25 @@ export class TileManager {
       }
     });
 
-    if (removedFromQueue > 0 || this.staleTiles.size > 0) {
-      console.log(`🚫 Canceled tiles: ${removedFromQueue} from queue, ${this.staleTiles.size} marked stale`);
-    }
   }
 
   /**
    * Process the load queue
    */
   private processQueue(): void {
+    // Sort queue ONCE before processing (not per iteration)
+    if (this.loadQueue.length > 1) {
+      this.loadQueue.sort((a, b) => a.priority - b.priority);
+    }
+
     // Check if we can start more loads
     while (
       this.loadingTiles.size < this.config.maxConcurrentLoads &&
       this.loadQueue.length > 0
     ) {
-      // Sort queue by priority (lower = higher priority)
-      this.loadQueue.sort((a, b) => a.priority - b.priority);
-
       // Get next tile
       const tile = this.loadQueue.shift()!;
+      this.loadQueueSet.delete(tile.tileKey);
 
       // Start loading
       this.startTileLoad(tile.z, tile.x, tile.y);
@@ -249,14 +261,12 @@ export class TileManager {
 
     // Check if tile was marked as stale
     if (this.staleTiles.has(tileKey)) {
-      console.log(`⏭️ Skipping stale tile ${tileKey}`);
       this.staleTiles.delete(tileKey);
       this.processQueue();
       return;
     }
 
     if (error) {
-      console.error(`Worker error for tile ${tileKey}:`, error);
       this.processQueue();
       return;
     }
@@ -344,8 +354,6 @@ export class TileManager {
       this.stats.tilesEvicted++;
       this.stats.cacheSize = this.tileCache.size;
 
-      console.log(`🗑️ Evicted tile ${tileKey} (cache size: ${this.tileCache.size})`);
-
       // Return tile group so caller can remove from scene and dispose
       return tileGroup;
     }
@@ -387,10 +395,6 @@ export class TileManager {
 
     this.stats.cacheSize = this.tileCache.size;
 
-    if (evicted.length > 0) {
-      console.log(`🗑️ Pruned ${evicted.length} out-of-bounds tiles`);
-    }
-
     return evicted;
   }
 
@@ -413,6 +417,7 @@ export class TileManager {
     this.warmCache.clear();
     this.accessOrder = [];
     this.loadQueue = [];
+    this.loadQueueSet.clear();
     this.staleTiles.clear();
     this.previousViewport = null;
     this.cancelZoomTransition();
@@ -500,10 +505,6 @@ export class TileManager {
     // Request only new tiles
     tilesToLoad.forEach(t => this.requestTile(t.z, t.x, t.y, t.priority || 0));
 
-    if (tilesToLoad.length > 0 || tilesToDemote.length > 0 || promoted > 0) {
-      console.log(`📍 Viewport: +${tilesToLoad.length} new, -${tilesToDemote.length} demoted, ${unchanged} unchanged, ↑${promoted} promoted`);
-    }
-
     return {
       loaded: tilesToLoad.length,
       pruned: tilesToDemote.length,
@@ -587,7 +588,6 @@ export class TileManager {
     this.stats.cacheSize = this.tileCache.size;
     this.stats.warmCacheSize = this.warmCache.size;
 
-    console.log(`↑ Promoted tile ${tileKey} from warm cache`);
     return true;
   }
 
@@ -627,8 +627,6 @@ export class TileManager {
   ): ViewportUpdateResult {
     const oldZoom = this.previousViewport?.zoom ?? newZoom;
 
-    console.log(`🔄 Zoom transition: z${oldZoom} → z${newZoom}`);
-
     // Cancel any existing transition
     this.cancelZoomTransition();
 
@@ -651,7 +649,6 @@ export class TileManager {
     // Set timeout to force-complete transition
     this.zoomTransitionTimeout = setTimeout(() => {
       if (this.zoomTransition) {
-        console.warn('⚠️ Zoom transition timeout - forcing completion');
         this.completeZoomTransition();
       }
     }, TileManager.ZOOM_TRANSITION_TIMEOUT);
@@ -689,7 +686,6 @@ export class TileManager {
     );
 
     if (allLoaded) {
-      console.log(`✅ All new zoom tiles loaded - completing transition`);
       this.completeZoomTransition();
     }
   }
@@ -715,9 +711,6 @@ export class TileManager {
     if (!this.zoomTransition) return;
 
     const oldTiles = this.zoomTransition.oldZoomTiles;
-    const duration = performance.now() - this.zoomTransition.startTime;
-
-    console.log(`🔄 Completing zoom transition (${Math.round(duration)}ms) - disposing ${oldTiles.size} old tiles`);
 
     // Remove from scene and dispose old zoom tiles
     oldTiles.forEach((tile, key) => {
@@ -775,7 +768,13 @@ export class TileManager {
    * IMPORTANT: Does NOT terminate worker (owner controls worker lifecycle)
    */
   dispose(): void {
-    // Cancel any pending zoom transition
+    // Dispose zoom transition tiles BEFORE canceling (they're still in scene)
+    if (this.zoomTransition) {
+      this.zoomTransition.oldZoomTiles.forEach((tile, key) => {
+        this.config.onTileRemove?.(key, tile);
+        this.disposeTileGroup(tile);
+      });
+    }
     this.cancelZoomTransition();
 
     // Detach worker listener so this TileManager can be GC'ed
@@ -784,15 +783,25 @@ export class TileManager {
       this.handleWorkerMessageBound as EventListener,
     );
 
+    // Dispose HOT cache tiles (was missing!)
+    this.tileCache.forEach((tile, key) => {
+      this.config.onTileRemove?.(key, tile);
+      this.disposeTileGroup(tile);
+    });
+    this.tileCache.clear();
+
     // Dispose warm cache tiles
-    this.warmCache.forEach(tile => this.disposeTileGroup(tile));
+    this.warmCache.forEach((tile, key) => {
+      this.config.onTileRemove?.(key, tile);
+      this.disposeTileGroup(tile);
+    });
     this.warmCache.clear();
 
     // Clear internal state
     this.loadQueue = [];
+    this.loadQueueSet.clear();
     this.loadingTiles.clear();
     this.staleTiles.clear();
-    this.tileCache.clear();
     this.accessOrder = [];
     this.previousViewport = null;
 

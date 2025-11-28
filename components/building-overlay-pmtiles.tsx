@@ -38,6 +38,9 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
   // Anchor point for coordinate transformation (set once at initialization)
   const anchorRef = useRef<LatLngAltitudeLiteral>({ lat: 22.3193, lng: 114.1694, altitude: 0 });
 
+  // Reusable Matrix4 to avoid allocation every frame
+  const projectionMatrixRef = useRef<THREE.Matrix4 | null>(null);
+
   // Minimum zoom level to show buildings
   const MIN_BUILDING_ZOOM = 16; // Start showing buildings at z16
 
@@ -49,7 +52,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
   // Update ref when visible prop changes
   useEffect(() => {
     visibleRef.current = visible;
-    console.log(`🔍 BuildingOverlayPMTiles visible changed to: ${visible}`);
 
     // Trigger redraw when visibility changes
     if (overlayRef.current) {
@@ -63,8 +65,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     activeBuildingIdRef.current = activeBuildingId;
 
     if (prevId !== activeBuildingId) {
-      console.log(`🏢 BuildingOverlayPMTiles activeBuildingId changed: ${prevId} -> ${activeBuildingId}`);
-
       // Toggle visibility of buildings based on filter
       if (sceneRef.current) {
         updateBuildingVisibility(activeBuildingId);
@@ -83,56 +83,44 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
   const updateBuildingVisibility = (filterBuildingId: string | null) => {
     if (!sceneRef.current) return;
 
-    let hiddenCount = 0;
-    let shownCount = 0;
-
     sceneRef.current.traverse((obj) => {
       // Check if this is a building group (has buildingStructureId in userData)
       if (obj.userData?.buildingStructureId !== undefined) {
         if (filterBuildingId === null) {
           // Show all buildings
           obj.visible = true;
-          shownCount++;
         } else {
           // Show only the matching building
-          const matches = obj.userData.buildingStructureId === filterBuildingId;
-          obj.visible = matches;
-          if (matches) shownCount++;
-          else hiddenCount++;
+          obj.visible = obj.userData.buildingStructureId === filterBuildingId;
         }
       }
     });
-
-    console.log(`🏢 Building visibility updated: ${shownCount} shown, ${hiddenCount} hidden (filter: ${filterBuildingId || 'none'})`);
   };
 
   /**
    * Handle tile hide callback (demoted to warm cache)
    */
-  const handleTileHide = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+  const handleTileHide = useCallback((_tileKey: string, tileGroup: THREE.Group) => {
     tileGroup.visible = false;
-    console.log(`👁️ Hidden tile ${tileKey} (demoted to warm cache)`);
   }, []);
 
   /**
    * Handle tile show callback (promoted from warm cache)
    */
-  const handleTileShow = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+  const handleTileShow = useCallback((_tileKey: string, tileGroup: THREE.Group) => {
     tileGroup.visible = true;
     if (overlayRef.current) {
       overlayRef.current.requestRedraw();
     }
-    console.log(`👁️ Shown tile ${tileKey} (promoted from warm cache)`);
   }, []);
 
   /**
    * Handle tile remove callback (remove from scene when evicted)
    */
-  const handleTileRemove = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+  const handleTileRemove = useCallback((_tileKey: string, tileGroup: THREE.Group) => {
     if (sceneRef.current) {
       sceneRef.current.remove(tileGroup);
     }
-    console.log(`🗑️ Removed tile ${tileKey} from scene`);
   }, []);
 
   /**
@@ -142,7 +130,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     if (overlayRef.current) {
       overlayRef.current.requestRedraw();
     }
-    console.log(`🔄 Zoom transition fade complete`);
   }, []);
 
   // Initialize PMTiles archive, Web Worker, and TileManager
@@ -151,20 +138,12 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     const pmtilesCdnUrl = process.env.NEXT_PUBLIC_PMTILES_CDN_URL || 'https://pmtiles-cors-proxy.mark-737.workers.dev';
     const pmtilesUrl = `${pmtilesCdnUrl}/buildings.pmtiles`;
 
-    console.log(`📦 Initializing PMTiles from: ${pmtilesUrl}`);
-
     const pmtiles = new PMTiles(pmtilesUrl);
     pmtilesRef.current = pmtiles;
 
-    // Verify the archive is accessible
-    pmtiles.getHeader().then(header => {
-      console.log('✅ PMTiles header loaded:', {
-        minZoom: header.minZoom,
-        maxZoom: header.maxZoom,
-        tileType: header.tileType
-      });
-    }).catch(error => {
-      console.error('❌ Failed to load PMTiles header:', error);
+    // Verify the archive is accessible (silently)
+    pmtiles.getHeader().catch(() => {
+      // PMTiles header load failed - building overlay won't work
     });
 
     // Initialize Web Worker
@@ -174,8 +153,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     // Initialize Material Palette
     const materialPalette = new MaterialPalette(opacity);
     materialPaletteRef.current = materialPalette;
-
-    console.log('✅ Worker and MaterialPalette initialized');
 
     return () => {
       // Ensure TileManager is torn down if still around
@@ -202,11 +179,8 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
 
   useEffect(() => {
     if (!map || !google.maps.WebGLOverlayView) {
-      console.warn('Map or WebGLOverlayView not available');
       return;
     }
-
-    console.log('🏗️ Initializing BuildingOverlayPMTiles...');
 
     // Create WebGL Overlay View
     const overlay = new google.maps.WebGLOverlayView();
@@ -216,8 +190,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
      * onAdd: Called when overlay is first created
      */
     overlay.onAdd = () => {
-      console.log('✅ WebGLOverlayView onAdd');
-
       // Set anchor point from map center (this stays fixed for all transformations)
       const center = map.getCenter();
       if (center) {
@@ -226,7 +198,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
           lng: center.lng(),
           altitude: 0
         };
-        console.log('🎯 Anchor set to:', anchorRef.current);
       }
 
       // Create Three.js scene
@@ -241,16 +212,12 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
       const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
       directionalLight.position.set(0.5, -1, 0.8);
       scene.add(directionalLight);
-
-      console.log('✅ Three.js scene created with lighting');
     };
 
     /**
      * onContextRestored: Called when WebGL context is available
      */
     overlay.onContextRestored = ({ gl }: { gl: WebGLRenderingContext }) => {
-      console.log('✅ WebGL context restored');
-
       // Create Three.js renderer using Google Maps' WebGL context
       const renderer = new THREE.WebGLRenderer({
         canvas: gl.canvas,
@@ -264,6 +231,9 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
       // Create camera
       const camera = new THREE.Camera();
       cameraRef.current = camera;
+
+      // Initialize reusable Matrix4
+      projectionMatrixRef.current = new THREE.Matrix4();
 
       // Initialize TileManager (now that we have pmtiles and worker)
       if (pmtilesRef.current && workerRef.current && sceneRef.current) {
@@ -280,28 +250,20 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
           onZoomTransitionComplete: handleZoomTransitionComplete,
         });
         tileManagerRef.current = tileManager;
-        console.log('✅ TileManager initialized with warm cache (24 tiles) and zoom transitions');
       }
 
-      console.log('✅ Three.js renderer initialized');
       setIsInitialized(true);
     };
 
     /**
      * onDraw: Called every frame
      */
-    let frameCount = 0;
-    overlay.onDraw = ({ gl, transformer }: any) => {
+    overlay.onDraw = ({ transformer }: any) => {
       const scene = sceneRef.current;
       const renderer = rendererRef.current;
       const camera = cameraRef.current;
-      const tileManager = tileManagerRef.current;
 
       if (!scene || !renderer || !camera) {
-        if (frameCount % 60 === 0) {
-          console.warn('⚠️ onDraw missing dependencies:', { scene: !!scene, renderer: !!renderer, camera: !!camera });
-        }
-        frameCount++;
         return;
       }
 
@@ -310,14 +272,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
       const shouldRenderBuildings = visibleRef.current && currentZoom >= MIN_BUILDING_ZOOM;
 
       if (!shouldRenderBuildings) {
-        if (frameCount % 60 === 0) {
-          if (!visibleRef.current) {
-            console.log('👁️ Buildings hidden (visible=false)');
-          } else {
-            console.log(`👁️ Buildings hidden (zoom ${currentZoom.toFixed(1)} < ${MIN_BUILDING_ZOOM})`);
-          }
-        }
-        frameCount++;
         return;
       }
 
@@ -330,27 +284,10 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
         altitude: anchor.altitude,
       });
 
-      camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
-
-      // Log scene stats periodically
-      if (frameCount % 120 === 0 && tileManager && materialPaletteRef.current) {
-        const stats = tileManager.getStats();
-        const memoryInfo = renderer.info.memory;
-        const paletteStats = materialPaletteRef.current.getStats();
-        console.log(`🎨 Render stats:`, {
-          hotCache: stats.cacheSize,
-          warmCache: stats.warmCacheSize,
-          loading: stats.currentlyLoading,
-          queueSize: stats.queueSize,
-          totalLoaded: stats.tilesLoaded,
-          totalEvicted: stats.tilesEvicted,
-          hasZoomTransition: stats.hasZoomTransition,
-          webglGeometries: memoryInfo.geometries,
-          webglTextures: memoryInfo.textures,
-          materialColors: paletteStats.meshColors,
-        });
+      // Reuse Matrix4 to avoid allocation every frame
+      if (projectionMatrixRef.current) {
+        camera.projectionMatrix = projectionMatrixRef.current.fromArray(matrix);
       }
-      frameCount++;
 
       // Render scene
       renderer.render(scene, camera);
@@ -363,7 +300,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
      * onContextLost: Called when WebGL context is lost
      */
     overlay.onContextLost = () => {
-      console.warn('⚠️ WebGL context lost');
       // Clean up renderer
       if (rendererRef.current) {
         rendererRef.current.dispose();
@@ -375,8 +311,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
      * onRemove: Called when overlay is removed
      */
     overlay.onRemove = () => {
-      console.log('🗑️ Removing BuildingOverlayPMTiles');
-
       // Clear all tiles from scene and cache
       clearAllTiles();
 
@@ -457,8 +391,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
 
     // Notify zoom transition that a tile is ready
     tileManager.onZoomTileReady(tileKey);
-
-    console.log(`✅ Tile ${tileKey} ready with ${buildings.length} buildings`);
 
     // Request redraw
     if (overlayRef.current) {
@@ -572,8 +504,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     allTiles.forEach(tileGroup => {
       disposeTileGroup(tileGroup, scene);
     });
-
-    console.log('🗑️ Cleared all building tiles');
   };
 
 
@@ -644,16 +574,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
 
     // Use incremental viewport update (handles diffing, warm cache, zoom transitions)
     const tileManager = tileManagerRef.current;
-    const result = tileManager.updateViewportIncremental(tilesWithPriority, tileZoom);
-
-    // Throttle viewport logging to reduce console noise
-    const now = Date.now();
-    const lastLogTime = (window as any).__lastViewportLogTime || 0;
-    if (now - lastLogTime > 500) {
-      const stats = tileManager.getStats();
-      console.log(`📍 Viewport: zoom=${zoom.toFixed(1)}, tileZoom=${tileZoom}, tiles=${tiles.length}, hot=${stats.cacheSize}, warm=${stats.warmCacheSize}`);
-      (window as any).__lastViewportLogTime = now;
-    }
+    tileManager.updateViewportIncremental(tilesWithPriority, tileZoom);
   };
 
   /**
@@ -699,17 +620,27 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     const anchor = anchorRef.current;
 
     for (const building of buildings) {
-      try {
-        const mesh = createBuildingMesh(building, anchor, materialPalette);
-        if (mesh) {
-          tileGroup.add(mesh);
-        }
-      } catch (error) {
-        console.error(`Failed to create mesh for building:`, error);
+      const mesh = createBuildingMesh(building, anchor, materialPalette);
+      if (mesh) {
+        tileGroup.add(mesh);
       }
     }
 
     return tileGroup;
+  };
+
+  /**
+   * Calculate polygon area using shoelace formula (avoids shape.getPoints() allocation)
+   */
+  const calculatePolygonArea = (points: THREE.Vector3[]): number => {
+    let area = 0;
+    const n = points.length;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      area += points[i].x * points[j].y;
+      area -= points[j].x * points[i].y;
+    }
+    return Math.abs(area) / 2;
   };
 
   /**
@@ -731,6 +662,12 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
       );
       absolutePoints.push(point);
     });
+
+    // Early area check using shoelace formula (before creating Shape)
+    const area = calculatePolygonArea(absolutePoints);
+    if (area < 0.1) {
+      return null;
+    }
 
     // Calculate center point in 3D space
     let centerX = 0;
@@ -756,12 +693,6 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     });
     shape.closePath();
 
-    // Validate shape has area
-    const area = THREE.ShapeUtils.area(shape.getPoints());
-    if (Math.abs(area) < 0.1) {
-      return null;
-    }
-
     // Extrude to 3D
     let extrudeGeometry: THREE.ExtrudeGeometry;
     try {
@@ -769,8 +700,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
         depth: height,
         bevelEnabled: false
       });
-    } catch (error) {
-      console.warn(`Failed to extrude building at ${centerLat}, ${centerLng}:`, error);
+    } catch {
       return null;
     }
 
