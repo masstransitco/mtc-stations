@@ -3,6 +3,9 @@
  *
  * Manages tile lifecycle with:
  * - LRU cache to limit memory usage
+ * - Warm cache for recently-viewed tiles (hidden but retained)
+ * - Viewport diffing for incremental updates
+ * - Cross-zoom transitions for smooth zoom changes
  * - Concurrency control for tile loading
  * - Queue management for pending tiles
  * - Integration with Web Worker for off-thread processing
@@ -14,11 +17,33 @@ import type { BuildingData, WorkerResponse } from '@/workers/pmtiles-worker';
 
 export interface TileManagerConfig {
   maxConcurrentLoads: number;  // Max tiles loading at once (e.g., 2-4)
-  maxCachedTiles: number;       // Max tiles to keep in memory (e.g., 8-12)
+  maxCachedTiles: number;       // Max tiles to keep in memory (e.g., 50)
+  maxWarmTiles?: number;        // Max hidden tiles to retain (e.g., 24)
   pmtiles: PMTiles;
   worker: Worker;
   onTileReady: (tileKey: string, response: WorkerResponse) => void;
+  onTileHide?: (tileKey: string, tileGroup: THREE.Group) => void;  // Called when tile demoted to warm
+  onTileShow?: (tileKey: string, tileGroup: THREE.Group) => void;  // Called when tile promoted from warm
+  onZoomTransitionComplete?: () => void;  // Called when zoom transition finishes
   requestType?: 'DECODE_TILE' | 'DECODE_PEDESTRIAN_TILE' | 'DECODE_INDOOR_TILE'; // Type of tiles to decode
+}
+
+// Result of incremental viewport update
+export interface ViewportUpdateResult {
+  loaded: number;      // New tiles requested
+  pruned: number;      // Tiles removed from hot cache
+  unchanged: number;   // Tiles that stayed in viewport
+  promoted: number;    // Tiles restored from warm cache
+}
+
+// Zoom transition state
+interface ZoomTransition {
+  fromZoom: number;
+  toZoom: number;
+  requiredTiles: Set<string>;
+  loadedTiles: Set<string>;
+  oldZoomTiles: Map<string, THREE.Group>;  // Old tiles to fade out
+  startTime: number;
 }
 
 interface TileLoadState {
@@ -32,8 +57,11 @@ interface TileLoadState {
 export class TileManager {
   private config: TileManagerConfig;
 
-  // LRU cache: Map from tileKey to THREE.Group
+  // LRU cache: Map from tileKey to THREE.Group (hot cache - visible tiles)
   private tileCache: Map<string, THREE.Group> = new Map();
+
+  // Warm cache: recently-viewed tiles (hidden but geometry retained)
+  private warmCache: Map<string, THREE.Group> = new Map();
 
   // Track access order for LRU eviction
   private accessOrder: string[] = [];
@@ -50,12 +78,21 @@ export class TileManager {
   // Bound worker listener so we can remove it on dispose
   private handleWorkerMessageBound: (event: MessageEvent<WorkerResponse>) => void;
 
+  // Previous viewport state for diffing
+  private previousViewport: { tiles: Set<string>; zoom: number } | null = null;
+
+  // Current zoom transition state
+  private zoomTransition: ZoomTransition | null = null;
+  private zoomTransitionTimeout: NodeJS.Timeout | null = null;
+  private static readonly ZOOM_TRANSITION_TIMEOUT = 2000; // 2 seconds max
+
   // Statistics
   private stats = {
     tilesLoaded: 0,
     tilesEvicted: 0,
     currentlyLoading: 0,
     cacheSize: 0,
+    warmCacheSize: 0,
   };
 
   constructor(config: TileManagerConfig) {
@@ -357,18 +394,345 @@ export class TileManager {
   }
 
   /**
-   * Clear all tiles
+   * Clear all tiles (hot and warm cache)
    */
   clearAll(): THREE.Group[] {
-    const allTiles = Array.from(this.tileCache.values());
+    const allTiles = [
+      ...Array.from(this.tileCache.values()),
+      ...Array.from(this.warmCache.values()),
+    ];
 
     this.tileCache.clear();
+    this.warmCache.clear();
     this.accessOrder = [];
     this.loadQueue = [];
     this.staleTiles.clear();
+    this.previousViewport = null;
+    this.cancelZoomTransition();
     this.stats.cacheSize = 0;
+    this.stats.warmCacheSize = 0;
 
     return allTiles;
+  }
+
+  // ============================================
+  // PHASE 1: VIEWPORT DIFFING
+  // ============================================
+
+  /**
+   * Update viewport with incremental diffing
+   * Only requests NEW tiles and prunes EXITED tiles
+   */
+  updateViewportIncremental(
+    tiles: Array<{ z: number; x: number; y: number; priority?: number }>,
+    currentZoom: number
+  ): ViewportUpdateResult {
+    const currentTileKeys = new Set<string>();
+    tiles.forEach(t => currentTileKeys.add(`${t.z}/${t.x}/${t.y}`));
+
+    // Check for zoom change - may trigger transition
+    if (this.previousViewport && this.previousViewport.zoom !== currentZoom) {
+      return this.handleZoomChange(tiles, currentTileKeys, currentZoom);
+    }
+
+    // No previous state - first load
+    if (!this.previousViewport) {
+      this.previousViewport = { tiles: currentTileKeys, zoom: currentZoom };
+
+      // Check warm cache for any tiles we can restore
+      let promoted = 0;
+      tiles.forEach(t => {
+        const key = `${t.z}/${t.x}/${t.y}`;
+        if (this.promoteFromWarm(key)) {
+          promoted++;
+        } else if (!this.tileCache.has(key) && !this.loadingTiles.has(key)) {
+          this.requestTile(t.z, t.x, t.y, t.priority || 0);
+        }
+      });
+
+      return { loaded: tiles.length - promoted, pruned: 0, unchanged: 0, promoted };
+    }
+
+    const previousTiles = this.previousViewport.tiles;
+    let promoted = 0;
+
+    // Tiles to load = in current but not in previous (and not cached/warm)
+    const tilesToLoad: typeof tiles = [];
+    tiles.forEach(t => {
+      const key = `${t.z}/${t.x}/${t.y}`;
+      if (!previousTiles.has(key)) {
+        // New tile - check warm cache first
+        if (this.promoteFromWarm(key)) {
+          promoted++;
+        } else if (!this.tileCache.has(key) && !this.loadingTiles.has(key)) {
+          tilesToLoad.push(t);
+        }
+      }
+    });
+
+    // Tiles to demote = in previous but not in current
+    const tilesToDemote: string[] = [];
+    previousTiles.forEach(key => {
+      if (!currentTileKeys.has(key) && this.tileCache.has(key)) {
+        tilesToDemote.push(key);
+      }
+    });
+
+    // Unchanged = intersection (tiles that stayed)
+    const unchanged = tiles.length - tilesToLoad.length - promoted;
+
+    // Update previous viewport state
+    this.previousViewport = { tiles: currentTileKeys, zoom: currentZoom };
+
+    // Demote tiles that left viewport (move to warm cache)
+    tilesToDemote.forEach(key => this.demoteToWarm(key));
+
+    // Cancel any loading tiles not in current viewport
+    this.cancelTilesNotIn(currentTileKeys);
+
+    // Request only new tiles
+    tilesToLoad.forEach(t => this.requestTile(t.z, t.x, t.y, t.priority || 0));
+
+    if (tilesToLoad.length > 0 || tilesToDemote.length > 0 || promoted > 0) {
+      console.log(`📍 Viewport: +${tilesToLoad.length} new, -${tilesToDemote.length} demoted, ${unchanged} unchanged, ↑${promoted} promoted`);
+    }
+
+    return {
+      loaded: tilesToLoad.length,
+      pruned: tilesToDemote.length,
+      unchanged,
+      promoted,
+    };
+  }
+
+  /**
+   * Clear viewport state (call when filter/visibility changes)
+   */
+  clearViewportState(): void {
+    this.previousViewport = null;
+    this.cancelZoomTransition();
+  }
+
+  // ============================================
+  // PHASE 2: WARM CACHE
+  // ============================================
+
+  /**
+   * Demote a tile from hot to warm cache (hide but retain geometry)
+   */
+  demoteToWarm(tileKey: string): boolean {
+    const tile = this.tileCache.get(tileKey);
+    if (!tile) return false;
+
+    // Remove from hot cache
+    this.tileCache.delete(tileKey);
+    const index = this.accessOrder.indexOf(tileKey);
+    if (index !== -1) {
+      this.accessOrder.splice(index, 1);
+    }
+
+    // Evict from warm cache if full
+    const maxWarm = this.config.maxWarmTiles ?? 24;
+    while (this.warmCache.size >= maxWarm) {
+      const oldestKey = this.warmCache.keys().next().value;
+      if (oldestKey) {
+        const evictedTile = this.warmCache.get(oldestKey);
+        this.warmCache.delete(oldestKey);
+        if (evictedTile) {
+          // Actually dispose this tile - it's being evicted from warm
+          this.disposeTileGroup(evictedTile);
+          this.stats.tilesEvicted++;
+        }
+      }
+    }
+
+    // Add to warm cache
+    this.warmCache.set(tileKey, tile);
+
+    // Notify callback to hide the tile
+    this.config.onTileHide?.(tileKey, tile);
+
+    this.stats.cacheSize = this.tileCache.size;
+    this.stats.warmCacheSize = this.warmCache.size;
+
+    return true;
+  }
+
+  /**
+   * Promote a tile from warm to hot cache (show it again)
+   * Returns true if tile was found and promoted
+   */
+  promoteFromWarm(tileKey: string): boolean {
+    const tile = this.warmCache.get(tileKey);
+    if (!tile) return false;
+
+    // Remove from warm cache
+    this.warmCache.delete(tileKey);
+
+    // Add to hot cache
+    this.tileCache.set(tileKey, tile);
+    this.markAccessed(tileKey);
+
+    // Notify callback to show the tile
+    this.config.onTileShow?.(tileKey, tile);
+
+    this.stats.cacheSize = this.tileCache.size;
+    this.stats.warmCacheSize = this.warmCache.size;
+
+    console.log(`↑ Promoted tile ${tileKey} from warm cache`);
+    return true;
+  }
+
+  /**
+   * Check if tile is available (in hot or warm cache)
+   */
+  isAvailable(tileKey: string): boolean {
+    return this.tileCache.has(tileKey) || this.warmCache.has(tileKey);
+  }
+
+  /**
+   * Dispose a tile group (geometry cleanup)
+   */
+  private disposeTileGroup(tileGroup: THREE.Group): void {
+    tileGroup.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        obj.geometry?.dispose();
+        // Don't dispose materials - they're shared via MaterialPalette
+      }
+      if (obj instanceof THREE.LineSegments) {
+        obj.geometry?.dispose();
+      }
+    });
+  }
+
+  // ============================================
+  // PHASE 3: CROSS-ZOOM TRANSITIONS
+  // ============================================
+
+  /**
+   * Handle zoom level change with smooth transition
+   */
+  private handleZoomChange(
+    tiles: Array<{ z: number; x: number; y: number; priority?: number }>,
+    currentTileKeys: Set<string>,
+    newZoom: number
+  ): ViewportUpdateResult {
+    const oldZoom = this.previousViewport?.zoom ?? newZoom;
+
+    console.log(`🔄 Zoom transition: z${oldZoom} → z${newZoom}`);
+
+    // Cancel any existing transition
+    this.cancelZoomTransition();
+
+    // Save old tiles for transition (don't remove them yet)
+    const oldZoomTiles = new Map<string, THREE.Group>();
+    this.tileCache.forEach((tile, key) => {
+      oldZoomTiles.set(key, tile);
+    });
+
+    // Start zoom transition
+    this.zoomTransition = {
+      fromZoom: oldZoom,
+      toZoom: newZoom,
+      requiredTiles: currentTileKeys,
+      loadedTiles: new Set(),
+      oldZoomTiles,
+      startTime: performance.now(),
+    };
+
+    // Set timeout to force-complete transition
+    this.zoomTransitionTimeout = setTimeout(() => {
+      if (this.zoomTransition) {
+        console.warn('⚠️ Zoom transition timeout - forcing completion');
+        this.completeZoomTransition();
+      }
+    }, TileManager.ZOOM_TRANSITION_TIMEOUT);
+
+    // Update viewport state
+    this.previousViewport = { tiles: currentTileKeys, zoom: newZoom };
+
+    // Clear hot cache (tiles stay in oldZoomTiles for transition)
+    this.tileCache.clear();
+    this.accessOrder = [];
+    this.stats.cacheSize = 0;
+
+    // Request new zoom tiles
+    tiles.forEach(t => this.requestTile(t.z, t.x, t.y, t.priority || 0));
+
+    return {
+      loaded: tiles.length,
+      pruned: 0,  // Old tiles kept visible during transition
+      unchanged: 0,
+      promoted: 0,
+    };
+  }
+
+  /**
+   * Called when a new tile is ready during zoom transition
+   */
+  onZoomTileReady(tileKey: string): void {
+    if (!this.zoomTransition) return;
+
+    this.zoomTransition.loadedTiles.add(tileKey);
+
+    // Check if all required tiles are loaded
+    const allLoaded = [...this.zoomTransition.requiredTiles].every(
+      key => this.zoomTransition!.loadedTiles.has(key) || this.tileCache.has(key)
+    );
+
+    if (allLoaded) {
+      console.log(`✅ All new zoom tiles loaded - completing transition`);
+      this.completeZoomTransition();
+    }
+  }
+
+  /**
+   * Check if zoom transition is in progress
+   */
+  hasZoomTransition(): boolean {
+    return this.zoomTransition !== null;
+  }
+
+  /**
+   * Get tiles to fade out during zoom transition
+   */
+  getTransitionOldTiles(): Map<string, THREE.Group> | null {
+    return this.zoomTransition?.oldZoomTiles ?? null;
+  }
+
+  /**
+   * Complete zoom transition - fade out old tiles
+   */
+  completeZoomTransition(): void {
+    if (!this.zoomTransition) return;
+
+    const oldTiles = this.zoomTransition.oldZoomTiles;
+    const duration = performance.now() - this.zoomTransition.startTime;
+
+    console.log(`🔄 Completing zoom transition (${Math.round(duration)}ms) - disposing ${oldTiles.size} old tiles`);
+
+    // Dispose old zoom tiles
+    oldTiles.forEach((tile, key) => {
+      this.disposeTileGroup(tile);
+      this.stats.tilesEvicted++;
+    });
+
+    // Clear transition state
+    this.cancelZoomTransition();
+
+    // Notify callback
+    this.config.onZoomTransitionComplete?.();
+  }
+
+  /**
+   * Cancel zoom transition
+   */
+  private cancelZoomTransition(): void {
+    if (this.zoomTransitionTimeout) {
+      clearTimeout(this.zoomTransitionTimeout);
+      this.zoomTransitionTimeout = null;
+    }
+    this.zoomTransition = null;
   }
 
   /**
@@ -378,6 +742,8 @@ export class TileManager {
     return {
       ...this.stats,
       queueSize: this.loadQueue.length,
+      warmCacheSize: this.warmCache.size,
+      hasZoomTransition: this.zoomTransition !== null,
     };
   }
 
@@ -400,11 +766,18 @@ export class TileManager {
    * IMPORTANT: Does NOT terminate worker (owner controls worker lifecycle)
    */
   dispose(): void {
+    // Cancel any pending zoom transition
+    this.cancelZoomTransition();
+
     // Detach worker listener so this TileManager can be GC'ed
     this.config.worker.removeEventListener(
       'message',
       this.handleWorkerMessageBound as EventListener,
     );
+
+    // Dispose warm cache tiles
+    this.warmCache.forEach(tile => this.disposeTileGroup(tile));
+    this.warmCache.clear();
 
     // Clear internal state
     this.loadQueue = [];
@@ -412,12 +785,14 @@ export class TileManager {
     this.staleTiles.clear();
     this.tileCache.clear();
     this.accessOrder = [];
+    this.previousViewport = null;
 
     this.stats = {
       tilesLoaded: 0,
       tilesEvicted: 0,
       currentlyLoading: 0,
       cacheSize: 0,
+      warmCacheSize: 0,
     };
 
     // IMPORTANT: Do NOT terminate the worker here;

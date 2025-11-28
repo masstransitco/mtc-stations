@@ -714,6 +714,104 @@ const buildingStructureId = properties.BUILDINGSTRUCTUREID
 - **[Building Exterior Filtering Plan](./building-exterior-filtering.md)**: Full implementation details
 - **[Buildings Info Schema](./buildings-info-schema.md)**: Building data structure and color coding
 
+## Advanced Tile Optimizations (Implemented Nov 2024)
+
+The building overlay now uses an enhanced TileManager with three key optimizations for smoother UX:
+
+### 1. Viewport Diffing
+
+Instead of recalculating all tiles on every viewport change, the system now tracks the previous viewport and only processes the delta:
+
+```typescript
+// TileManager tracks previous state
+private previousViewport: { tiles: Set<string>; zoom: number } | null = null;
+
+// updateViewportIncremental() returns:
+interface ViewportUpdateResult {
+  loaded: number;      // New tiles requested
+  pruned: number;      // Tiles demoted to warm cache
+  unchanged: number;   // Tiles that stayed in viewport
+  promoted: number;    // Tiles restored from warm cache
+}
+```
+
+**Benefits**:
+- Pan operations: 2-3 tiles processed instead of 9+
+- Stationary viewport: 0 operations
+- Console logs show: `📍 Viewport: +2 new, -2 demoted, 7 unchanged, ↑1 promoted`
+
+### 2. Warm Cache (Hidden but Retained Tiles)
+
+Tiles that leave the viewport are now hidden (not destroyed) and kept in a warm cache:
+
+```typescript
+const tileManager = new TileManager({
+  maxCachedTiles: 50,    // Hot cache (visible tiles)
+  maxWarmTiles: 24,      // Warm cache (hidden but retained)
+  onTileHide: (key, group) => { group.visible = false; },
+  onTileShow: (key, group) => { group.visible = true; },
+});
+```
+
+**Benefits**:
+- Pan back to recently-viewed area: tiles appear instantly (no flash)
+- Memory: 74 tiles retained (50 hot + 24 warm)
+- Geometry reuse: ~3 viewport-widths of history retained
+
+### 3. Cross-Zoom Transitions
+
+When zoom level changes, old tiles are kept visible until new tiles load:
+
+```typescript
+interface ZoomTransition {
+  fromZoom: number;
+  toZoom: number;
+  requiredTiles: Set<string>;
+  loadedTiles: Set<string>;
+  oldZoomTiles: Map<string, THREE.Group>;
+  startTime: number;
+}
+```
+
+**Flow**:
+1. Zoom change detected (e.g., z16 → z17)
+2. Old tiles kept visible in scene
+3. New zoom tiles requested
+4. When all new tiles loaded → old tiles disposed
+5. Timeout after 2 seconds forces completion
+
+**Benefits**:
+- No visual flash during zoom
+- Smooth transition between zoom levels
+- Graceful handling of slow tile loads
+
+### TileManager Configuration
+
+```typescript
+const tileManager = new TileManager({
+  maxConcurrentLoads: 4,   // Parallel tile loads
+  maxCachedTiles: 50,      // Hot cache size
+  maxWarmTiles: 24,        // Warm cache size
+  pmtiles: pmtilesRef.current,
+  worker: workerRef.current,
+  onTileReady: handleTileReady,
+  onTileHide: handleTileHide,      // Visibility toggle
+  onTileShow: handleTileShow,      // Visibility toggle
+  onZoomTransitionComplete: handleZoomTransitionComplete,
+});
+```
+
+### Pending: Apply to Other Overlays
+
+These optimizations are currently only implemented in `BuildingOverlayPMTiles`. The same pattern should be applied to:
+
+- **`components/indoor-overlay-pmtiles.tsx`** - Indoor venue rendering
+- **`components/pedestrian-network-overlay-pmtiles.tsx`** - Pedestrian network lines
+
+Both components use the same TileManager class and can be updated to use `updateViewportIncremental()` instead of `pruneToBounds()` + `requestTiles()`.
+
+---
+
 ## Future Improvements
 
 ### Potential Optimizations

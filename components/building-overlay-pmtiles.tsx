@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useMap } from '@vis.gl/react-google-maps';
 import * as THREE from 'three';
 import { PMTiles } from 'pmtiles';
 import { latLngAltToVector3, type LatLngAltitudeLiteral } from '@/lib/geo-utils';
-import { TileManager } from '@/lib/tile-manager';
+import { TileManager, type ViewportUpdateResult } from '@/lib/tile-manager';
 import { MaterialPalette } from '@/lib/material-palette';
 import type { BuildingData, WorkerResponse } from '@/workers/pmtiles-worker';
 
@@ -65,13 +65,43 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     // If filtering changed, reload tiles to apply new filter
     if (prevId !== activeBuildingId) {
       console.log(`🏢 BuildingOverlayPMTiles activeBuildingId changed: ${prevId} -> ${activeBuildingId}`);
-      // Clear and reload tiles to apply new filter
+      // Clear viewport state and reload tiles to apply new filter
       if (isInitialized && tileManagerRef.current && visible) {
+        tileManagerRef.current.clearViewportState();
         clearAllTiles();
         loadBuildingsForViewport();
       }
     }
   }, [activeBuildingId]);
+
+  /**
+   * Handle tile hide callback (demoted to warm cache)
+   */
+  const handleTileHide = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+    tileGroup.visible = false;
+    console.log(`👁️ Hidden tile ${tileKey} (demoted to warm cache)`);
+  }, []);
+
+  /**
+   * Handle tile show callback (promoted from warm cache)
+   */
+  const handleTileShow = useCallback((tileKey: string, tileGroup: THREE.Group) => {
+    tileGroup.visible = true;
+    if (overlayRef.current) {
+      overlayRef.current.requestRedraw();
+    }
+    console.log(`👁️ Shown tile ${tileKey} (promoted from warm cache)`);
+  }, []);
+
+  /**
+   * Handle zoom transition complete - start fade animation for old tiles
+   */
+  const handleZoomTransitionComplete = useCallback(() => {
+    if (overlayRef.current) {
+      overlayRef.current.requestRedraw();
+    }
+    console.log(`🔄 Zoom transition fade complete`);
+  }, []);
 
   // Initialize PMTiles archive, Web Worker, and TileManager
   useEffect(() => {
@@ -196,14 +226,18 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
       // Initialize TileManager (now that we have pmtiles and worker)
       if (pmtilesRef.current && workerRef.current && sceneRef.current) {
         const tileManager = new TileManager({
-          maxConcurrentLoads: 4, // Load 4 tiles at a time for faster loading
-          maxCachedTiles: 50,     // Large cache since we aggressively prune out-of-viewport tiles
+          maxConcurrentLoads: 4,  // Load 4 tiles at a time for faster loading
+          maxCachedTiles: 50,     // Hot cache for visible tiles
+          maxWarmTiles: 24,       // Warm cache for recently-viewed tiles (hidden but retained)
           pmtiles: pmtilesRef.current,
           worker: workerRef.current,
           onTileReady: handleTileReady,
+          onTileHide: handleTileHide,
+          onTileShow: handleTileShow,
+          onZoomTransitionComplete: handleZoomTransitionComplete,
         });
         tileManagerRef.current = tileManager;
-        console.log('✅ TileManager initialized');
+        console.log('✅ TileManager initialized with warm cache (24 tiles) and zoom transitions');
       }
 
       console.log('✅ Three.js renderer initialized');
@@ -261,11 +295,13 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
         const memoryInfo = renderer.info.memory;
         const paletteStats = materialPaletteRef.current.getStats();
         console.log(`🎨 Render stats:`, {
-          cachedTiles: stats.cacheSize,
+          hotCache: stats.cacheSize,
+          warmCache: stats.warmCacheSize,
           loading: stats.currentlyLoading,
           queueSize: stats.queueSize,
           totalLoaded: stats.tilesLoaded,
           totalEvicted: stats.tilesEvicted,
+          hasZoomTransition: stats.hasZoomTransition,
           webglGeometries: memoryInfo.geometries,
           webglTextures: memoryInfo.textures,
           materialColors: paletteStats.meshColors,
@@ -355,7 +391,8 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     if (activeBuildingIdRef.current) {
       buildings = buildings.filter(b => b.buildingStructureId === activeBuildingIdRef.current);
       if (buildings.length === 0) {
-        // No matching buildings in this tile, skip creating mesh
+        // No matching buildings in this tile, but still notify zoom transition
+        tileManager.onZoomTileReady(tileKey);
         return;
       }
     }
@@ -374,6 +411,9 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     evictedTiles.forEach(evictedGroup => {
       disposeTileGroup(evictedGroup, scene);
     });
+
+    // Notify zoom transition that a tile is ready
+    tileManager.onZoomTileReady(tileKey);
 
     console.log(`✅ Tile ${tileKey} ready with ${buildings.length} buildings`);
 
@@ -441,7 +481,10 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     if (!sceneRef.current) return;
 
     if (!visible) {
-      // When hiding buildings, clear all tiles to free memory
+      // When hiding buildings, clear all tiles and viewport state
+      if (tileManagerRef.current) {
+        tileManagerRef.current.clearViewportState();
+      }
       clearAllTiles();
     } else {
       // When showing buildings, trigger reload
@@ -505,6 +548,7 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
 
   /**
    * Load buildings for the current viewport
+   * Uses incremental viewport diffing for efficient updates
    */
   const loadBuildingsForViewport = () => {
     if (!map || !tileManagerRef.current || !sceneRef.current) return;
@@ -517,6 +561,9 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
 
     // Clear all tiles if zoom is below threshold
     if (zoom < MIN_BUILDING_ZOOM) {
+      if (tileManagerRef.current) {
+        tileManagerRef.current.clearViewportState();
+      }
       clearAllTiles();
       return;
     }
@@ -540,43 +587,30 @@ export function BuildingOverlayPMTiles({ visible = true, opacity = 0.8, activeBu
     const centerLng = center.lng();
     const centerTile = latLngToTile(centerLat, centerLng, tileZoom);
 
-    // Throttle viewport logging to reduce console noise
-    const now = Date.now();
-    const lastLogTime = (window as any).__lastViewportLogTime || 0;
-    if (now - lastLogTime > 500) {
-      console.log(`📍 Viewport: zoom=${zoom.toFixed(1)}, tileZoom=${tileZoom}, tilt=${tilt.toFixed(1)}°, tiles=${tiles.length}`);
-      (window as any).__lastViewportLogTime = now;
-    }
-
-    // Build set of required tile keys
-    const requiredTileKeys = new Set<string>();
-    tiles.forEach(tile => {
-      requiredTileKeys.add(`${tile.z}/${tile.x}/${tile.y}`);
-    });
-
-    // Prune cached tiles that are outside current viewport
-    const tileManager = tileManagerRef.current;
-    const scene = sceneRef.current;
-    const prunedTiles = tileManager.pruneToBounds(requiredTileKeys);
-    prunedTiles.forEach(tileGroup => {
-      disposeTileGroup(tileGroup, scene);
-    });
-
-    // Request tiles with simple distance-based priority from center
-    tileManager.requestTiles(tiles.map(tile => {
+    // Add distance-based priority to tiles
+    const tilesWithPriority = tiles.map(tile => {
       const dx = tile.x - centerTile.x;
       const dy = tile.y - centerTile.y;
-
-      // Simple distance-based priority (lower = higher priority)
-      const priority = dx * dx + dy * dy;
-
       return {
         z: tile.z,
         x: tile.x,
         y: tile.y,
-        priority,
+        priority: dx * dx + dy * dy,
       };
-    }));
+    });
+
+    // Use incremental viewport update (handles diffing, warm cache, zoom transitions)
+    const tileManager = tileManagerRef.current;
+    const result = tileManager.updateViewportIncremental(tilesWithPriority, tileZoom);
+
+    // Throttle viewport logging to reduce console noise
+    const now = Date.now();
+    const lastLogTime = (window as any).__lastViewportLogTime || 0;
+    if (now - lastLogTime > 500) {
+      const stats = tileManager.getStats();
+      console.log(`📍 Viewport: zoom=${zoom.toFixed(1)}, tileZoom=${tileZoom}, tiles=${tiles.length}, hot=${stats.cacheSize}, warm=${stats.warmCacheSize}`);
+      (window as any).__lastViewportLogTime = now;
+    }
   };
 
   /**
