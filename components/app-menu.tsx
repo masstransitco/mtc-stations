@@ -95,24 +95,13 @@ export function AppMenu({ isOpen, onClose }: AppMenuProps) {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Image
-              src="/logos/bolt.svg"
-              alt="MTC Stations"
-              width={32}
-              height={32}
-              style={{
-                filter: isDarkMode ? 'brightness(0) invert(1)' : 'none'
-              }}
-            />
-            <span style={{
-              fontSize: '16px',
-              fontWeight: 600,
-              color: isDarkMode ? '#f4f4f5' : '#18181b',
-            }}>
-              MTC Stations
-            </span>
-          </div>
+          <span style={{
+            fontSize: '16px',
+            fontWeight: 600,
+            color: isDarkMode ? '#f4f4f5' : '#18181b',
+          }}>
+            Settings
+          </span>
 
           <button
             onClick={onClose}
