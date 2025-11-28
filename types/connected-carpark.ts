@@ -13,4 +13,5 @@ export interface ConnectedCarpark {
   longitude: number;
   has_indoor_map: boolean;
   indoor_floors: IndoorFloor[] | null;
+  indoor_venue_id: string | null;
 }

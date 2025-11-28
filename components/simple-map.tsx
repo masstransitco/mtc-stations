@@ -623,6 +623,11 @@ function MapContent({
         visible={showIndoorLayer}
         opacity={0.8}
         activeLevelOrdinal={indoorLevelOrdinal}
+        activeVenueId={
+          selectedCarparkType === 'connected' && showIndoorLayer
+            ? (selectedCarpark as ConnectedCarpark)?.indoor_venue_id ?? null
+            : null
+        }
       />
 
       {/* 3D Pedestrian Network Overlay - PMTiles version */}
